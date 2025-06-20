@@ -101,21 +101,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setLogosState(settingsData.logos || defaultLogos);
           setFybWeekSettingsState(settingsData.fyb_week_settings || defaultFYBWeekSettings);
         } else {
-          // If no settings row exists, create one with defaults (optional, depends on desired behavior)
-          // For now, just use client-side defaults if DB has no entry
           console.warn("No app_settings found in database (ID: ", APP_SETTINGS_ID, "). Using client-side defaults. Consider seeding this table.");
           setLogosState(defaultLogos);
           setFybWeekSettingsState(defaultFYBWeekSettings);
         }
 
       } catch (error: any) {
-        setIsLoading(false); // Ensure loading is set to false on error
+        setIsLoading(false); 
         console.error('--- ERROR DURING INITIAL DATA LOAD FROM SUPABASE ---');
         
         let isFailedToFetch = false;
         let extractedErrorMessage = "Unknown error during data load.";
 
-        // Determine if it's a "Failed to fetch" error and extract message
         if (error && typeof error === 'object') {
           if ('message' in error && typeof error.message === 'string') {
             extractedErrorMessage = error.message;
@@ -123,11 +120,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
               isFailedToFetch = true;
             }
           }
-          // Check details if message didn't confirm it and details exist
           if (!isFailedToFetch && 'details' in error && typeof error.details === 'string') {
             if (error.details.toLowerCase().includes("failed to fetch") || error.details.toLowerCase().includes("typeerror: failed to fetch")) {
               isFailedToFetch = true;
-              // If original message was generic, prefer details if it's more specific
               if (extractedErrorMessage === "Unknown error during data load."){
                 extractedErrorMessage = error.details;
               }
@@ -161,16 +156,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             console.error("7. Supabase Project Status: Check your Supabase project dashboard (status.supabase.com or your project's dashboard in Supabase) to ensure it's active and healthy (not paused, no billing issues, etc.).");
             console.error("8. Console Network Tab: Open your browser's developer tools (usually F12), go to the 'Network' tab, and refresh the page. Look for failed requests to `iwkslfapaxafwghfhefu.supabase.co`. The status and response of these requests can provide more clues.");
             console.error("9. Correct Supabase Client Initialization: Ensure `src/lib/supabaseClient.ts` is correctly initializing the client with environment variables.");
-            console.error("--- If the issue persists after checking all the above, here's the raw error object for deeper technical diagnosis: ---");
-            console.error(error);
+            console.error('Raw Error Object (for "Failed to fetch" errors):', error);
         } else {
-            // Log general error properties for other, non-fetch related errors
             console.error('An unexpected error occurred while loading initial data from Supabase:');
             console.error('Error Message:', extractedErrorMessage); 
             if (error && typeof error === 'object') {
-                if ('details'in error && typeof error.details === 'string' && error.details) console.error('Error Details:', error.details);
-                if ('hint'in error && typeof error.hint === 'string' && error.hint) console.error('Error Hint:', error.hint); // Only log if hint is not empty
-                if ('code'in error && typeof error.code === 'string') console.error('Error Code:', error.code);
+                const details = (error as { details: string }).details;
+                const hint = (error as { hint: string }).hint;
+                const code = (error as { code: string }).code;
+
+                if (details && typeof details === 'string' && details.trim() !== '') console.error('Error Details:', details);
+                if (hint && typeof hint === 'string' && hint.trim() !== '') console.error('Error Hint:', hint);
+                if (code && typeof code === 'string' && code.trim() !== '') console.error('Error Code:', code);
                 
                 console.error('Raw Error Object (for non-fetch errors):', error);
                 try {
@@ -184,7 +181,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         
         console.error('--- END OF SUPABASE ERROR REPORT ---');
         
-        // Fallback to defaults on error
         setStudents([]);
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
@@ -470,3 +466,4 @@ export const useAppContext = () => {
   }
   return context;
 };
+
