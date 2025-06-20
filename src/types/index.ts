@@ -1,6 +1,6 @@
 
 export interface Student {
-  id: string;
+  id: string; // Client-generated or from Supabase after insert
   name: string;
   nickname: string;
   birthday: string; // "MM/DD/YYYY"
@@ -16,27 +16,45 @@ export interface Student {
   worstLevel: string;
   classRepQuote: string;
   partingWords: string;
-  imageSrc: string | null; // Data URL for uploaded image
-  flyerImageSrc: string | null; // Data URL for uploaded flyer
+  imageSrc: string | null; // URL from Supabase Storage or data URI for new upload
+  flyerImageSrc: string | null; // URL from Supabase Storage or data URI for new upload
+  // Supabase specific fields, if you select them
+  created_at?: string; 
+  updated_at?: string;
 }
 
 export interface LogoSettings {
-  associationLogo: string | null; // Data URL for association logo
-  schoolLogo: string | null; // Data URL for school logo
+  associationLogo: string | null; // URL from Supabase Storage or data URI for new upload
+  schoolLogo: string | null; // URL from Supabase Storage or data URI for new upload
+}
+
+export interface FYBEventImage {
+  id: string; // client-generated or from DB
+  url: string | null; // URL from Supabase Storage or data URI for new upload
+  name: string;
 }
 
 export interface FYBWeekSettings {
   isUnlocked: boolean;
   title: string;
-  schedule: string; // Could be markdown or rich text
-  activities: string; // Could be markdown or rich text
-  eventImages: { id: string; src: string; name: string }[]; // Data URLs for event images
+  schedule: string;
+  activities: string;
+  eventImages: FYBEventImage[];
+}
+
+export interface AppSettingsFromSupabase {
+  id: number;
+  logos: LogoSettings | null; // This will store URLs after upload
+  fyb_week_settings: FYBWeekSettings | null;
+  admin_pin_hash?: string | null; // Optional, as we're not using it yet
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface AppState {
   students: Student[];
   logos: LogoSettings;
   fybWeekSettings: FYBWeekSettings;
-  adminPin: string;
+  adminPin: string; // Kept client-side for now
   isAdminLoggedIn: boolean;
 }
