@@ -74,6 +74,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       try {
         if (!supabase) {
+          console.error("Critical Error: Supabase client is not initialized. This usually means there's an issue with your environment variables (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY) or the supabaseClient.ts file itself.");
           throw new Error("Supabase client is not initialized. Check your environment variables and supabaseClient.ts.");
         }
 
@@ -105,40 +106,64 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
 
       } catch (error: any) {
-        console.error('--- Error During Initial Data Load ---');
-        let errorIsObject = false;
+        console.error('--- ERROR DURING INITIAL DATA LOAD FROM SUPABASE ---');
+        
+        let isFailedToFetch = false;
+        let errorMessage = "Unknown error";
+        let errorDetails = "";
+
         if (error && typeof error === 'object') {
-            errorIsObject = true;
-            if (error.message === "TypeError: Failed to fetch" || (typeof error.message === 'string' && error.message.includes("Failed to fetch"))) {
-                console.error("Critical Error: 'Failed to fetch'. This usually means the application could not connect to the Supabase server.");
-                console.error("Please verify the following:");
-                console.error("1. Your `NEXT_PUBLIC_SUPABASE_URL` in `.env.local` is correct (should be: https://iwkslfapaxafwghfhefu.supabase.co).");
-                console.error("2. Your `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` is correct.");
-                console.error("3. You have restarted your Next.js development server after any changes to `.env.local`.");
-                console.error("4. Your internet connection is active and stable.");
-                console.error("5. No firewalls, proxies, or VPNs are blocking requests to Supabase.");
-                console.error("6. Your Supabase project is active and accessible via its URL.");
+          if ('message' in error && typeof error.message === 'string') {
+            errorMessage = error.message;
+            if (error.message.includes("TypeError: Failed to fetch") || error.message.includes("Failed to fetch")) {
+              isFailedToFetch = true;
             }
-            if ('message' in error) console.error('Error Message:', error.message);
-            if ('details' in error) console.error('Error Details:', error.details);
+          }
+          if ('details' in error && typeof error.details === 'string') {
+            errorDetails = error.details;
+            if (error.details.includes("TypeError: Failed to fetch") || error.details.includes("Failed to fetch")) {
+              isFailedToFetch = true;
+            }
+          }
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+          if (error.includes("TypeError: Failed to fetch") || error.includes("Failed to fetch")) {
+            isFailedToFetch = true;
+          }
+        }
+
+        if (isFailedToFetch) {
+            console.error("CRITICAL CONNECTION ERROR: 'Failed to fetch'.");
+            console.error("This means your application could NOT connect to the Supabase server.");
+            console.error("Please meticulously verify the following troubleshooting steps:");
+            console.error("1. `.env.local` File: Ensure this file exists in your project root.");
+            console.error("2. Supabase URL: In `.env.local`, `NEXT_PUBLIC_SUPABASE_URL` must be exactly `https://iwkslfapaxafwghfhefu.supabase.co`");
+            console.error("3. Supabase Anon Key: In `.env.local`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` must be your correct public anonymous key from Supabase dashboard.");
+            console.error("4. Restart Server: After any changes to `.env.local`, YOU MUST RESTART your Next.js development server (e.g., `npm run dev`).");
+            console.error("5. Internet Connection: Verify your computer has a stable internet connection.");
+            console.error("6. Firewalls/VPNs/Proxies: Ensure no firewall, VPN, proxy, or ad-blocker is interfering with requests to `*.supabase.co`.");
+            console.error("7. Supabase Project Status: Check your Supabase project dashboard (status.supabase.com or your project's dashboard) to ensure it's active and healthy.");
+            console.error("8. Console Network Tab: Check the Network tab in your browser's developer tools for failed requests to Supabase for more clues.");
+        }
+
+        // Log general error properties for further diagnosis
+        console.error('Raw Error Object:', error);
+        if (error && typeof error === 'object') {
+            if ('message' in error) console.error('Error Message:', errorMessage);
+            if ('details' in error) console.error('Error Details:', errorDetails);
             if ('hint' in error) console.error('Error Hint:', error.hint);
             if ('code' in error) console.error('Error Code:', error.code);
-            
-            // Attempt to stringify for more details if it's an object
             try {
                 const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error));
-                console.error('Full Error Object (stringified):', fullErrorString);
+                console.error('Full Error (Stringified):', fullErrorString);
             } catch (e) {
                 console.error('Could not stringify the full error object.');
             }
         }
         
-        if (!errorIsObject) {
-            console.error('Raw Error (not a typical object or failed to process):', error);
-        }
-        console.error('--- End of Error Report ---');
+        console.error('--- END OF SUPABASE ERROR REPORT ---');
         
-        // Fallback to defaults on error
+        // Fallback to defaults on error to allow UI to render minimally
         setStudents([]);
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
@@ -383,8 +408,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     const imageToDelete = fybWeekSettings.eventImages.find(img => img.id === imageId);
-    if (imageToDelete?.src) { // Changed from imageToDelete?.url
-      await deleteFileFromSupabase(imageToDelete.src); // Changed from imageToDelete?.url
+    if (imageToDelete?.src) { 
+      await deleteFileFromSupabase(imageToDelete.src);
     }
     
     const updatedImages = fybWeekSettings.eventImages.filter(img => img.id !== imageId);
@@ -424,3 +449,6 @@ export const useAppContext = () => {
   }
   return context;
 };
+
+
+    
