@@ -105,10 +105,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setLogosState(defaultLogos);
           setFybWeekSettingsState(defaultFYBWeekSettings);
         }
-
+        setIsLoading(false); 
       } catch (error: any) {
         setIsLoading(false); 
-        console.error('--- ERROR DURING INITIAL DATA LOAD FROM SUPABASE ---');
+        console.error('--- ERROR DURING INITIAL DATA LOAD FROM SUPABASE (see subsequent logs for details) ---');
         
         let isFailedToFetch = false;
         let extractedErrorMessage = "Unknown error during data load.";
@@ -168,14 +168,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
                 if (details && typeof details === 'string' && details.trim() !== '') console.error('Error Details:', details);
                 if (hint && typeof hint === 'string' && hint.trim() !== '') console.error('Error Hint:', hint);
                 if (code && typeof code === 'string' && code.trim() !== '') console.error('Error Code:', code);
-                
-                console.error('Raw Error Object (for non-fetch errors):', error);
-                try {
-                    const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2); 
-                    console.error('Full Error (Stringified, for non-fetch errors):', fullErrorString);
-                } catch (e) {
-                    console.error('Could not stringify the full error object.');
-                }
+            }
+            console.error('Raw Error Object (for non-fetch errors):', error);
+            try {
+                const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2); 
+                console.error('Full Error (Stringified, for non-fetch errors):', fullErrorString);
+            } catch (e) {
+                console.error('Could not stringify the full error object.');
             }
         }
         
@@ -184,8 +183,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setStudents([]);
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
-      } finally {
-        setIsLoading(false);
       }
       
       const storedAdminLogin = localStorage.getItem('nazsAdminLoggedIn');
