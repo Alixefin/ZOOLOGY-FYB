@@ -30,7 +30,7 @@ export interface LogoSettings {
 
 export interface FYBEventImage {
   id: string; // client-generated or from DB
-  url: string | null; // URL from Supabase Storage or data URI for new upload
+  src: string | null; // URL from Supabase Storage or data URI for new upload // Changed from 'url' to 'src'
   name: string;
 }
 

@@ -73,6 +73,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     async function loadInitialData() {
       setIsLoading(true);
       try {
+        if (!supabase) {
+          throw new Error("Supabase client is not initialized. Check your environment variables and supabaseClient.ts.");
+        }
+
         // Fetch students
         const { data: studentsData, error: studentsError } = await supabase
           .from('students')
@@ -96,43 +100,44 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setLogosState(settingsData.logos || defaultLogos);
           setFybWeekSettingsState(settingsData.fyb_week_settings || defaultFYBWeekSettings);
         } else {
-          // No settings found, use defaults. Consider creating a default row if this is first setup.
           setLogosState(defaultLogos);
           setFybWeekSettingsState(defaultFYBWeekSettings);
-           // Optionally, create the default settings row. The schema.sql should handle this.
-           // await supabase.from('app_settings').insert([{ id: APP_SETTINGS_ID, logos: defaultLogos, fyb_week_settings: defaultFYBWeekSettings }]);
         }
 
       } catch (error: any) {
-        let errorDetailsString = "Error object could not be fully stringified.";
-        try {
-            errorDetailsString = JSON.stringify(error, Object.getOwnPropertyNames(error));
-        } catch (e) {
-            // If stringification fails, errorDetailsString will retain its default message
-        }
-        console.error('Error loading initial data (raw, stringified with own props):', errorDetailsString);
-        
-        // Log individual properties if they exist
+        console.error('--- Error During Initial Data Load ---');
+        let errorIsObject = false;
         if (error && typeof error === 'object') {
-            if ('message' in error) {
-              console.error('Error message:', (error as { message: string }).message);
+            errorIsObject = true;
+            if (error.message === "TypeError: Failed to fetch" || (typeof error.message === 'string' && error.message.includes("Failed to fetch"))) {
+                console.error("Critical Error: 'Failed to fetch'. This usually means the application could not connect to the Supabase server.");
+                console.error("Please verify the following:");
+                console.error("1. Your `NEXT_PUBLIC_SUPABASE_URL` in `.env.local` is correct (should be: https://iwkslfapaxafwghfhefu.supabase.co).");
+                console.error("2. Your `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local` is correct.");
+                console.error("3. You have restarted your Next.js development server after any changes to `.env.local`.");
+                console.error("4. Your internet connection is active and stable.");
+                console.error("5. No firewalls, proxies, or VPNs are blocking requests to Supabase.");
+                console.error("6. Your Supabase project is active and accessible via its URL.");
             }
-            if ('details' in error) {
-              console.error('Error details:', (error as { details: string }).details);
+            if ('message' in error) console.error('Error Message:', error.message);
+            if ('details' in error) console.error('Error Details:', error.details);
+            if ('hint' in error) console.error('Error Hint:', error.hint);
+            if ('code' in error) console.error('Error Code:', error.code);
+            
+            // Attempt to stringify for more details if it's an object
+            try {
+                const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error));
+                console.error('Full Error Object (stringified):', fullErrorString);
+            } catch (e) {
+                console.error('Could not stringify the full error object.');
             }
-            if ('hint' in error) {
-              console.error('Error hint:', (error as { hint: string }).hint);
-            }
-            if ('code' in error) {
-                console.error('Error code:', (error as { code: string }).code);
-            }
-            if (Object.keys(error).length === 0 && !error.message) {
-                 console.error('The caught error object appears to be empty or lacks standard error properties.');
-            }
-        } else if (error) {
-            console.error('Caught error is not a typical object:', String(error));
         }
-
+        
+        if (!errorIsObject) {
+            console.error('Raw Error (not a typical object or failed to process):', error);
+        }
+        console.error('--- End of Error Report ---');
+        
         // Fallback to defaults on error
         setStudents([]);
         setLogosState(defaultLogos);
@@ -166,7 +171,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const uploadFileToSupabase = async (fileBlob: Blob, pathPrefix: string, fileNameWithoutExt: string): Promise<string | null> => {
-    const fileExt = fileBlob.type.split('/')[1] || 'png'; // Default to png if type is missing or malformed
+    if (!supabase) {
+      console.error("Supabase client not available for file upload.");
+      return null;
+    }
+    const fileExt = fileBlob.type.split('/')[1] || 'png';
     const fullFileName = `${fileNameWithoutExt}.${fileExt}`;
     const filePath = `${pathPrefix}/${Date.now()}_${fullFileName}`;
 
@@ -183,7 +192,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteFileFromSupabase = async (fileUrl: string | null): Promise<void> => {
-    if (!fileUrl) return;
+    if (!fileUrl || !supabase) return;
     try {
       const url = new URL(fileUrl);
       const pathSegments = url.pathname.split('/');
@@ -202,6 +211,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
+    if (!supabase) {
+      console.error("Supabase client not available for updating logo.");
+      return;
+    }
     let newLogoUrl: string | null = null;
     const currentLogoUrl = logos[logoType];
 
@@ -226,6 +239,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const updateFybWeekTextSettings = async (settings: Partial<Pick<FYBWeekSettings, 'title' | 'schedule' | 'activities' | 'isUnlocked'>>) => {
+    if (!supabase) {
+      console.error("Supabase client not available for updating FYB week settings.");
+      return;
+    }
     const updatedSettings = { ...fybWeekSettings, ...settings };
     const { error } = await supabase
       .from('app_settings')
@@ -237,6 +254,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
+    if (!supabase) {
+      console.error("Supabase client not available for adding student.");
+      return;
+    }
     let profileImageUrl: string | null = studentData.imageSrc; 
     if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
       const blob = dataURIToBlob(studentData.imageSrc);
@@ -267,6 +288,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateStudent = async (studentData: Student) => {
+    if (!supabase) {
+      console.error("Supabase client not available for updating student.");
+      return;
+    }
     const originalStudent = students.find(s => s.id === studentData.id);
     if (!originalStudent) {
       console.error("Student not found for update");
@@ -313,6 +338,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteStudent = async (studentId: string) => {
+    if (!supabase) {
+      console.error("Supabase client not available for deleting student.");
+      return;
+    }
     const studentToDelete = students.find(s => s.id === studentId);
     if (studentToDelete) {
       if (studentToDelete.imageSrc) await deleteFileFromSupabase(studentToDelete.imageSrc);
@@ -325,14 +354,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const addFybEventImage = async (file: File) => {
+     if (!supabase) {
+      console.error("Supabase client not available for adding FYB event image.");
+      return;
+    }
     const imageId = uuidv4();
-    // Ensure filename is URL-safe or use a generic name if file.name is problematic
     const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
     const imageUrl = await uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`);
 
     if (!imageUrl) return;
 
-    const newImage: FYBEventImage = { id: imageId, url: imageUrl, name: file.name }; // Store original name for display
+    const newImage: FYBEventImage = { id: imageId, src: imageUrl, name: file.name }; 
     const updatedImages = [...fybWeekSettings.eventImages, newImage];
     const updatedSettings = { ...fybWeekSettings, eventImages: updatedImages };
     
@@ -346,9 +378,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteFybEventImage = async (imageId: string) => {
+    if (!supabase) {
+      console.error("Supabase client not available for deleting FYB event image.");
+      return;
+    }
     const imageToDelete = fybWeekSettings.eventImages.find(img => img.id === imageId);
-    if (imageToDelete?.url) {
-      await deleteFileFromSupabase(imageToDelete.url);
+    if (imageToDelete?.src) { // Changed from imageToDelete?.url
+      await deleteFileFromSupabase(imageToDelete.src); // Changed from imageToDelete?.url
     }
     
     const updatedImages = fybWeekSettings.eventImages.filter(img => img.id !== imageId);
@@ -376,7 +412,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       updateLogo, updateFybWeekTextSettings,
       addFybEventImage, deleteFybEventImage
     }}>
-      {children}
+      {isLoading ? <div>Loading application data...</div> : children}
     </AppContext.Provider>
   );
 };
@@ -388,4 +424,3 @@ export const useAppContext = () => {
   }
   return context;
 };
-
