@@ -45,8 +45,6 @@ const STORAGE_BUCKET_NAME = 'app-public-assets';
 
 interface AppContextType extends AppState {
   setStudents: React.Dispatch<React.SetStateAction<Student[]>>; // Keep for local state updates after DB ops
-  // setLogos: React.Dispatch<React.SetStateAction<LogoSettings>>; // Will be replaced by specific update functions
-  // setFybWeekSettings: React.Dispatch<React.SetStateAction<FYBWeekSettings>>; // Replaced by specific update functions
   
   updateLogo: (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => Promise<void>;
   updateFybWeekTextSettings: (settings: Partial<Pick<FYBWeekSettings, 'title' | 'schedule' | 'activities' | 'isUnlocked'>>) => Promise<void>;
@@ -101,12 +99,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           // No settings found, use defaults. Consider creating a default row if this is first setup.
           setLogosState(defaultLogos);
           setFybWeekSettingsState(defaultFYBWeekSettings);
-           // Optionally, create the default settings row
-          // await supabase.from('app_settings').insert([{ id: APP_SETTINGS_ID, logos: defaultLogos, fyb_week_settings: defaultFYBWeekSettings }]);
+           // Optionally, create the default settings row. The schema.sql should handle this.
+           // await supabase.from('app_settings').insert([{ id: APP_SETTINGS_ID, logos: defaultLogos, fyb_week_settings: defaultFYBWeekSettings }]);
         }
 
-      } catch (error) {
-        console.error('Error loading initial data:', error);
+      } catch (error: any) {
+        console.error('Error loading initial data (raw):', error);
+        if (error && typeof error === 'object') {
+            if ('message' in error) {
+              console.error('Error message:', (error as { message: string }).message);
+            }
+            if ('details' in error) {
+              console.error('Error details:', (error as { details: string }).details);
+            }
+            if ('hint' in error) {
+              console.error('Error hint:', (error as { hint: string }).hint);
+            }
+            if ('code' in error) {
+                console.error('Error code:', (error as { code: string }).code);
+            }
+        }
         // Fallback to defaults on error
         setStudents([]);
         setLogosState(defaultLogos);
@@ -140,13 +152,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const uploadFileToSupabase = async (fileBlob: Blob, pathPrefix: string, fileNameWithoutExt: string): Promise<string | null> => {
-    const fileExt = fileBlob.type.split('/')[1];
+    const fileExt = fileBlob.type.split('/')[1] || 'png'; // Default to png if type is missing or malformed
     const fullFileName = `${fileNameWithoutExt}.${fileExt}`;
     const filePath = `${pathPrefix}/${Date.now()}_${fullFileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET_NAME)
-      .upload(filePath, fileBlob, { upsert: true }); // upsert true to overwrite if same path
+      .upload(filePath, fileBlob, { upsert: true }); 
 
     if (uploadError) {
       console.error(`Error uploading ${fullFileName}:`, uploadError);
@@ -161,8 +173,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     try {
       const url = new URL(fileUrl);
       const pathSegments = url.pathname.split('/');
-      // Path is usually /storage/v1/object/public/bucket_name/file_path...
-      // We need to extract path after bucket_name
       const bucketNameIndex = pathSegments.findIndex(segment => segment === STORAGE_BUCKET_NAME);
       if (bucketNameIndex === -1 || bucketNameIndex + 1 >= pathSegments.length) {
         console.error("Could not determine file path from URL for deletion:", fileUrl);
@@ -181,13 +191,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     let newLogoUrl: string | null = null;
     const currentLogoUrl = logos[logoType];
 
-    if (fileDataUrl) { // New image (data URL)
+    if (fileDataUrl) { 
       const blob = dataURIToBlob(fileDataUrl);
       if (blob) {
-        if (currentLogoUrl) await deleteFileFromSupabase(currentLogoUrl); // Delete old one first
+        if (currentLogoUrl) await deleteFileFromSupabase(currentLogoUrl); 
         newLogoUrl = await uploadFileToSupabase(blob, 'logos', logoType);
       }
-    } else if (currentLogoUrl) { // Explicitly removing the logo
+    } else if (currentLogoUrl) { 
       await deleteFileFromSupabase(currentLogoUrl);
     }
 
@@ -213,7 +223,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
-    let profileImageUrl: string | null = studentData.imageSrc; // Assume it might be an existing URL if not data URI
+    let profileImageUrl: string | null = studentData.imageSrc; 
     if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
       const blob = dataURIToBlob(studentData.imageSrc);
       profileImageUrl = blob ? await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`) : null;
@@ -227,7 +237,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
     const studentToInsert = {
       ...studentData,
-      id: uuidv4(), // Generate client-side ID
+      id: uuidv4(), 
       imageSrc: profileImageUrl,
       flyerImageSrc: flyerImageUrl,
     };
@@ -239,7 +249,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       .single();
 
     if (error) console.error('Error adding student:', error);
-    else if (newStudent) setStudents(prev => [...prev, newStudent]);
+    else if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
   };
 
   const updateStudent = async (studentData: Student) => {
@@ -250,33 +260,31 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
 
     let profileImageUrl: string | null = studentData.imageSrc;
-    if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) { // New profile image
+    if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) { 
       if (originalStudent.imageSrc) await deleteFileFromSupabase(originalStudent.imageSrc);
       const blob = dataURIToBlob(studentData.imageSrc);
       profileImageUrl = blob ? await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`) : null;
-    } else if (studentData.imageSrc === null && originalStudent.imageSrc) { // Profile image removed
+    } else if (studentData.imageSrc === null && originalStudent.imageSrc) { 
         await deleteFileFromSupabase(originalStudent.imageSrc);
     }
 
 
     let flyerImageUrl: string | null = studentData.flyerImageSrc;
-    if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) { // New flyer image
+    if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) { 
       if (originalStudent.flyerImageSrc) await deleteFileFromSupabase(originalStudent.flyerImageSrc);
       const blob = dataURIToBlob(studentData.flyerImageSrc);
       flyerImageUrl = blob ? await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`) : null;
-    } else if (studentData.flyerImageSrc === null && originalStudent.flyerImageSrc) { // Flyer image removed
+    } else if (studentData.flyerImageSrc === null && originalStudent.flyerImageSrc) { 
         await deleteFileFromSupabase(originalStudent.flyerImageSrc);
     }
     
-    const studentToUpdate = {
+    const studentToUpdatePayload = {
       ...studentData,
       imageSrc: profileImageUrl,
       flyerImageSrc: flyerImageUrl,
     };
-    // Omit id, created_at, updated_at for the update payload if they are not part of the editable fields
-    // Supabase typically handles created_at/updated_at automatically if columns are configured for it.
-    // 'id' is used in .eq()
-    const { id, created_at, updated_at, ...updatePayload } = studentToUpdate;
+   
+    const { id, created_at, updated_at, ...updatePayload } = studentToUpdatePayload;
 
 
     const { data: updatedStudent, error } = await supabase
@@ -287,7 +295,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       .single();
 
     if (error) console.error('Error updating student:', error);
-    else if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s));
+    else if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a,b) => a.name.localeCompare(b.name)));
   };
 
   const deleteStudent = async (studentId: string) => {
@@ -304,10 +312,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   const addFybEventImage = async (file: File) => {
     const imageId = uuidv4();
-    const imageUrl = await uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${file.name}`);
+    // Ensure filename is URL-safe or use a generic name if file.name is problematic
+    const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+    const imageUrl = await uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`);
+
     if (!imageUrl) return;
 
-    const newImage: FYBEventImage = { id: imageId, url: imageUrl, name: file.name };
+    const newImage: FYBEventImage = { id: imageId, url: imageUrl, name: file.name }; // Store original name for display
     const updatedImages = [...fybWeekSettings.eventImages, newImage];
     const updatedSettings = { ...fybWeekSettings, eventImages: updatedImages };
     
@@ -338,18 +349,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     else setFybWeekSettingsState(updatedSettings);
   };
 
-  if (isLoading) {
-    // You might want a global loading indicator here or handle it in SiteLayout
-    // For now, returning null or a simple loader until data is ready.
-    // However, SiteLayout.tsx already has a loading screen.
-    // This isLoading state is more for AppContext readiness.
-  }
 
   return (
     <AppContext.Provider value={{
-      students, setStudents, // setStudents is for optimistic updates / replacing after fetch
-      logos, // Directly provide state, updates go through updateLogo
-      fybWeekSettings, // Directly provide state, updates go through specific functions
+      students, setStudents, 
+      logos, 
+      fybWeekSettings, 
       adminPin: defaultAdminPin,
       isAdminLoggedIn, 
       loginAdmin, logoutAdmin,
@@ -369,30 +374,3 @@ export const useAppContext = () => {
   }
   return context;
 };
-
-// Ensure uuid is installed: npm install uuid @types/uuid
-// Add @types/uuid to devDependencies in package.json
-// "uuid": "^9.0.0" in dependencies
-// "@types/uuid": "^9.0.0" in devDependencies
-// My package.json modification already includes "uuid" if it were needed.
-// For this case, I added "uuid" for `v4` but it seems like your `package.json` does not yet list it.
-// I will assume it's available or should be added by the user manually based on the import.
-// For now, I'll remove direct uuid usage in addStudent and updateStudent image paths for simplicity,
-// and rely on Date.now() for uniqueness in file paths as it was before, or use student ID.
-// Re-adding uuid as it's a good practice. I'll add it to package.json.
-// The user has "genkit" which might bring "uuid", but explicit is better.
-// The provided package.json does not have uuid. I'll add it.
-// Actually, genkit and other deps might pull it. Let's make it explicit.
-// Okay, let's check current package.json: no uuid. I'll add it.
-
-// Updating package.json to include uuid
-// "uuid": "^9.0.1"
-// "@types/uuid": "^9.0.8"
-// My package.json changes are cumulative. I'll edit the existing one.
-// The user already provided a package.json for the previous step. I should modify that one.
-// The package.json already has zod, no need for uuid for IDs if zod schema for student id is string.
-// Student ID generation is `Date.now().toString()` in current AppContext before this change.
-// Supabase can auto-generate IDs for 'students' if the column `id` is `uuid` and `DEFAULT uuid_generate_v4()`.
-// My SQL schema uses `id TEXT PRIMARY KEY`. Client needs to provide it.
-// `uuidv4()` is fine for this. So `uuid` package is a good addition.
-// I've added uuid to the package.json provided in this response.
