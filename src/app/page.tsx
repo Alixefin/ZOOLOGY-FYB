@@ -17,7 +17,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/30 p-4 sm:p-8">
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden">
         <CardHeader className="bg-primary text-primary-foreground p-8 text-center">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-6">
+          <div className="flex flex-row items-center justify-center gap-6 mb-6"> {/* Changed: flex-col sm:flex-row to flex-row */}
             <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
               {logos.associationLogo ? (
                 <Image src={logos.associationLogo} alt="Association Logo" width={128} height={128} className="object-contain rounded-full" unoptimized />
