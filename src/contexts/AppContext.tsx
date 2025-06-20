@@ -101,69 +101,90 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setLogosState(settingsData.logos || defaultLogos);
           setFybWeekSettingsState(settingsData.fyb_week_settings || defaultFYBWeekSettings);
         } else {
+          // If no settings row exists, create one with defaults (optional, depends on desired behavior)
+          // For now, just use client-side defaults if DB has no entry
+          console.warn("No app_settings found in database (ID: ", APP_SETTINGS_ID, "). Using client-side defaults. Consider seeding this table.");
           setLogosState(defaultLogos);
           setFybWeekSettingsState(defaultFYBWeekSettings);
         }
 
       } catch (error: any) {
+        setIsLoading(false); // Ensure loading is set to false on error
         console.error('--- ERROR DURING INITIAL DATA LOAD FROM SUPABASE ---');
         
         let isFailedToFetch = false;
-        let errorMessage = "Unknown error";
-        let errorDetails = "";
+        let extractedErrorMessage = "Unknown error during data load.";
 
+        // Determine if it's a "Failed to fetch" error and extract message
         if (error && typeof error === 'object') {
           if ('message' in error && typeof error.message === 'string') {
-            errorMessage = error.message;
-            if (error.message.includes("TypeError: Failed to fetch") || error.message.includes("Failed to fetch")) {
+            extractedErrorMessage = error.message;
+            if (error.message.toLowerCase().includes("failed to fetch") || error.message.toLowerCase().includes("typeerror: failed to fetch")) {
               isFailedToFetch = true;
             }
           }
-          if ('details' in error && typeof error.details === 'string') {
-            errorDetails = error.details;
-            if (error.details.includes("TypeError: Failed to fetch") || error.details.includes("Failed to fetch")) {
+          // Check details if message didn't confirm it and details exist
+          if (!isFailedToFetch && 'details' in error && typeof error.details === 'string') {
+            if (error.details.toLowerCase().includes("failed to fetch") || error.details.toLowerCase().includes("typeerror: failed to fetch")) {
               isFailedToFetch = true;
+              // If original message was generic, prefer details if it's more specific
+              if (extractedErrorMessage === "Unknown error during data load."){
+                extractedErrorMessage = error.details;
+              }
             }
           }
         } else if (typeof error === 'string') {
-          errorMessage = error;
-          if (error.includes("TypeError: Failed to fetch") || error.includes("Failed to fetch")) {
+          extractedErrorMessage = error;
+          if (error.toLowerCase().includes("failed to fetch") || error.toLowerCase().includes("typeerror: failed to fetch")) {
             isFailedToFetch = true;
           }
         }
 
         if (isFailedToFetch) {
-            console.error("CRITICAL CONNECTION ERROR: 'Failed to fetch'.");
+            console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            console.error("!!! CRITICAL CONNECTION ERROR: 'Failed to fetch'                             !!!");
+            console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             console.error("This means your application could NOT connect to the Supabase server.");
+            console.error("The error message received was: ", extractedErrorMessage);
             console.error("Please meticulously verify the following troubleshooting steps:");
             console.error("1. `.env.local` File: Ensure this file exists in your project root.");
+            console.error("   - Check for typos in the filename: `.env.local` (NOT `.env` or `.env.development`).");
             console.error("2. Supabase URL: In `.env.local`, `NEXT_PUBLIC_SUPABASE_URL` must be exactly `https://iwkslfapaxafwghfhefu.supabase.co`");
-            console.error("3. Supabase Anon Key: In `.env.local`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` must be your correct public anonymous key from Supabase dashboard.");
-            console.error("4. Restart Server: After any changes to `.env.local`, YOU MUST RESTART your Next.js development server (e.g., `npm run dev`).");
+            console.error("   - Verify no extra spaces or characters.");
+            console.error("3. Supabase Anon Key: In `.env.local`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` must be your correct public anonymous key from the Supabase dashboard (API settings).");
+            console.error("   - Your key starts with: `eyJhbGciOi...`");
+            console.error("   - Verify it's copied completely and accurately.");
+            console.error("4. Restart Server: After any changes to `.env.local`, YOU MUST RESTART your Next.js development server (e.g., stop it and run `npm run dev` or equivalent again).");
             console.error("5. Internet Connection: Verify your computer has a stable internet connection.");
-            console.error("6. Firewalls/VPNs/Proxies: Ensure no firewall, VPN, proxy, or ad-blocker is interfering with requests to `*.supabase.co`.");
-            console.error("7. Supabase Project Status: Check your Supabase project dashboard (status.supabase.com or your project's dashboard) to ensure it's active and healthy.");
-            console.error("8. Console Network Tab: Check the Network tab in your browser's developer tools for failed requests to Supabase for more clues.");
-        }
-
-        // Log general error properties for further diagnosis
-        console.error('Raw Error Object:', error);
-        if (error && typeof error === 'object') {
-            if ('message' in error) console.error('Error Message:', errorMessage);
-            if ('details' in error) console.error('Error Details:', errorDetails);
-            if ('hint' in error) console.error('Error Hint:', error.hint);
-            if ('code' in error) console.error('Error Code:', error.code);
-            try {
-                const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error));
-                console.error('Full Error (Stringified):', fullErrorString);
-            } catch (e) {
-                console.error('Could not stringify the full error object.');
+            console.error("6. Firewalls/VPNs/Proxies/Ad-Blockers: Ensure no firewall, VPN, proxy, or ad-blocker (including browser extensions) is interfering with requests to `*.supabase.co` domains.");
+            console.error("   - Try temporarily disabling them to test.");
+            console.error("7. Supabase Project Status: Check your Supabase project dashboard (status.supabase.com or your project's dashboard in Supabase) to ensure it's active and healthy (not paused, no billing issues, etc.).");
+            console.error("8. Console Network Tab: Open your browser's developer tools (usually F12), go to the 'Network' tab, and refresh the page. Look for failed requests to `iwkslfapaxafwghfhefu.supabase.co`. The status and response of these requests can provide more clues.");
+            console.error("9. Correct Supabase Client Initialization: Ensure `src/lib/supabaseClient.ts` is correctly initializing the client with environment variables.");
+            console.error("--- If the issue persists after checking all the above, here's the raw error object for deeper technical diagnosis: ---");
+            console.error(error);
+        } else {
+            // Log general error properties for other, non-fetch related errors
+            console.error('An unexpected error occurred while loading initial data from Supabase:');
+            console.error('Error Message:', extractedErrorMessage); 
+            if (error && typeof error === 'object') {
+                if ('details'in error && typeof error.details === 'string' && error.details) console.error('Error Details:', error.details);
+                if ('hint'in error && typeof error.hint === 'string' && error.hint) console.error('Error Hint:', error.hint); // Only log if hint is not empty
+                if ('code'in error && typeof error.code === 'string') console.error('Error Code:', error.code);
+                
+                console.error('Raw Error Object (for non-fetch errors):', error);
+                try {
+                    const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2); 
+                    console.error('Full Error (Stringified, for non-fetch errors):', fullErrorString);
+                } catch (e) {
+                    console.error('Could not stringify the full error object.');
+                }
             }
         }
         
         console.error('--- END OF SUPABASE ERROR REPORT ---');
         
-        // Fallback to defaults on error to allow UI to render minimally
+        // Fallback to defaults on error
         setStudents([]);
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
@@ -437,7 +458,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       updateLogo, updateFybWeekTextSettings,
       addFybEventImage, deleteFybEventImage
     }}>
-      {isLoading ? <div>Loading application data...</div> : children}
+      {isLoading ? <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background"><div className="animate-pulse text-primary font-headline text-lg">Loading Application Data...</div></div> : children}
     </AppContext.Provider>
   );
 };
@@ -449,6 +470,3 @@ export const useAppContext = () => {
   }
   return context;
 };
-
-
-    
