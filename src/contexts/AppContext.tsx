@@ -104,7 +104,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
 
       } catch (error: any) {
-        console.error('Error loading initial data (raw):', error);
+        let errorDetailsString = "Error object could not be fully stringified.";
+        try {
+            errorDetailsString = JSON.stringify(error, Object.getOwnPropertyNames(error));
+        } catch (e) {
+            // If stringification fails, errorDetailsString will retain its default message
+        }
+        console.error('Error loading initial data (raw, stringified with own props):', errorDetailsString);
+        
+        // Log individual properties if they exist
         if (error && typeof error === 'object') {
             if ('message' in error) {
               console.error('Error message:', (error as { message: string }).message);
@@ -118,7 +126,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             if ('code' in error) {
                 console.error('Error code:', (error as { code: string }).code);
             }
+            if (Object.keys(error).length === 0 && !error.message) {
+                 console.error('The caught error object appears to be empty or lacks standard error properties.');
+            }
+        } else if (error) {
+            console.error('Caught error is not a typical object:', String(error));
         }
+
         // Fallback to defaults on error
         setStudents([]);
         setLogosState(defaultLogos);
@@ -374,3 +388,4 @@ export const useAppContext = () => {
   }
   return context;
 };
+
