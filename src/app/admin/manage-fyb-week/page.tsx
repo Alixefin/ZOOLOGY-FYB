@@ -20,13 +20,14 @@ export default function ManageFybWeekPage() {
   const { 
     fybWeekSettings: initialSettings, 
     updateFybWeekTextSettings, 
-    addFybEventImage, 
+    addFybEventImages, 
     deleteFybEventImage 
   } = useAppContext();
   
   const [settings, setSettings] = useState<FYBWeekSettings>(initialSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadFileCount, setUploadFileCount] = useState(0);
   
   const { toast } = useToast();
 
@@ -47,11 +48,12 @@ export default function ManageFybWeekPage() {
     const files = event.target.files;
     if (files && files.length > 0) {
       setIsUploading(true);
+      setUploadFileCount(files.length);
       try {
-        await Promise.all(Array.from(files).map(file => addFybEventImage(file)));
+        await addFybEventImages(Array.from(files));
         toast({
           title: "Images Uploaded",
-          description: "Gallery images have been added successfully.",
+          description: `${files.length} gallery image(s) have been added successfully.`,
         });
       } catch (error: any) {
         toast({
@@ -61,6 +63,9 @@ export default function ManageFybWeekPage() {
         });
       } finally {
         setIsUploading(false);
+        setUploadFileCount(0);
+        // Clear the file input so the same files can be selected again if needed
+        event.target.value = ''; 
       }
     }
   };
@@ -172,7 +177,7 @@ export default function ManageFybWeekPage() {
               <div className="mb-4 p-4 border-dashed border-2 border-primary rounded-md text-center bg-primary/5">
                 <Label htmlFor="event-image-upload" className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
                     {isUploading ? <Loader2 className="mx-auto h-12 w-12 text-primary/70 animate-spin mb-2"/> : <UploadCloud className="mx-auto h-12 w-12 text-primary/70 mb-2"/>}
-                    <p className="text-primary font-semibold">{isUploading ? 'Uploading...' : 'Click or drag to upload event images'}</p>
+                    <p className="text-primary font-semibold">{isUploading ? `Uploading ${uploadFileCount} images...` : 'Click or drag to upload event images'}</p>
                     <p className="text-xs text-muted-foreground">Supports multiple JPEGs, PNGs</p>
                 </Label>
                 <Input 

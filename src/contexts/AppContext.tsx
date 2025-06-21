@@ -58,7 +58,7 @@ interface AppContextType extends AppState {
   updateStudent: (studentData: Student) => Promise<void>;
   deleteStudent: (studentId: string) => Promise<void>;
   
-  addFybEventImage: (file: File) => Promise<void>;
+  addFybEventImages: (files: File[]) => Promise<void>;
   deleteFybEventImage: (imageId: string) => Promise<void>;
 }
 
@@ -202,8 +202,6 @@ Raw Error: ${extractedErrorMessage}`;
   const deleteFileFromSupabase = async (fileUrl: string | null): Promise<void> => {
     if (!fileUrl || !supabase) return;
   
-    // Heuristic to check if the URL is from this project's Supabase Storage.
-    // This avoids trying to delete external URLs (e.g., from Google Drive).
     const isSupabaseUrl = fileUrl.includes('iwkslfapaxafwghfhefu.supabase.co');
   
     if (!isSupabaseUrl) {
@@ -214,7 +212,6 @@ Raw Error: ${extractedErrorMessage}`;
     try {
       const url = new URL(fileUrl);
       const pathSegments = url.pathname.split('/');
-      // The path for an asset is like: /storage/v1/object/public/app-public-assets/logos/16...
       const bucketNameIndex = pathSegments.findIndex(segment => segment === STORAGE_BUCKET_NAME);
       if (bucketNameIndex === -1 || bucketNameIndex + 1 >= pathSegments.length) {
         console.warn("Could not determine file path from Supabase URL for deletion:", fileUrl);
@@ -224,7 +221,6 @@ Raw Error: ${extractedErrorMessage}`;
       
       const { error } = await supabase.storage.from(STORAGE_BUCKET_NAME).remove([filePath]);
       if (error) {
-        // This is not critical, the file might have been manually deleted.
         console.warn(`Could not delete file '${filePath}' from storage: ${error.message}`);
       }
     } catch (e) {
@@ -398,25 +394,40 @@ Raw Error: ${extractedErrorMessage}`;
     setStudents(prev => prev.filter(s => s.id !== studentId));
   };
   
-  const addFybEventImage = async (file: File) => {
-     if (!supabase) throw new Error("Supabase client not available for adding FYB event image.");
-    
-    const imageId = uuidv4();
-    const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
-    const imageUrl = await uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`);
-
-    const newImage: FYBEventImage = { id: imageId, src: imageUrl, name: file.name }; 
-    const updatedImages = [...fybWeekSettings.eventImages, newImage];
-    const updatedSettings = { ...fybWeekSettings, eventImages: updatedImages };
-    
-    const { error } = await supabase
-      .from('app_settings')
-      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
-      .select()
-      .single();
-
-    if (error) throw error;
-    setFybWeekSettingsState(updatedSettings);
+  const addFybEventImages = async (files: File[]) => {
+    if (!supabase) throw new Error("Supabase client not available for adding FYB event images.");
+  
+    const uploadPromises = files.map(file => {
+      const imageId = uuidv4();
+      const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+      return uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`)
+        .then(imageUrl => ({ id: imageId, src: imageUrl, name: file.name }));
+    });
+  
+    try {
+      const newImages: FYBEventImage[] = await Promise.all(uploadPromises);
+      
+      const updatedImages = [...fybWeekSettings.eventImages, ...newImages];
+      const updatedSettings = { ...fybWeekSettings, eventImages: updatedImages };
+  
+      const { error } = await supabase
+        .from('app_settings')
+        .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+        .select()
+        .single();
+  
+      if (error) {
+        // If the DB update fails, try to clean up the uploaded files
+        newImages.forEach(img => deleteFileFromSupabase(img.src));
+        throw error;
+      }
+      
+      setFybWeekSettingsState(updatedSettings);
+    } catch (uploadError) {
+      // This will catch any error from Promise.all, including individual upload failures.
+      console.error("An error occurred during the bulk image upload process:", uploadError);
+      throw new Error("One or more image uploads failed. Please try again.");
+    }
   };
 
   const deleteFybEventImage = async (imageId: string) => {
@@ -450,8 +461,7 @@ Raw Error: ${extractedErrorMessage}`;
       isAdminLoggedIn, 
       loginAdmin, logoutAdmin,
       addStudent, updateStudent, deleteStudent,
-      updateLogo, updateFybWeekTextSettings,
-      addFybEventImage, deleteFybEventImage
+      addFybEventImages, deleteFybEventImage
     }}>
       {isLoading ? (
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
