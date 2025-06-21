@@ -1,11 +1,11 @@
 
 "use client";
 
+import { useState } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import FileUpload from '@/components/FileUpload';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import AdminHeader from '@/components/AdminHeader';
 import { useToast } from "@/hooks/use-toast";
 import Image from 'next/image';
@@ -13,24 +13,28 @@ import { AssociationLogoPlaceholder } from '@/components/icons/AssociationLogoPl
 import { SchoolLogoPlaceholder } from '@/components/icons/SchoolLogoPlaceholder';
 
 export default function ManageLogosPage() {
-  const { logos, setLogos } = useAppContext();
+  const { logos, updateLogo } = useAppContext();
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState<'association' | 'school' | null>(null);
 
-  const handleAssociationLogoSelect = (fileDataUrl: string | null) => {
-    setLogos(prev => ({ ...prev, associationLogo: fileDataUrl }));
-  };
-
-  const handleSchoolLogoSelect = (fileDataUrl: string | null) => {
-    setLogos(prev => ({ ...prev, schoolLogo: fileDataUrl }));
-  };
-
-  const handleSaveChanges = () => {
-    // In a real app, this would involve an API call.
-    // Here, AppContext already updates localStorage on state change.
-    toast({
-      title: "Logos Updated",
-      description: "The new logos have been saved successfully.",
-    });
+  const handleLogoSelect = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
+    setIsUploading(logoType === 'associationLogo' ? 'association' : 'school');
+    try {
+      await updateLogo(logoType, fileDataUrl);
+      toast({
+        title: "Logo Updated",
+        description: `The ${logoType === 'associationLogo' ? 'association' : 'school'} logo has been saved successfully.`,
+      });
+    } catch (error) {
+      console.error("Failed to update logo:", error);
+      toast({
+        title: "Upload Failed",
+        description: `There was an error updating the logo. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(null);
+    }
   };
 
   return (
@@ -41,7 +45,7 @@ export default function ManageLogosPage() {
           <CardHeader>
             <CardTitle className="text-3xl font-headline text-primary">Manage Logos</CardTitle>
             <CardDescription className="font-body">
-              Upload or update the association and school logos that appear on the homepage.
+              Upload or update the association and school logos. Changes are saved automatically.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
@@ -49,16 +53,19 @@ export default function ManageLogosPage() {
               <h3 className="text-xl font-headline text-foreground mb-3">Association Logo</h3>
               <div className="flex flex-col sm:flex-row items-start gap-6">
                 <div className="w-32 h-32 border rounded-md flex items-center justify-center bg-card p-2 flex-shrink-0">
-                  {logos.associationLogo ? (
+                  {isUploading === 'association' ? (
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  ) : logos.associationLogo ? (
                     <Image src={logos.associationLogo} alt="Association Logo Preview" width={120} height={120} className="object-contain" unoptimized />
                   ) : (
                     <AssociationLogoPlaceholder className="w-full h-full text-muted-foreground" />
                   )}
                 </div>
                 <FileUpload
-                  onFileSelect={handleAssociationLogoSelect}
+                  onFileSelect={(fileDataUrl) => handleLogoSelect('associationLogo', fileDataUrl)}
                   currentImagePreview={logos.associationLogo}
                   label="Upload Association Logo"
+                  disabled={!!isUploading}
                 />
               </div>
             </div>
@@ -67,24 +74,21 @@ export default function ManageLogosPage() {
               <h3 className="text-xl font-headline text-foreground mb-3">School Logo</h3>
                <div className="flex flex-col sm:flex-row items-start gap-6">
                 <div className="w-32 h-32 border rounded-md flex items-center justify-center bg-card p-2 flex-shrink-0">
-                  {logos.schoolLogo ? (
+                  {isUploading === 'school' ? (
+                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  ) : logos.schoolLogo ? (
                     <Image src={logos.schoolLogo} alt="School Logo Preview" width={120} height={120} className="object-contain" unoptimized />
                   ) : (
                     <SchoolLogoPlaceholder className="w-full h-full text-muted-foreground" />
                   )}
                 </div>
                 <FileUpload
-                  onFileSelect={handleSchoolLogoSelect}
+                  onFileSelect={(fileDataUrl) => handleLogoSelect('schoolLogo', fileDataUrl)}
                   currentImagePreview={logos.schoolLogo}
                   label="Upload School Logo"
+                  disabled={!!isUploading}
                 />
               </div>
-            </div>
-
-            <div className="flex justify-end pt-6">
-              <Button onClick={handleSaveChanges} size="lg" className="font-headline">
-                <Save className="mr-2 h-5 w-5" /> Save Changes
-              </Button>
             </div>
           </CardContent>
         </Card>

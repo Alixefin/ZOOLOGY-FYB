@@ -13,16 +13,22 @@ interface FileUploadProps {
   currentImagePreview?: string | null;
   acceptedFileTypes?: string; // e.g., "image/png, image/jpeg"
   label?: string;
+  disabled?: boolean;
 }
 
 export default function FileUpload({
   onFileSelect,
   currentImagePreview,
   acceptedFileTypes = "image/*",
-  label = "Upload Image"
+  label = "Upload Image",
+  disabled = false,
 }: FileUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentImagePreview || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    setPreview(currentImagePreview || null);
+  }, [currentImagePreview]);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -34,10 +40,6 @@ export default function FileUpload({
         onFileSelect(result);
       };
       reader.readAsDataURL(file);
-    } else {
-      // If no file is selected (e.g., user cancels dialog), clear preview and notify parent
-      // setPreview(null); // Keep existing preview if user cancels
-      // onFileSelect(null); // Only notify null if it was truly cleared
     }
   };
 
@@ -61,6 +63,7 @@ export default function FileUpload({
             className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={handleRemoveImage}
             aria-label="Remove image"
+            disabled={disabled}
           >
             <Trash2 className="w-4 h-4" />
           </Button>
@@ -74,8 +77,14 @@ export default function FileUpload({
           accept={acceptedFileTypes}
           className="hidden"
           id={`file-upload-${label.replace(/\s+/g, '-').toLowerCase()}`}
+          disabled={disabled}
         />
-        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={() => fileInputRef.current?.click()} 
+          disabled={disabled}
+        >
           <ImagePlus className="mr-2 h-4 w-4" />
           {preview ? "Change Image" : "Select Image"}
         </Button>
