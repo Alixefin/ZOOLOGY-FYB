@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import FileUpload from '@/components/FileUpload';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Save, Tag, Users, VenetianMask } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 
 const studentFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
@@ -39,9 +39,10 @@ interface StudentFormProps {
   student?: Student | null; // For editing
   onSubmit: (data: StudentFormData) => void;
   isEditing?: boolean;
+  isSubmitting?: boolean;
 }
 
-export default function StudentForm({ student, onSubmit, isEditing = false }: StudentFormProps) {
+export default function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = false }: StudentFormProps) {
   const form = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: {
@@ -90,7 +91,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., John Doe" {...field} />
+                      <Input placeholder="e.g., John Doe" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,7 +104,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Nickname (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Johnny" {...field} />
+                      <Input placeholder="e.g., Johnny" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -116,7 +117,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Birthday (MM/DD/YYYY)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 12/25/2000" {...field} />
+                      <Input placeholder="e.g., 12/25/2000" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,7 +130,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Relationship Status</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Single" {...field} />
+                      <Input placeholder="e.g., Single" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -142,7 +143,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>State of Origin</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Kogi State" {...field} />
+                      <Input placeholder="e.g., Kogi State" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -155,7 +156,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>LGA</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Lokoja" {...field} />
+                      <Input placeholder="e.g., Lokoja" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -168,7 +169,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Favourite Course</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., ZOO 301" {...field} />
+                      <Input placeholder="e.g., ZOO 301" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -181,7 +182,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Favourite Lecturer</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Dr. Smith" {...field} />
+                      <Input placeholder="e.g., Dr. Smith" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -194,7 +195,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem className="md:col-span-2">
                     <FormLabel>Favourite Coursemate(s) (comma-separated)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Alice, Bob, Charlie" {...field} />
+                      <Input placeholder="e.g., Alice, Bob, Charlie" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -207,7 +208,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem className="md:col-span-2">
                     <FormLabel>Hobby(s) (comma-separated)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Reading, Hiking, Coding" {...field} />
+                      <Input placeholder="e.g., Reading, Hiking, Coding" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -220,7 +221,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Post(s) Held</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Class Rep, Non" {...field} />
+                      <Input placeholder="e.g., Class Rep, Non" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -233,7 +234,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Best Level</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 300 Level" {...field} />
+                      <Input placeholder="e.g., 300 Level" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -246,7 +247,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                   <FormItem>
                     <FormLabel>Worst Level</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., 100 Level" {...field} />
+                      <Input placeholder="e.g., 100 Level" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -261,7 +262,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                 <FormItem>
                   <FormLabel>Your Class Rep Once Said</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter the quote..." {...field} />
+                    <Textarea placeholder="Enter the quote..." {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -274,7 +275,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                 <FormItem>
                   <FormLabel>Parting Words</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Enter parting words..." {...field} />
+                    <Textarea placeholder="Enter parting words..." {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -291,6 +292,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                       label="Student Profile Image"
                       currentImagePreview={field.value}
                       onFileSelect={(dataUrl) => field.onChange(dataUrl)}
+                      disabled={isSubmitting}
                     />
                      <FormMessage />
                   </FormItem>
@@ -305,6 +307,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
                         label="Student FYB Flyer Image"
                         currentImagePreview={field.value}
                         onFileSelect={(dataUrl) => field.onChange(dataUrl)}
+                        disabled={isSubmitting}
                       />
                     <FormMessage />
                   </FormItem>
@@ -313,8 +316,13 @@ export default function StudentForm({ student, onSubmit, isEditing = false }: St
             </div>
             
             <div className="flex justify-end pt-6">
-              <Button type="submit" size="lg" className="font-headline bg-primary hover:bg-primary/90">
-                <Save className="mr-2 h-5 w-5" /> {isEditing ? 'Save Changes' : 'Add Student'}
+              <Button type="submit" size="lg" className="font-headline bg-primary hover:bg-primary/90" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-5 w-5" />
+                )}
+                {isSubmitting ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save Changes' : 'Add Student')}
               </Button>
             </div>
           </form>

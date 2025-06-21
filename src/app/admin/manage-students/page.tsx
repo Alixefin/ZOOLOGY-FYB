@@ -26,13 +26,21 @@ export default function ManageStudentsPage() {
   const { students, deleteStudent } = useAppContext();
   const { toast } = useToast();
 
-  const handleDeleteStudent = (studentId: string) => {
-    deleteStudent(studentId);
-    toast({
-      title: "Student Deleted",
-      description: "The student profile has been removed.",
-      variant: "destructive"
-    });
+  const handleDeleteStudent = async (studentId: string, studentName: string) => {
+    try {
+      await deleteStudent(studentId);
+      toast({
+        title: "Student Deleted",
+        description: `The profile for ${studentName} has been removed.`,
+        variant: "destructive"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Deletion Failed",
+        description: error?.message || `Could not delete ${studentName}. Check your connection and permissions.`,
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -103,7 +111,7 @@ export default function ManageStudentsPage() {
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleDeleteStudent(student.id)}>
+                              <AlertDialogAction onClick={() => handleDeleteStudent(student.id, student.name)}>
                                 Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>

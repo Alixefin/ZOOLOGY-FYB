@@ -25,11 +25,11 @@ export default function ManageLogosPage() {
         title: "Logo Updated",
         description: `The ${logoType === 'associationLogo' ? 'association' : 'school'} logo has been saved successfully.`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update logo:", error);
       toast({
         title: "Upload Failed",
-        description: `There was an error updating the logo. Please try again.`,
+        description: error?.message || "An unknown error occurred. Please check your Supabase connection and try again.",
         variant: "destructive",
       });
     } finally {

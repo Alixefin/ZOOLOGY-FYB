@@ -6,42 +6,103 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import FileUpload from '@/components/FileUpload'; // Use a modified version for multiple files or handle multiple instances
 import AdminHeader from '@/components/AdminHeader';
 import { useToast } from "@/hooks/use-toast";
-import { Save, Image as ImageIcon, Trash2, UploadCloud } from 'lucide-react';
-import Image from 'next/image'; // For Next.js optimized images
+import { Save, Trash2, UploadCloud, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import type { ChangeEvent } from 'react';
-
+import { useState, useEffect } from 'react';
+import type { FYBWeekSettings } from '@/types';
 
 export default function ManageFybWeekPage() {
-  const { fybWeekSettings, setFybWeekSettings, addFybEventImage, deleteFybEventImage } = useAppContext();
+  const { 
+    fybWeekSettings: initialSettings, 
+    updateFybWeekTextSettings, 
+    addFybEventImage, 
+    deleteFybEventImage 
+  } = useAppContext();
+  
+  const [settings, setSettings] = useState<FYBWeekSettings>(initialSettings);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  
   const { toast } = useToast();
 
+  useEffect(() => {
+    setSettings(initialSettings);
+  }, [initialSettings]);
+
   const handleToggleUnlock = (checked: boolean) => {
-    setFybWeekSettings(prev => ({ ...prev, isUnlocked: checked }));
+    setSettings(prev => ({ ...prev, isUnlocked: checked }));
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFybWeekSettings(prev => ({ ...prev, [name]: value }));
+    setSettings(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files) {
-      Array.from(files).forEach(file => {
-        addFybEventImage(file);
-      });
+    if (files && files.length > 0) {
+      setIsUploading(true);
+      try {
+        await Promise.all(Array.from(files).map(file => addFybEventImage(file)));
+        toast({
+          title: "Images Uploaded",
+          description: "Gallery images have been added successfully.",
+        });
+      } catch (error: any) {
+        toast({
+          title: "Image Upload Failed",
+          description: error?.message || "An error occurred during upload.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
+  
+  const handleDeleteImage = async (imageId: string) => {
+     try {
+      await deleteFybEventImage(imageId);
+      toast({
+        title: "Image Deleted",
+        description: "The image has been removed from the gallery.",
+      });
+    } catch (error: any) {
+       toast({
+          title: "Deletion Failed",
+          description: error?.message || "An error occurred while deleting the image.",
+          variant: "destructive",
+        });
+    }
+  }
 
-  const handleSaveChanges = () => {
-    toast({
-      title: "FYB Week Settings Updated",
-      description: "The FYB Week content has been saved successfully.",
-    });
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+    try {
+      await updateFybWeekTextSettings({
+        isUnlocked: settings.isUnlocked,
+        title: settings.title,
+        schedule: settings.schedule,
+        activities: settings.activities,
+      });
+      toast({
+        title: "FYB Week Settings Updated",
+        description: "The FYB Week content has been saved successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Save Failed",
+        description: error?.message || "An error occurred. Please check the console.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -59,12 +120,12 @@ export default function ManageFybWeekPage() {
             <div className="flex items-center space-x-3 p-4 border rounded-md bg-card">
               <Switch
                 id="unlock-fyb-week"
-                checked={fybWeekSettings.isUnlocked}
+                checked={settings.isUnlocked}
                 onCheckedChange={handleToggleUnlock}
                 aria-label="Unlock FYB Week Page"
               />
               <Label htmlFor="unlock-fyb-week" className="text-lg font-medium font-body">
-                {fybWeekSettings.isUnlocked ? "FYB Week Page is LIVE" : "FYB Week Page is LOCKED (Coming Soon)"}
+                {settings.isUnlocked ? "FYB Week Page is LIVE" : "FYB Week Page is LOCKED (Coming Soon)"}
               </Label>
             </div>
 
@@ -73,7 +134,7 @@ export default function ManageFybWeekPage() {
               <Input
                 id="fyb-week-title"
                 name="title"
-                value={fybWeekSettings.title}
+                value={settings.title}
                 onChange={handleInputChange}
                 className="text-lg"
                 placeholder="Enter title for the FYB Week page"
@@ -85,7 +146,7 @@ export default function ManageFybWeekPage() {
               <Textarea
                 id="schedule"
                 name="schedule"
-                value={fybWeekSettings.schedule}
+                value={settings.schedule}
                 onChange={handleInputChange}
                 placeholder="Enter the schedule for FYB Week..."
                 rows={8}
@@ -98,7 +159,7 @@ export default function ManageFybWeekPage() {
               <Textarea
                 id="activities"
                 name="activities"
-                value={fybWeekSettings.activities}
+                value={settings.activities}
                 onChange={handleInputChange}
                 placeholder="Describe the activities planned for FYB Week..."
                 rows={8}
@@ -109,9 +170,9 @@ export default function ManageFybWeekPage() {
             <div className="border-t pt-8">
               <h3 className="text-xl font-headline text-foreground mb-3">Event Gallery Images</h3>
               <div className="mb-4 p-4 border-dashed border-2 border-primary rounded-md text-center bg-primary/5">
-                <Label htmlFor="event-image-upload" className="cursor-pointer">
-                    <UploadCloud className="mx-auto h-12 w-12 text-primary/70 mb-2"/>
-                    <p className="text-primary font-semibold">Click or drag to upload event images</p>
+                <Label htmlFor="event-image-upload" className={`cursor-pointer ${isUploading ? 'opacity-50' : ''}`}>
+                    {isUploading ? <Loader2 className="mx-auto h-12 w-12 text-primary/70 animate-spin mb-2"/> : <UploadCloud className="mx-auto h-12 w-12 text-primary/70 mb-2"/>}
+                    <p className="text-primary font-semibold">{isUploading ? 'Uploading...' : 'Click or drag to upload event images'}</p>
                     <p className="text-xs text-muted-foreground">Supports multiple JPEGs, PNGs</p>
                 </Label>
                 <Input 
@@ -121,18 +182,19 @@ export default function ManageFybWeekPage() {
                     accept="image/jpeg, image/png" 
                     onChange={handleImageUpload}
                     className="hidden"
+                    disabled={isUploading}
                 />
               </div>
-              {fybWeekSettings.eventImages.length > 0 ? (
+              {settings.eventImages.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {fybWeekSettings.eventImages.map((image) => (
+                  {settings.eventImages.map((image) => (
                     <div key={image.id} className="relative group aspect-square border rounded-md overflow-hidden">
-                      <Image src={image.src} alt={image.name || 'Event image'} layout="fill" objectFit="cover" unoptimized />
+                      <Image src={image.src || ''} alt={image.name || 'Event image'} layout="fill" objectFit="cover" unoptimized />
                       <Button
                         variant="destructive"
                         size="icon"
                         className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                        onClick={() => deleteFybEventImage(image.id)}
+                        onClick={() => handleDeleteImage(image.id)}
                         aria-label="Delete image"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -149,8 +211,9 @@ export default function ManageFybWeekPage() {
             </div>
 
             <div className="flex justify-end pt-6">
-              <Button onClick={handleSaveChanges} size="lg" className="font-headline">
-                <Save className="mr-2 h-5 w-5" /> Save FYB Week Settings
+              <Button onClick={handleSaveChanges} size="lg" className="font-headline" disabled={isSaving}>
+                {isSaving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />} 
+                {isSaving ? 'Saving...' : 'Save FYB Week Settings'}
               </Button>
             </div>
           </CardContent>

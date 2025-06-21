@@ -104,9 +104,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setLogosState(defaultLogos);
           setFybWeekSettingsState(defaultFYBWeekSettings);
         }
-        setIsLoading(false); 
+        
       } catch (error: any) {
-        setIsLoading(false); 
         
         let isFailedToFetch = false;
         let extractedErrorMessage = "Unknown error during data load.";
@@ -158,6 +157,8 @@ Raw Error Object:`;
         setStudents([]);
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
+      } finally {
+        setIsLoading(false);
       }
       
       const storedAdminLogin = localStorage.getItem('nazsAdminLoggedIn');
@@ -225,10 +226,8 @@ Raw Error Object:`;
   };
 
   const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
-    if (!supabase) {
-      console.error("Supabase client not available for updating logo.");
-      return;
-    }
+    if (!supabase) throw new Error("Supabase client not available for updating logo.");
+    
     let newLogoUrl: string | null = null;
     const currentLogoUrl = logos[logoType];
 
@@ -248,30 +247,32 @@ Raw Error Object:`;
       .update({ logos: updatedLogos })
       .eq('id', APP_SETTINGS_ID);
 
-    if (error) console.error('Error updating logos in DB:', error);
-    else setLogosState(updatedLogos);
+    if (error) {
+      console.error('Error updating logos in DB:', error);
+      throw error;
+    }
+    setLogosState(updatedLogos);
   };
   
   const updateFybWeekTextSettings = async (settings: Partial<Pick<FYBWeekSettings, 'title' | 'schedule' | 'activities' | 'isUnlocked'>>) => {
-    if (!supabase) {
-      console.error("Supabase client not available for updating FYB week settings.");
-      return;
-    }
+    if (!supabase) throw new Error("Supabase client not available for updating FYB week settings.");
+
     const updatedSettings = { ...fybWeekSettings, ...settings };
     const { error } = await supabase
       .from('app_settings')
       .update({ fyb_week_settings: updatedSettings })
       .eq('id', APP_SETTINGS_ID);
     
-    if (error) console.error('Error updating FYB Week text settings:', error);
-    else setFybWeekSettingsState(updatedSettings);
+    if (error) {
+      console.error('Error updating FYB Week text settings:', error);
+      throw error;
+    }
+    setFybWeekSettingsState(updatedSettings);
   };
 
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
-    if (!supabase) {
-      console.error("Supabase client not available for adding student.");
-      return;
-    }
+    if (!supabase) throw new Error("Supabase client not available for adding student.");
+    
     let profileImageUrl: string | null = studentData.imageSrc; 
     if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
       const blob = dataURIToBlob(studentData.imageSrc);
@@ -297,19 +298,19 @@ Raw Error Object:`;
       .select()
       .single();
 
-    if (error) console.error('Error adding student:', error);
-    else if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
+    if (error) {
+      console.error('Error adding student:', error);
+      throw error;
+    }
+    if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
   };
 
   const updateStudent = async (studentData: Student) => {
-    if (!supabase) {
-      console.error("Supabase client not available for updating student.");
-      return;
-    }
+    if (!supabase) throw new Error("Supabase client not available for updating student.");
+
     const originalStudent = students.find(s => s.id === studentData.id);
     if (!originalStudent) {
-      console.error("Student not found for update");
-      return;
+      throw new Error("Student not found for update");
     }
 
     let profileImageUrl: string | null = studentData.imageSrc;
@@ -347,15 +348,16 @@ Raw Error Object:`;
       .select()
       .single();
 
-    if (error) console.error('Error updating student:', error);
-    else if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a,b) => a.name.localeCompare(b.name)));
+    if (error) {
+      console.error('Error updating student:', error);
+      throw error;
+    }
+    if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a,b) => a.name.localeCompare(b.name)));
   };
 
   const deleteStudent = async (studentId: string) => {
-    if (!supabase) {
-      console.error("Supabase client not available for deleting student.");
-      return;
-    }
+    if (!supabase) throw new Error("Supabase client not available for deleting student.");
+    
     const studentToDelete = students.find(s => s.id === studentId);
     if (studentToDelete) {
       if (studentToDelete.imageSrc) await deleteFileFromSupabase(studentToDelete.imageSrc);
@@ -363,20 +365,21 @@ Raw Error Object:`;
     }
 
     const { error } = await supabase.from('students').delete().eq('id', studentId);
-    if (error) console.error('Error deleting student:', error);
-    else setStudents(prev => prev.filter(s => s.id !== studentId));
+    if (error) {
+      console.error('Error deleting student:', error);
+      throw error;
+    }
+    setStudents(prev => prev.filter(s => s.id !== studentId));
   };
   
   const addFybEventImage = async (file: File) => {
-     if (!supabase) {
-      console.error("Supabase client not available for adding FYB event image.");
-      return;
-    }
+     if (!supabase) throw new Error("Supabase client not available for adding FYB event image.");
+    
     const imageId = uuidv4();
     const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
     const imageUrl = await uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`);
 
-    if (!imageUrl) return;
+    if (!imageUrl) throw new Error("File upload failed, received no public URL.");
 
     const newImage: FYBEventImage = { id: imageId, src: imageUrl, name: file.name }; 
     const updatedImages = [...fybWeekSettings.eventImages, newImage];
@@ -387,15 +390,16 @@ Raw Error Object:`;
       .update({ fyb_week_settings: updatedSettings })
       .eq('id', APP_SETTINGS_ID);
 
-    if (error) console.error('Error adding FYB event image:', error);
-    else setFybWeekSettingsState(updatedSettings);
+    if (error) {
+      console.error('Error adding FYB event image:', error);
+      throw error;
+    }
+    setFybWeekSettingsState(updatedSettings);
   };
 
   const deleteFybEventImage = async (imageId: string) => {
-    if (!supabase) {
-      console.error("Supabase client not available for deleting FYB event image.");
-      return;
-    }
+    if (!supabase) throw new Error("Supabase client not available for deleting FYB event image.");
+
     const imageToDelete = fybWeekSettings.eventImages.find(img => img.id === imageId);
     if (imageToDelete?.src) { 
       await deleteFileFromSupabase(imageToDelete.src);
@@ -409,8 +413,11 @@ Raw Error Object:`;
       .update({ fyb_week_settings: updatedSettings })
       .eq('id', APP_SETTINGS_ID);
 
-    if (error) console.error('Error deleting FYB event image:', error);
-    else setFybWeekSettingsState(updatedSettings);
+    if (error) {
+      console.error('Error deleting FYB event image:', error);
+      throw error;
+    }
+    setFybWeekSettingsState(updatedSettings);
   };
 
 
