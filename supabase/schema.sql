@@ -1,71 +1,94 @@
 
--- Main App Settings Table
--- Stores singleton settings like logos and FYB Week content.
-create table
-  public.app_settings (
-    id bigint not null,
-    logos jsonb null,
-    fyb_week_settings jsonb null,
-    created_at timestamp with time zone not null default now(),
-    updated_at timestamp with time zone not null default now(),
-    constraint app_settings_pkey primary key (id)
-  ) tablespace pg_default;
+-- This is the complete schema for your application's database.
+-- It includes tables for students and application settings,
+-- as well as all necessary row-level security policies.
+-- To set up or reset your database, run this entire script in your Supabase SQL Editor.
 
--- Seed the singleton row for app_settings
-insert into public.app_settings(id, logos, fyb_week_settings)
-values (1, '{}', '{}')
-on conflict (id) do nothing;
+-- 1. Create Tables
+-- -----------------
 
--- Students Table
--- Stores all student profile information.
-create table
-  public.students (
-    id uuid not null default gen_random_uuid (),
-    created_at timestamp with time zone not null default now(),
-    updated_at timestamp with time zone not null default now(),
-    name text not null,
-    nickname text null,
-    birthday text null,
-    relationship_status text null,
-    state_of_origin text null,
-    lga text null,
-    favourite_course text null,
-    favourite_lecturer text null,
-    favourite_coursemates text[] null,
-    hobbies text[] null,
-    posts_held text null,
-    -- Ensure these columns exist and are named correctly
-    best_level text null,
-    worst_level text null,
-    class_rep_quote text null,
-    parting_words text null,
-    image_src text null,
-    flyer_image_src text null,
-    constraint students_pkey primary key (id)
-  ) tablespace pg_default;
+-- Create the students table
+create table students (
+  id uuid primary key,
+  name text not null,
+  nickname text,
+  birthday text not null,
+  relationship_status text not null,
+  state_of_origin text not null,
+  lga text not null,
+  favourite_course text not null,
+  favourite_lecturer text not null,
+  favourite_coursemates text[] not null default '{}'::text[],
+  hobbies text[] not null default '{}'::text[],
+  posts_held text not null,
+  best_level text not null,
+  worst_level text not null,
+  class_rep_quote text not null,
+  parting_words text not null,
+  image_src text,
+  flyer_image_src text,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
 
-----------------------------------------------------
---- Row-Level Security (RLS) Policies for Tables ---
-----------------------------------------------------
-
--- Grant all actions on app_settings as it's for the admin panel
-alter table public.app_settings enable row level security;
-create policy "Allow full access to app settings" on public.app_settings for all using (true) with check (true);
-
--- Grant all actions on students as it's for the admin panel
-alter table public.students enable row level security;
-create policy "Allow full access to students" on public.students for all using (true) with check (true);
+-- Create the app_settings table
+create table app_settings (
+  id bigint primary key,
+  logos jsonb,
+  fyb_week_settings jsonb,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
 
 
------------------------------------------------
---- Supabase Storage and Assets Policies    ---
------------------------------------------------
+-- 2. Enable Row Level Security (RLS)
+-- -----------------------------------
+-- RLS is on by default for new tables, but this ensures it is enabled.
 
--- Policies for 'app-public-assets' bucket
--- Allow public read access to all files
-create policy "Public read access for all assets" on storage.objects for select using (bucket_id = 'app-public-assets');
+alter table students enable row level security;
+alter table app_settings enable row level security;
 
--- Allow authenticated users to upload, update, and delete files
-create policy "Allow inserts for authenticated users" on storage.objects for insert with check (auth.role() = 'anon');
-create policy "Allow updates for authenticated users" on storage.objects for update using (auth.role() = 'anon');
-create policy "Allow deletes for authenticated users" on storage.objects for delete using (auth.role() = 'anon');
+
+-- 3. Create Row Level Security Policies
+-- ---------------------------------------
+
+-- Policies for 'students' table
+-- Allow anyone to read all student data
+drop policy if exists "Allow public read access to students" on public.students;
+create policy "Allow public read access to students" on public.students
+  for select using (true);
+
+-- Allow anyone to insert, update, or delete student data.
+-- This is permissive to match the app's client-side PIN protection model.
+drop policy if exists "Allow public write access to students" on public.students;
+create policy "Allow public write access to students" on public.students
+  for all using (true) with check (true);
+
+
+-- Policies for 'app_settings' table
+-- Allow anyone to read the application settings
+drop policy if exists "Allow public read access to app settings" on public.app_settings;
+create policy "Allow public read access to app settings" on public.app_settings
+  for select using (true);
+
+-- Allow anyone to insert or update the application settings.
+-- This is permissive to match the app's client-side PIN protection model.
+drop policy if exists "Allow public write access to app settings" on public.app_settings;
+create policy "Allow public write access to app settings" on public.app_settings
+  for all using (true) with check (true);
+
+
+-- 4. Supabase Storage Policies
+-- ------------------------------
+-- These policies control access to your 'app-public-assets' storage bucket.
+
+-- Allow anyone to view images in the bucket.
+drop policy if exists "Allow public read access to assets" on storage.objects;
+create policy "Allow public read access to assets" on storage.objects
+  for select using ( bucket_id = 'app-public-assets' );
+
+-- Allow anyone to upload, update, and delete images.
+-- This is permissive to match the app's client-side PIN protection model.
+drop policy if exists "Allow public write access to assets" on storage.objects;
+create policy "Allow public write access to assets" on storage.objects
+  for all using ( bucket_id = 'app-public-assets' ) with check ( bucket_id = 'app-public-assets' );
