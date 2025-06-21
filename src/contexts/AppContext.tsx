@@ -4,7 +4,8 @@ import type { ReactNode } from 'react';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Student, LogoSettings, FYBWeekSettings, AppState, FYBEventImage, AppSettingsFromSupabase } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
-import { v4 as uuidv4 } from 'uuid'; // For generating unique IDs for images/students if needed
+import { v4 as uuidv4 } from 'uuid';
+import { AssociationLogoPlaceholder } from '@/components/icons/AssociationLogoPlaceholder';
 
 // Helper to convert Data URI to Blob for Supabase upload
 function dataURIToBlob(dataURI: string): Blob | null {
@@ -71,7 +72,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     async function loadInitialData() {
-      setIsLoading(true);
+      // Intentionally not setting loading to true here, it starts as true
       try {
         if (!supabase) {
           throw new Error("Supabase client is not initialized. Check your environment variables and supabaseClient.ts.");
@@ -106,7 +107,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
         
       } catch (error: any) {
-        
         let isFailedToFetch = false;
         let extractedErrorMessage = "Unknown error during data load.";
 
@@ -146,8 +146,9 @@ Please meticulously verify the following troubleshooting steps:
     - Try temporarily disabling them to test.
 7.  Supabase Project Status: Check your Supabase project dashboard (status.supabase.com) to ensure it's active and healthy.
 8.  Console Network Tab: Open your browser's developer tools (F12), go to the 'Network' tab, and refresh the page. Look for failed requests to \`iwkslfapaxafwghfhefu.supabase.co\`. The status and response can provide more clues.
-`;
-            console.error(troubleshootingMessage);
+
+Raw Error Object:`;
+            console.error(troubleshootingMessage, error);
         } else {
             console.error('An unexpected error occurred while loading initial data from Supabase:', error);
         }
@@ -184,10 +185,9 @@ Please meticulously verify the following troubleshooting steps:
     setIsAdminLoggedIn(false);
   };
 
-  const uploadFileToSupabase = async (fileBlob: Blob, pathPrefix: string, fileNameWithoutExt: string): Promise<string | null> => {
+  const uploadFileToSupabase = async (fileBlob: Blob, pathPrefix: string, fileNameWithoutExt: string): Promise<string> => {
     if (!supabase) {
-      console.error("Supabase client not available for file upload.");
-      return null;
+      throw new Error("Supabase client not available for file upload.");
     }
     const fileExt = fileBlob.type.split('/')[1] || 'png';
     const fullFileName = `${fileNameWithoutExt}.${fileExt}`;
@@ -202,6 +202,9 @@ Please meticulously verify the following troubleshooting steps:
       throw uploadError;
     }
     const { data } = supabase.storage.from(STORAGE_BUCKET_NAME).getPublicUrl(filePath);
+    if (!data.publicUrl) {
+      throw new Error("Upload succeeded but failed to get public URL.");
+    }
     return data.publicUrl;
   };
 
@@ -243,13 +246,11 @@ Please meticulously verify the following troubleshooting steps:
     const updatedLogos = { ...logos, [logoType]: newLogoUrl };
     const { error } = await supabase
       .from('app_settings')
-      .update({ logos: updatedLogos })
-      .eq('id', APP_SETTINGS_ID);
+      .upsert({ id: APP_SETTINGS_ID, logos: updatedLogos, fyb_week_settings: fybWeekSettings })
+      .select()
+      .single();
 
-    if (error) {
-      console.error('Error updating logos in DB:', error);
-      throw error;
-    }
+    if (error) throw error;
     setLogosState(updatedLogos);
   };
   
@@ -259,13 +260,11 @@ Please meticulously verify the following troubleshooting steps:
     const updatedSettings = { ...fybWeekSettings, ...settings };
     const { error } = await supabase
       .from('app_settings')
-      .update({ fyb_week_settings: updatedSettings })
-      .eq('id', APP_SETTINGS_ID);
+      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+      .select()
+      .single();
     
-    if (error) {
-      console.error('Error updating FYB Week text settings:', error);
-      throw error;
-    }
+    if (error) throw error;
     setFybWeekSettingsState(updatedSettings);
   };
 
@@ -275,13 +274,13 @@ Please meticulously verify the following troubleshooting steps:
     let profileImageUrl: string | null = studentData.imageSrc; 
     if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
       const blob = dataURIToBlob(studentData.imageSrc);
-      profileImageUrl = blob ? await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`) : null;
+      if (blob) profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`);
     }
 
     let flyerImageUrl: string | null = studentData.flyerImageSrc;
     if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
       const blob = dataURIToBlob(studentData.flyerImageSrc);
-      flyerImageUrl = blob ? await uploadFileToSupabase(blob, 'student_flyers', `flyer_${uuidv4()}`) : null;
+      if (blob) flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${uuidv4()}`);
     }
 
     const studentToInsert = {
@@ -297,10 +296,7 @@ Please meticulously verify the following troubleshooting steps:
       .select()
       .single();
 
-    if (error) {
-      console.error('Error adding student:', error);
-      throw error;
-    }
+    if (error) throw error;
     if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
   };
 
@@ -308,37 +304,28 @@ Please meticulously verify the following troubleshooting steps:
     if (!supabase) throw new Error("Supabase client not available for updating student.");
 
     const originalStudent = students.find(s => s.id === studentData.id);
-    if (!originalStudent) {
-      throw new Error("Student not found for update");
-    }
+    if (!originalStudent) throw new Error("Student not found for update");
 
     let profileImageUrl: string | null = studentData.imageSrc;
     if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) { 
       if (originalStudent.imageSrc) await deleteFileFromSupabase(originalStudent.imageSrc);
       const blob = dataURIToBlob(studentData.imageSrc);
-      profileImageUrl = blob ? await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`) : null;
+      if(blob) profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
     } else if (studentData.imageSrc === null && originalStudent.imageSrc) { 
         await deleteFileFromSupabase(originalStudent.imageSrc);
     }
-
 
     let flyerImageUrl: string | null = studentData.flyerImageSrc;
     if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) { 
       if (originalStudent.flyerImageSrc) await deleteFileFromSupabase(originalStudent.flyerImageSrc);
       const blob = dataURIToBlob(studentData.flyerImageSrc);
-      flyerImageUrl = blob ? await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`) : null;
+      if(blob) flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
     } else if (studentData.flyerImageSrc === null && originalStudent.flyerImageSrc) { 
         await deleteFileFromSupabase(originalStudent.flyerImageSrc);
     }
     
-    const studentToUpdatePayload = {
-      ...studentData,
-      imageSrc: profileImageUrl,
-      flyerImageSrc: flyerImageUrl,
-    };
-   
+    const studentToUpdatePayload = { ...studentData, imageSrc: profileImageUrl, flyerImageSrc: flyerImageUrl };
     const { id, created_at, updated_at, ...updatePayload } = studentToUpdatePayload;
-
 
     const { data: updatedStudent, error } = await supabase
       .from('students')
@@ -347,10 +334,7 @@ Please meticulously verify the following troubleshooting steps:
       .select()
       .single();
 
-    if (error) {
-      console.error('Error updating student:', error);
-      throw error;
-    }
+    if (error) throw error;
     if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a,b) => a.name.localeCompare(b.name)));
   };
 
@@ -364,10 +348,7 @@ Please meticulously verify the following troubleshooting steps:
     }
 
     const { error } = await supabase.from('students').delete().eq('id', studentId);
-    if (error) {
-      console.error('Error deleting student:', error);
-      throw error;
-    }
+    if (error) throw error;
     setStudents(prev => prev.filter(s => s.id !== studentId));
   };
   
@@ -378,21 +359,17 @@ Please meticulously verify the following troubleshooting steps:
     const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
     const imageUrl = await uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`);
 
-    if (!imageUrl) throw new Error("File upload failed, received no public URL.");
-
     const newImage: FYBEventImage = { id: imageId, src: imageUrl, name: file.name }; 
     const updatedImages = [...fybWeekSettings.eventImages, newImage];
     const updatedSettings = { ...fybWeekSettings, eventImages: updatedImages };
     
     const { error } = await supabase
       .from('app_settings')
-      .update({ fyb_week_settings: updatedSettings })
-      .eq('id', APP_SETTINGS_ID);
+      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+      .select()
+      .single();
 
-    if (error) {
-      console.error('Error adding FYB event image:', error);
-      throw error;
-    }
+    if (error) throw error;
     setFybWeekSettingsState(updatedSettings);
   };
 
@@ -409,13 +386,11 @@ Please meticulously verify the following troubleshooting steps:
 
     const { error } = await supabase
       .from('app_settings')
-      .update({ fyb_week_settings: updatedSettings })
-      .eq('id', APP_SETTINGS_ID);
+      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+      .select()
+      .single();
 
-    if (error) {
-      console.error('Error deleting FYB event image:', error);
-      throw error;
-    }
+    if (error) throw error;
     setFybWeekSettingsState(updatedSettings);
   };
 
@@ -432,7 +407,16 @@ Please meticulously verify the following troubleshooting steps:
       updateLogo, updateFybWeekTextSettings,
       addFybEventImage, deleteFybEventImage
     }}>
-      {isLoading ? <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background"><div className="animate-pulse text-primary font-headline text-lg">Loading Application Data...</div></div> : children}
+      {isLoading ? (
+        <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
+          <div className="w-32 h-32 md:w-48 md:h-48 animate-pulse">
+            <AssociationLogoPlaceholder className="w-full h-full text-primary" />
+          </div>
+          <p className="mt-4 text-lg font-headline text-primary">Loading Application Data...</p>
+        </div>
+      ) : (
+        children
+      )}
     </AppContext.Provider>
   );
 };

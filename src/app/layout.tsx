@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { AppProvider } from '@/contexts/AppContext';
 import { Toaster } from "@/components/ui/toaster";
-import SiteLayout from '@/components/SiteLayout'; // To handle loading screen logic client-side
 
 export const metadata: Metadata = {
   title: 'Zoology FYB Week',
@@ -24,9 +23,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProvider>
-          <SiteLayout>
-            {children}
-          </SiteLayout>
+          {children}
           <Toaster />
         </AppProvider>
       </body>
