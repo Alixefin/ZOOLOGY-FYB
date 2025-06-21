@@ -72,7 +72,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     async function loadInitialData() {
-      // Intentionally not setting loading to true here, it starts as true
       try {
         if (!supabase) {
           throw new Error("Supabase client is not initialized. Check your environment variables and supabaseClient.ts.");
@@ -146,9 +145,8 @@ Please meticulously verify the following troubleshooting steps:
     - Try temporarily disabling them to test.
 7.  Supabase Project Status: Check your Supabase project dashboard (status.supabase.com) to ensure it's active and healthy.
 8.  Console Network Tab: Open your browser's developer tools (F12), go to the 'Network' tab, and refresh the page. Look for failed requests to \`iwkslfapaxafwghfhefu.supabase.co\`. The status and response can provide more clues.
-
-Raw Error Object:`;
-            console.error(troubleshootingMessage, error);
+`;
+            console.error(troubleshootingMessage, '\nRaw Error Object:', error);
         } else {
             console.error('An unexpected error occurred while loading initial data from Supabase:', error);
         }
@@ -269,73 +267,122 @@ Raw Error Object:`;
   };
 
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
-    if (!supabase) throw new Error("Supabase client not available for adding student.");
-    
-    let profileImageUrl: string | null = studentData.imageSrc; 
-    if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
-      const blob = dataURIToBlob(studentData.imageSrc);
-      if (blob) profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`);
-    }
+    if (!supabase) throw new Error("Supabase client not available.");
 
+    let profileImageUrl: string | null = studentData.imageSrc;
     let flyerImageUrl: string | null = studentData.flyerImageSrc;
-    if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
-      const blob = dataURIToBlob(studentData.flyerImageSrc);
-      if (blob) flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${uuidv4()}`);
+
+    // Step 1: Upload Profile Image if provided as a data URI
+    try {
+      if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
+        const blob = dataURIToBlob(studentData.imageSrc);
+        if (blob) {
+          profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`);
+        }
+      }
+    } catch (e: any) {
+      throw new Error(`Profile image upload failed: ${e.message}`);
     }
 
+    // Step 2: Upload Flyer Image if provided as a data URI
+    try {
+      if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
+        const blob = dataURIToBlob(studentData.flyerImageSrc);
+        if (blob) {
+          flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${uuidv4()}`);
+        }
+      }
+    } catch (e: any) {
+      // Clean up already uploaded profile image if flyer upload fails
+      if (profileImageUrl && profileImageUrl !== studentData.imageSrc) {
+        await deleteFileFromSupabase(profileImageUrl);
+      }
+      throw new Error(`Flyer image upload failed: ${e.message}`);
+    }
+
+    // Step 3: Insert student data into the database
     const studentToInsert = {
       ...studentData,
-      id: uuidv4(), 
+      id: uuidv4(),
       imageSrc: profileImageUrl,
       flyerImageSrc: flyerImageUrl,
     };
 
-    const { data: newStudent, error } = await supabase
-      .from('students')
-      .insert(studentToInsert)
-      .select()
-      .single();
+    try {
+      const { data: newStudent, error } = await supabase
+        .from('students')
+        .insert(studentToInsert)
+        .select()
+        .single();
 
-    if (error) throw error;
-    if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
+      if (error) throw error;
+      if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (e: any) {
+      // Clean up any uploaded files if DB insert fails
+      if (profileImageUrl && profileImageUrl !== studentData.imageSrc) {
+        await deleteFileFromSupabase(profileImageUrl);
+      }
+      if (flyerImageUrl && flyerImageUrl !== studentData.flyerImageSrc) {
+        await deleteFileFromSupabase(flyerImageUrl);
+      }
+      throw new Error(`Database insert failed: ${e.message}`);
+    }
   };
 
   const updateStudent = async (studentData: Student) => {
-    if (!supabase) throw new Error("Supabase client not available for updating student.");
+    if (!supabase) throw new Error("Supabase client not available.");
 
     const originalStudent = students.find(s => s.id === studentData.id);
     if (!originalStudent) throw new Error("Student not found for update");
 
-    let profileImageUrl: string | null = studentData.imageSrc;
-    if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) { 
-      if (originalStudent.imageSrc) await deleteFileFromSupabase(originalStudent.imageSrc);
-      const blob = dataURIToBlob(studentData.imageSrc);
-      if(blob) profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
-    } else if (studentData.imageSrc === null && originalStudent.imageSrc) { 
-        await deleteFileFromSupabase(originalStudent.imageSrc);
+    let updatedPayload = { ...studentData };
+
+    // Handle Profile Image
+    try {
+        if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
+            if (originalStudent.imageSrc) await deleteFileFromSupabase(originalStudent.imageSrc);
+            const blob = dataURIToBlob(studentData.imageSrc);
+            if (blob) {
+                updatedPayload.imageSrc = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
+            }
+        } else if (studentData.imageSrc === null && originalStudent.imageSrc) {
+            await deleteFileFromSupabase(originalStudent.imageSrc);
+        }
+    } catch (e: any) {
+        throw new Error(`Profile image update failed: ${e.message}`);
     }
 
-    let flyerImageUrl: string | null = studentData.flyerImageSrc;
-    if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) { 
-      if (originalStudent.flyerImageSrc) await deleteFileFromSupabase(originalStudent.flyerImageSrc);
-      const blob = dataURIToBlob(studentData.flyerImageSrc);
-      if(blob) flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
-    } else if (studentData.flyerImageSrc === null && originalStudent.flyerImageSrc) { 
-        await deleteFileFromSupabase(originalStudent.flyerImageSrc);
+    // Handle Flyer Image
+    try {
+        if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
+            if (originalStudent.flyerImageSrc) await deleteFileFromSupabase(originalStudent.flyerImageSrc);
+            const blob = dataURIToBlob(studentData.flyerImageSrc);
+            if (blob) {
+                updatedPayload.flyerImageSrc = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
+            }
+        } else if (studentData.flyerImageSrc === null && originalStudent.flyerImageSrc) {
+            await deleteFileFromSupabase(originalStudent.flyerImageSrc);
+        }
+    } catch (e: any) {
+        throw new Error(`Flyer image update failed: ${e.message}`);
     }
     
-    const studentToUpdatePayload = { ...studentData, imageSrc: profileImageUrl, flyerImageSrc: flyerImageUrl };
-    const { id, created_at, updated_at, ...updatePayload } = studentToUpdatePayload;
+    // Database Update
+    try {
+      const { id, created_at, updated_at, ...updateForDb } = updatedPayload;
 
-    const { data: updatedStudent, error } = await supabase
-      .from('students')
-      .update(updatePayload)
-      .eq('id', studentData.id)
-      .select()
-      .single();
+      const { data: updatedStudent, error } = await supabase
+        .from('students')
+        .update(updateForDb)
+        .eq('id', studentData.id)
+        .select()
+        .single();
 
-    if (error) throw error;
-    if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a,b) => a.name.localeCompare(b.name)));
+      if (error) throw error;
+      if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a, b) => a.name.localeCompare(b.name)));
+    } catch (e: any) {
+        throw new Error(`Database update failed: ${e.message}`);
+    }
   };
 
   const deleteStudent = async (studentId: string) => {
