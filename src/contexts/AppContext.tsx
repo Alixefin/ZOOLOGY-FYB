@@ -6,7 +6,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Student, LogoSettings, FYBWeekSettings, AppState, FYBEventImage, AppSettingsFromSupabase } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
-import { AssociationLogoPlaceholder } from '@/components/icons/AssociationLogoPlaceholder';
 
 // Helper to convert Data URI to Blob for Supabase upload
 function dataURIToBlob(dataURI: string): Blob | null {
@@ -72,7 +71,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   const [isLoading, setIsLoading] = useState(true);
   const [isDataFetched, setIsDataFetched] = useState(false);
-  const [isLogoRendered, setIsLogoRendered] = useState(false);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -155,10 +153,12 @@ Raw Error: ${extractedErrorMessage}`;
   }, []);
 
   useEffect(() => {
-    if (isDataFetched && (isLogoRendered || !logos.associationLogo)) {
-      setIsLoading(false);
+    if (isDataFetched) {
+      // Add a small delay to prevent a jarring flash of content on fast connections
+      const timer = setTimeout(() => setIsLoading(false), 250); 
+      return () => clearTimeout(timer);
     }
-  }, [isDataFetched, isLogoRendered, logos.associationLogo]);
+  }, [isDataFetched]);
   
   useEffect(() => {
     localStorage.setItem('nazsAdminLoggedIn', isAdminLoggedIn.toString());
@@ -465,23 +465,16 @@ Raw Error: ${extractedErrorMessage}`;
     }}>
       {isLoading ? (
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
-          <div className="w-32 h-32 md:w-48 md:h-48 flex items-center justify-center">
-            {logos.associationLogo && isDataFetched ? (
-              <Image 
-                src={logos.associationLogo} 
-                alt="Association Logo" 
-                width={192} 
-                height={192} 
-                className="object-contain" 
-                unoptimized
-                onLoad={() => setIsLogoRendered(true)}
-                onError={() => setIsLogoRendered(true)} // Also handle error case
-              />
-            ) : (
-              <div className="w-full h-full animate-pulse">
-                <AssociationLogoPlaceholder className="w-full h-full text-primary" />
-              </div>
-            )}
+          <div className="w-32 h-32 md:w-48 md:h-48 animate-pulse">
+            <Image
+              src="/logo-placeholder.svg"
+              alt="Loading Logo"
+              width={192}
+              height={192}
+              className="object-contain"
+              unoptimized
+              priority
+            />
           </div>
           <p className="mt-4 text-lg font-headline text-primary">Loading Application Data...</p>
         </div>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="currentColor">
+  <rect width="100" height="100" rx="10" fill="#DBE6DB" />
+  <text
+    x="50"
+    y="55"
+    fontFamily="Arial, sans-serif"
+    fontSize="12"
+    fill="#5C6B5C"
+    textAnchor="middle"
+  >
+    NAZS Logo
+  </text>
+</svg>
