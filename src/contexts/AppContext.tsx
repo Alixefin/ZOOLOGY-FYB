@@ -146,9 +146,8 @@ Please meticulously verify the following troubleshooting steps:
     - Try temporarily disabling them to test.
 7.  Supabase Project Status: Check your Supabase project dashboard (status.supabase.com) to ensure it's active and healthy.
 8.  Console Network Tab: Open your browser's developer tools (F12), go to the 'Network' tab, and refresh the page. Look for failed requests to \`iwkslfapaxafwghfhefu.supabase.co\`. The status and response can provide more clues.
-
-Raw Error Object:`;
-            console.error(troubleshootingMessage, error);
+`;
+            console.error(troubleshootingMessage);
         } else {
             console.error('An unexpected error occurred while loading initial data from Supabase:', error);
         }
@@ -200,7 +199,7 @@ Raw Error Object:`;
 
     if (uploadError) {
       console.error(`Error uploading ${fullFileName}:`, uploadError);
-      return null;
+      throw uploadError;
     }
     const { data } = supabase.storage.from(STORAGE_BUCKET_NAME).getPublicUrl(filePath);
     return data.publicUrl;
