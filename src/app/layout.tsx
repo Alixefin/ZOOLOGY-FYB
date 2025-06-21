@@ -7,6 +7,9 @@ import { Toaster } from "@/components/ui/toaster";
 export const metadata: Metadata = {
   title: 'Zoology FYB Week',
   description: 'Online magazine for the National Association of Zoology Students (NAZS), Lokoja Chapter, FULOKOJA.',
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
