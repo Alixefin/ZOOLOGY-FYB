@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, Trophy, ThumbsDown, MessageSquare, Edit3, Briefcase } from 'lucide-react';
 import Link from 'next/link';
+import { format, parse } from 'date-fns';
 
 interface DetailItemProps {
   icon: React.ElementType;
@@ -48,6 +49,19 @@ export default function StudentDetailPage() {
       </div>
     );
   }
+  
+  const formatBirthday = (birthdayStr: string | null | undefined): string | null => {
+    if (!birthdayStr) return null;
+    try {
+      // Assuming birthday is in "MM/DD/YYYY" format
+      const date = parse(birthdayStr, 'MM/dd/yyyy', new Date());
+      // Format to "Month Day", e.g., "December 25"
+      return format(date, 'MMMM d');
+    } catch (e) {
+      console.error("Error formatting birthday:", e);
+      return birthdayStr; // Fallback to original string on error
+    }
+  };
 
   const handleDownloadFlyer = () => {
     if (student.flyerImageSrc) {
@@ -90,7 +104,7 @@ export default function StudentDetailPage() {
             </div>
           </CardHeader>
           <CardContent className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-            <DetailItem icon={Cake} label="Birthday" value={student.birthday} />
+            <DetailItem icon={Cake} label="Birthday" value={formatBirthday(student.birthday)} />
             <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
             <DetailItem icon={MapPin} label="State of Origin" value={student.state_of_origin} />
             <DetailItem icon={MapPin} label="LGA" value={student.lga} />
