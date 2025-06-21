@@ -69,7 +69,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [logos, setLogosState] = useState<LogoSettings>(defaultLogos);
   const [fybWeekSettings, setFybWeekSettingsState] = useState<FYBWeekSettings>(defaultFYBWeekSettings);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  
   const [isLoading, setIsLoading] = useState(true);
+  const [isDataFetched, setIsDataFetched] = useState(false);
+  const [isLogoRendered, setIsLogoRendered] = useState(false);
 
   useEffect(() => {
     async function loadInitialData() {
@@ -158,7 +161,7 @@ Raw Error Object:`;
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
       } finally {
-        setIsLoading(false);
+        setIsDataFetched(true);
       }
       
       const storedAdminLogin = localStorage.getItem('nazsAdminLoggedIn');
@@ -168,6 +171,12 @@ Raw Error Object:`;
     }
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (isDataFetched && (isLogoRendered || !logos.associationLogo)) {
+      setIsLoading(false);
+    }
+  }, [isDataFetched, isLogoRendered, logos.associationLogo]);
   
   useEffect(() => {
     localStorage.setItem('nazsAdminLoggedIn', isAdminLoggedIn.toString());
@@ -274,7 +283,6 @@ Raw Error Object:`;
     let profileImageUrl: string | null = studentData.imageSrc;
     let flyerImageUrl: string | null = studentData.flyerImageSrc;
 
-    // Step 1: Upload Profile Image if provided as a data URI
     try {
       if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
         const blob = dataURIToBlob(studentData.imageSrc);
@@ -286,7 +294,6 @@ Raw Error Object:`;
       throw new Error(`Profile image upload failed: ${e.message}`);
     }
 
-    // Step 2: Upload Flyer Image if provided as a data URI
     try {
       if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
         const blob = dataURIToBlob(studentData.flyerImageSrc);
@@ -295,14 +302,12 @@ Raw Error Object:`;
         }
       }
     } catch (e: any) {
-      // Clean up already uploaded profile image if flyer upload fails
       if (profileImageUrl && profileImageUrl !== studentData.imageSrc) {
         await deleteFileFromSupabase(profileImageUrl);
       }
       throw new Error(`Flyer image upload failed: ${e.message}`);
     }
 
-    // Step 3: Insert student data into the database
     const studentToInsert = {
       ...studentData,
       id: uuidv4(),
@@ -320,7 +325,6 @@ Raw Error Object:`;
       if (error) throw error;
       if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
     } catch (e: any) {
-      // Clean up any uploaded files if DB insert fails
       if (profileImageUrl && profileImageUrl !== studentData.imageSrc) {
         await deleteFileFromSupabase(profileImageUrl);
       }
@@ -339,7 +343,6 @@ Raw Error Object:`;
 
     let updatedPayload = { ...studentData };
 
-    // Handle Profile Image
     try {
         if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
             if (originalStudent.imageSrc) await deleteFileFromSupabase(originalStudent.imageSrc);
@@ -354,7 +357,6 @@ Raw Error Object:`;
         throw new Error(`Profile image update failed: ${e.message}`);
     }
 
-    // Handle Flyer Image
     try {
         if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
             if (originalStudent.flyerImageSrc) await deleteFileFromSupabase(originalStudent.flyerImageSrc);
@@ -369,7 +371,6 @@ Raw Error Object:`;
         throw new Error(`Flyer image update failed: ${e.message}`);
     }
     
-    // Database Update
     try {
       const { id, created_at, updated_at, ...updateForDb } = updatedPayload;
 
@@ -460,7 +461,16 @@ Raw Error Object:`;
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
           <div className="w-32 h-32 md:w-48 md:h-48 flex items-center justify-center">
             {logos.associationLogo ? (
-              <Image src={logos.associationLogo} alt="Association Logo" width={192} height={192} className="object-contain" unoptimized />
+              <Image 
+                src={logos.associationLogo} 
+                alt="Association Logo" 
+                width={192} 
+                height={192} 
+                className="object-contain" 
+                unoptimized
+                onLoad={() => setIsLogoRendered(true)}
+                onError={() => setIsLogoRendered(true)} // Also handle error case
+              />
             ) : (
               <div className="w-full h-full animate-pulse">
                 <AssociationLogoPlaceholder className="w-full h-full text-primary" />

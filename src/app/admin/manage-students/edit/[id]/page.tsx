@@ -8,7 +8,7 @@ import AdminHeader from '@/components/AdminHeader';
 import { useToast } from "@/hooks/use-toast";
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import type { Student } from '@/types'; // Import Student type
+import type { Student } from '@/types'; 
 import { useState } from 'react';
 
 export default function EditStudentPage() {
@@ -21,8 +21,7 @@ export default function EditStudentPage() {
 
   const student = students.find(s => s.id === studentId);
 
-  // Explicitly type the data argument
-  const handleEditStudent = async (data: Omit<Student, 'id'>) => {
+  const handleEditStudent = async (data: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     if (student) {
       setIsSubmitting(true);
       try {

@@ -6,7 +6,7 @@ import { useAppContext } from '@/contexts/AppContext';
 import StudentForm from '@/components/StudentForm';
 import AdminHeader from '@/components/AdminHeader';
 import { useToast } from "@/hooks/use-toast";
-import type { Student } from '@/types'; // Import Student type
+import type { Student } from '@/types'; 
 import { useState } from 'react';
 
 export default function AddStudentPage() {
@@ -15,8 +15,7 @@ export default function AddStudentPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Explicitly type the data argument according to StudentForm's expectation
-  const handleAddStudent = async (data: Omit<Student, 'id'>) => {
+  const handleAddStudent = async (data: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     setIsSubmitting(true);
     try {
       await addStudent(data);

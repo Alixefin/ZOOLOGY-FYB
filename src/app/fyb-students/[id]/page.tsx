@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, Trophy, ThumbsDown, MessageSquare, Edit3 } from 'lucide-react';
+import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, Trophy, ThumbsDown, MessageSquare, Edit3, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 
 interface DetailItemProps {
@@ -91,24 +91,25 @@ export default function StudentDetailPage() {
           </CardHeader>
           <CardContent className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
             <DetailItem icon={Cake} label="Birthday" value={student.birthday} />
-            <DetailItem icon={Heart} label="Relationship Status" value={student.relationshipStatus} />
-            <DetailItem icon={MapPin} label="State of Origin" value={student.stateOfOrigin} />
+            <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
+            <DetailItem icon={MapPin} label="State of Origin" value={student.state_of_origin} />
             <DetailItem icon={MapPin} label="LGA" value={student.lga} />
-            <DetailItem icon={BookOpen} label="Favourite Course" value={student.favouriteCourse} />
-            <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favouriteLecturer} />
-            <DetailItem icon={Users} label="Favourite Coursemate(s)" value={student.favouriteCoursemates} />
+            <DetailItem icon={BookOpen} label="Favourite Course" value={student.favourite_course} />
+            <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
+            <DetailItem icon={Users} label="Favourite Coursemate(s)" value={student.favourite_coursemates} />
             <DetailItem icon={Edit3} label="Hobby(s)" value={student.hobbies} />
-            <DetailItem icon={User} label="Post(s) Held" value={student.postsHeld} />
-            <DetailItem icon={Trophy} label="Best Level" value={student.bestLevel} />
-            <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worstLevel} />
+            <DetailItem icon={User} label="Post(s) Held" value={student.posts_held} />
+            <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
+            <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
+            <DetailItem icon={Briefcase} label="If not Zoology, then what?" value={student.alternative_career} />
             
             <div className="md:col-span-2 pt-4">
               <h3 className="text-lg font-headline text-primary mb-2">Reflections</h3>
-              <DetailItem icon={MessageSquare} label="Your Class Rep Once Said:" value={`"${student.classRepQuote}"`} />
-              <DetailItem icon={MessageSquare} label="Parting Words:" value={`"${student.partingWords}"`} />
+              <DetailItem icon={MessageSquare} label="Your Class Rep Once Said:" value={`"${student.class_rep_quote}"`} />
+              <DetailItem icon={MessageSquare} label="Parting Words:" value={`"${student.parting_words}"`} />
             </div>
 
-             {student.favouriteCourse === "ZOO 202" && student.name === "Idoko Sarah" && (
+             {student.favourite_course === "ZOO 202" && student.name === "Idoko Sarah" && (
               <div className="md:col-span-2 mt-4 p-4 bg-accent/10 rounded-md border border-accent/30">
                  <p className="text-sm font-semibold text-accent font-headline">Special Note for Idoko Sarah:</p>
                  <p className="text-sm text-accent/80 font-body">Microbiology might have been cool, but Zoology is where the wild things are! 😉</p>

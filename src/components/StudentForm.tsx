@@ -17,18 +17,19 @@ const studentFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   nickname: z.string().optional(),
   birthday: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Birthday must be in MM/DD/YYYY format."),
-  relationshipStatus: z.string().min(1, "Relationship status is required."),
-  stateOfOrigin: z.string().min(1, "State of origin is required."),
+  relationship_status: z.string().min(1, "Relationship status is required."),
+  state_of_origin: z.string().min(1, "State of origin is required."),
   lga: z.string().min(1, "LGA is required."),
-  favouriteCourse: z.string().min(1, "Favourite course is required."),
-  favouriteLecturer: z.string().min(1, "Favourite lecturer is required."),
-  favouriteCoursemates: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
+  favourite_course: z.string().min(1, "Favourite course is required."),
+  favourite_lecturer: z.string().min(1, "Favourite lecturer is required."),
+  favourite_coursemates: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
   hobbies: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
-  postsHeld: z.string().min(1, "Posts held is required."),
-  bestLevel: z.string().min(1, "Best level is required."),
-  worstLevel: z.string().min(1, "Worst level is required."),
-  classRepQuote: z.string().min(1, "Class rep quote is required."),
-  partingWords: z.string().min(1, "Parting words are required."),
+  posts_held: z.string().min(1, "Posts held is required."),
+  best_level: z.string().min(1, "Best level is required."),
+  worst_level: z.string().min(1, "Worst level is required."),
+  class_rep_quote: z.string().min(1, "Class rep quote is required."),
+  parting_words: z.string().min(1, "Parting words are required."),
+  alternative_career: z.string().min(1, "This field is required."),
   imageSrc: z.string().nullable().optional(),
   flyerImageSrc: z.string().nullable().optional(),
 });
@@ -49,18 +50,19 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
       name: student?.name || '',
       nickname: student?.nickname || '',
       birthday: student?.birthday || '',
-      relationshipStatus: student?.relationshipStatus || '',
-      stateOfOrigin: student?.stateOfOrigin || '',
+      relationship_status: student?.relationship_status || '',
+      state_of_origin: student?.state_of_origin || '',
       lga: student?.lga || '',
-      favouriteCourse: student?.favouriteCourse || '',
-      favouriteLecturer: student?.favouriteLecturer || '',
-      favouriteCoursemates: (student?.favouriteCoursemates || []).join(', '),
+      favourite_course: student?.favourite_course || '',
+      favourite_lecturer: student?.favourite_lecturer || '',
+      favourite_coursemates: (student?.favourite_coursemates || []).join(', '),
       hobbies: (student?.hobbies || []).join(', '),
-      postsHeld: student?.postsHeld || '',
-      bestLevel: student?.bestLevel || '',
-      worstLevel: student?.worstLevel || '',
-      classRepQuote: student?.classRepQuote || '',
-      partingWords: student?.partingWords || '',
+      posts_held: student?.posts_held || '',
+      best_level: student?.best_level || '',
+      worst_level: student?.worst_level || '',
+      class_rep_quote: student?.class_rep_quote || '',
+      parting_words: student?.parting_words || '',
+      alternative_career: student?.alternative_career || '',
       imageSrc: student?.imageSrc || null,
       flyerImageSrc: student?.flyerImageSrc || null,
     },
@@ -125,7 +127,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="relationshipStatus"
+                name="relationship_status"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Relationship Status</FormLabel>
@@ -138,7 +140,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="stateOfOrigin"
+                name="state_of_origin"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>State of Origin</FormLabel>
@@ -164,7 +166,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="favouriteCourse"
+                name="favourite_course"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Favourite Course</FormLabel>
@@ -177,7 +179,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="favouriteLecturer"
+                name="favourite_lecturer"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Favourite Lecturer</FormLabel>
@@ -190,7 +192,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="favouriteCoursemates"
+                name="favourite_coursemates"
                 render={({ field }) => (
                   <FormItem className="md:col-span-2">
                     <FormLabel>Favourite Coursemate(s) (comma-separated)</FormLabel>
@@ -216,7 +218,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="postsHeld"
+                name="posts_held"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Post(s) Held</FormLabel>
@@ -229,7 +231,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="bestLevel"
+                name="best_level"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Best Level</FormLabel>
@@ -242,7 +244,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="worstLevel"
+                name="worst_level"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Worst Level</FormLabel>
@@ -257,7 +259,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
 
             <FormField
               control={form.control}
-              name="classRepQuote"
+              name="class_rep_quote"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Your Class Rep Once Said</FormLabel>
@@ -270,7 +272,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
             />
             <FormField
               control={form.control}
-              name="partingWords"
+              name="parting_words"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Parting Words</FormLabel>
@@ -281,6 +283,19 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                 </FormItem>
               )}
             />
+             <FormField
+                control={form.control}
+                name="alternative_career"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>If not Zoology, then what?</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Professional Coder" {...field} disabled={isSubmitting} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
                <FormField

@@ -1,36 +1,37 @@
 
 export interface Student {
-  id: string; // Client-generated or from Supabase after insert
+  id: string; 
   name: string;
   nickname: string;
-  birthday: string; // "MM/DD/YYYY"
-  relationshipStatus: string;
-  stateOfOrigin: string;
+  birthday: string; 
+  relationship_status: string;
+  state_of_origin: string;
   lga: string;
-  favouriteCourse: string;
-  favouriteLecturer: string;
-  favouriteCoursemates: string[];
+  favourite_course: string;
+  favourite_lecturer: string;
+  favourite_coursemates: string[];
   hobbies: string[];
-  postsHeld: string;
-  bestLevel: string;
-  worstLevel: string;
-  classRepQuote: string;
-  partingWords: string;
-  imageSrc: string | null; // URL from Supabase Storage or data URI for new upload
-  flyerImageSrc: string | null; // URL from Supabase Storage or data URI for new upload
-  // Supabase specific fields, if you select them
+  posts_held: string;
+  best_level: string;
+  worst_level: string;
+  class_rep_quote: string;
+  parting_words: string;
+  alternative_career: string;
+  imageSrc: string | null; 
+  flyerImageSrc: string | null; 
+  // Supabase specific fields
   created_at?: string; 
   updated_at?: string;
 }
 
 export interface LogoSettings {
-  associationLogo: string | null; // URL from Supabase Storage or data URI for new upload
-  schoolLogo: string | null; // URL from Supabase Storage or data URI for new upload
+  associationLogo: string | null; 
+  schoolLogo: string | null; 
 }
 
 export interface FYBEventImage {
-  id: string; // client-generated or from DB
-  src: string | null; // URL from Supabase Storage or data URI for new upload // Changed from 'url' to 'src'
+  id: string; 
+  src: string | null;
   name: string;
 }
 
@@ -44,9 +45,9 @@ export interface FYBWeekSettings {
 
 export interface AppSettingsFromSupabase {
   id: number;
-  logos: LogoSettings | null; // This will store URLs after upload
+  logos: LogoSettings | null; 
   fyb_week_settings: FYBWeekSettings | null;
-  admin_pin_hash?: string | null; // Optional, as we're not using it yet
+  admin_pin_hash?: string | null; 
   created_at?: string;
   updated_at?: string;
 }
@@ -55,6 +56,6 @@ export interface AppState {
   students: Student[];
   logos: LogoSettings;
   fybWeekSettings: FYBWeekSettings;
-  adminPin: string; // Kept client-side for now
+  adminPin: string; 
   isAdminLoggedIn: boolean;
 }
