@@ -1,6 +1,7 @@
 
 "use client";
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Student, LogoSettings, FYBWeekSettings, AppState, FYBEventImage, AppSettingsFromSupabase } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
@@ -145,8 +146,9 @@ Please meticulously verify the following troubleshooting steps:
     - Try temporarily disabling them to test.
 7.  Supabase Project Status: Check your Supabase project dashboard (status.supabase.com) to ensure it's active and healthy.
 8.  Console Network Tab: Open your browser's developer tools (F12), go to the 'Network' tab, and refresh the page. Look for failed requests to \`iwkslfapaxafwghfhefu.supabase.co\`. The status and response can provide more clues.
-`;
-            console.error(troubleshootingMessage, '\nRaw Error Object:', error);
+
+Raw Error Object:`;
+            console.error(troubleshootingMessage, error);
         } else {
             console.error('An unexpected error occurred while loading initial data from Supabase:', error);
         }
@@ -456,8 +458,14 @@ Please meticulously verify the following troubleshooting steps:
     }}>
       {isLoading ? (
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
-          <div className="w-32 h-32 md:w-48 md:h-48 animate-pulse">
-            <AssociationLogoPlaceholder className="w-full h-full text-primary" />
+          <div className="w-32 h-32 md:w-48 md:h-48 flex items-center justify-center">
+            {logos.associationLogo ? (
+              <Image src={logos.associationLogo} alt="Association Logo" width={192} height={192} className="object-contain" unoptimized />
+            ) : (
+              <div className="w-full h-full animate-pulse">
+                <AssociationLogoPlaceholder className="w-full h-full text-primary" />
+              </div>
+            )}
           </div>
           <p className="mt-4 text-lg font-headline text-primary">Loading Application Data...</p>
         </div>
