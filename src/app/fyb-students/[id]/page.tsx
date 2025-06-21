@@ -64,9 +64,9 @@ export default function StudentDetailPage() {
   };
 
   const handleDownloadFlyer = () => {
-    if (student.flyerImageSrc) {
+    if (student.flyer_image_src) {
       const link = document.createElement('a');
-      link.href = student.flyerImageSrc;
+      link.href = student.flyer_image_src;
       link.download = `${student.name.replace(/\s+/g, '_')}_FYB_Flyer.png`; // Assuming PNG, adjust if type is known
       document.body.appendChild(link);
       link.click();
@@ -87,8 +87,8 @@ export default function StudentDetailPage() {
           <CardHeader className="bg-primary text-primary-foreground p-6 md:p-8 relative">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-primary-foreground shadow-lg flex-shrink-0">
-                {student.imageSrc ? (
-                  <Image src={student.imageSrc} alt={student.name} layout="fill" objectFit="cover" unoptimized data-ai-hint="student profile" />
+                {student.image_src ? (
+                  <Image src={student.image_src} alt={student.name} layout="fill" objectFit="cover" unoptimized data-ai-hint="student profile" />
                 ) : (
                   <div className="w-full h-full bg-muted flex items-center justify-center">
                     <User className="w-16 h-16 text-muted-foreground" />
@@ -132,7 +132,7 @@ export default function StudentDetailPage() {
 
 
           </CardContent>
-          {student.flyerImageSrc && (
+          {student.flyer_image_src && (
             <CardFooter className="p-6 md:p-8 bg-muted/50">
               <Button onClick={handleDownloadFlyer} size="lg" className="w-full md:w-auto font-headline bg-accent hover:bg-accent/90 text-accent-foreground">
                 <Download className="mr-2 h-5 w-5" /> Download FYB Flyer

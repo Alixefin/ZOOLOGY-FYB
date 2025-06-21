@@ -79,8 +79,8 @@ export default function ManageStudentsPage() {
                     <TableRow key={student.id}>
                       <TableCell>
                         <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex items-center justify-center">
-                          {student.imageSrc ? (
-                            <Image src={student.imageSrc} alt={student.name} width={48} height={48} className="object-cover" unoptimized />
+                          {student.image_src ? (
+                            <Image src={student.image_src} alt={student.name} width={48} height={48} className="object-cover" unoptimized />
                           ) : (
                             <User className="w-6 h-6 text-muted-foreground" />
                           )}

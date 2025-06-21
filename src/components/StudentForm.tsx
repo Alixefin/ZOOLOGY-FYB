@@ -30,8 +30,8 @@ const studentFormSchema = z.object({
   class_rep_quote: z.string().min(1, "Class rep quote is required."),
   parting_words: z.string().min(1, "Parting words are required."),
   alternative_career: z.string().min(1, "This field is required."),
-  imageSrc: z.string().nullable().optional(),
-  flyerImageSrc: z.string().nullable().optional(),
+  image_src: z.string().nullable().optional(),
+  flyer_image_src: z.string().nullable().optional(),
 });
 
 type StudentFormData = z.infer<typeof studentFormSchema>;
@@ -63,8 +63,8 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
       class_rep_quote: student?.class_rep_quote || '',
       parting_words: student?.parting_words || '',
       alternative_career: student?.alternative_career || '',
-      imageSrc: student?.imageSrc || null,
-      flyerImageSrc: student?.flyerImageSrc || null,
+      image_src: student?.image_src || null,
+      flyer_image_src: student?.flyer_image_src || null,
     },
   });
 
@@ -300,7 +300,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
                <FormField
                 control={form.control}
-                name="imageSrc"
+                name="image_src"
                 render={({ field }) => (
                   <FormItem>
                     <FileUpload
@@ -315,7 +315,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
               />
               <FormField
                 control={form.control}
-                name="flyerImageSrc"
+                name="flyer_image_src"
                 render={({ field }) => (
                   <FormItem>
                      <FileUpload

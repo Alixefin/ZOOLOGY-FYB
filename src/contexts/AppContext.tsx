@@ -129,28 +129,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
         if (isFailedToFetch) {
             const troubleshootingMessage = `
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!! CRITICAL CONNECTION ERROR: 'Failed to fetch'                             !!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+CRITICAL CONNECTION ERROR: 'Failed to fetch'
 This means your application could NOT connect to the Supabase server.
-The error message received was: "${extractedErrorMessage}"
-
-Please meticulously verify the following troubleshooting steps:
-1.  \`.env.local\` File: Ensure this file exists in your project root.
-    - Check for typos in the filename: \`.env.local\` (NOT \`.env\` or \`.env.development\`).
-2.  Supabase URL: In \`.env.local\`, \`NEXT_PUBLIC_SUPABASE_URL\` must be exactly \`https://iwkslfapaxafwghfhefu.supabase.co\`
-    - Verify no extra spaces or characters.
-3.  Supabase Anon Key: In \`.env.local\`, \`NEXT_PUBLIC_SUPABASE_ANON_KEY\` must be your correct public anonymous key from the Supabase dashboard (API settings).
-    - Your key starts with: \`eyJhbGciOi...\`
-    - Verify it's copied completely and accurately.
-4.  Restart Server: After any changes to \`.env.local\`, YOU MUST RESTART your Next.js development server (e.g., stop and run \`npm run dev\` again).
-5.  Internet Connection: Verify your computer has a stable internet connection.
-6.  Firewalls/VPNs/Proxies/Ad-Blockers: Ensure no firewall, VPN, proxy, or ad-blocker (including browser extensions) is interfering with requests to \`*.supabase.co\` domains.
-    - Try temporarily disabling them to test.
-7.  Supabase Project Status: Check your Supabase project dashboard (status.supabase.com) to ensure it's active and healthy.
-8.  Console Network Tab: Open your browser's developer tools (F12), go to the 'Network' tab, and refresh the page. Look for failed requests to \`iwkslfapaxafwghfhefu.supabase.co\`. The status and response can provide more clues.
-
-Raw Error Object:`;
+Please meticulously verify the troubleshooting steps in the README or previous console logs.
+Raw Error: ${extractedErrorMessage}`;
             console.error(troubleshootingMessage, error);
         } else {
             console.error('An unexpected error occurred while loading initial data from Supabase:', error);
@@ -280,12 +262,12 @@ Raw Error Object:`;
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
 
-    let profileImageUrl: string | null = studentData.imageSrc;
-    let flyerImageUrl: string | null = studentData.flyerImageSrc;
+    let profileImageUrl: string | null = studentData.image_src;
+    let flyerImageUrl: string | null = studentData.flyer_image_src;
 
     try {
-      if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
-        const blob = dataURIToBlob(studentData.imageSrc);
+      if (studentData.image_src && studentData.image_src.startsWith('data:')) {
+        const blob = dataURIToBlob(studentData.image_src);
         if (blob) {
           profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`);
         }
@@ -295,14 +277,14 @@ Raw Error Object:`;
     }
 
     try {
-      if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
-        const blob = dataURIToBlob(studentData.flyerImageSrc);
+      if (studentData.flyer_image_src && studentData.flyer_image_src.startsWith('data:')) {
+        const blob = dataURIToBlob(studentData.flyer_image_src);
         if (blob) {
           flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${uuidv4()}`);
         }
       }
     } catch (e: any) {
-      if (profileImageUrl && profileImageUrl !== studentData.imageSrc) {
+      if (profileImageUrl && profileImageUrl !== studentData.image_src) {
         await deleteFileFromSupabase(profileImageUrl);
       }
       throw new Error(`Flyer image upload failed: ${e.message}`);
@@ -311,8 +293,8 @@ Raw Error Object:`;
     const studentToInsert = {
       ...studentData,
       id: uuidv4(),
-      imageSrc: profileImageUrl,
-      flyerImageSrc: flyerImageUrl,
+      image_src: profileImageUrl,
+      flyer_image_src: flyerImageUrl,
     };
 
     try {
@@ -325,10 +307,10 @@ Raw Error Object:`;
       if (error) throw error;
       if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
     } catch (e: any) {
-      if (profileImageUrl && profileImageUrl !== studentData.imageSrc) {
+      if (profileImageUrl && profileImageUrl !== studentData.image_src) {
         await deleteFileFromSupabase(profileImageUrl);
       }
-      if (flyerImageUrl && flyerImageUrl !== studentData.flyerImageSrc) {
+      if (flyerImageUrl && flyerImageUrl !== studentData.flyer_image_src) {
         await deleteFileFromSupabase(flyerImageUrl);
       }
       throw new Error(`Database insert failed: ${e.message}`);
@@ -344,28 +326,28 @@ Raw Error Object:`;
     let updatedPayload = { ...studentData };
 
     try {
-        if (studentData.imageSrc && studentData.imageSrc.startsWith('data:')) {
-            if (originalStudent.imageSrc) await deleteFileFromSupabase(originalStudent.imageSrc);
-            const blob = dataURIToBlob(studentData.imageSrc);
+        if (studentData.image_src && studentData.image_src.startsWith('data:')) {
+            if (originalStudent.image_src) await deleteFileFromSupabase(originalStudent.image_src);
+            const blob = dataURIToBlob(studentData.image_src);
             if (blob) {
-                updatedPayload.imageSrc = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
+                updatedPayload.image_src = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
             }
-        } else if (studentData.imageSrc === null && originalStudent.imageSrc) {
-            await deleteFileFromSupabase(originalStudent.imageSrc);
+        } else if (studentData.image_src === null && originalStudent.image_src) {
+            await deleteFileFromSupabase(originalStudent.image_src);
         }
     } catch (e: any) {
         throw new Error(`Profile image update failed: ${e.message}`);
     }
 
     try {
-        if (studentData.flyerImageSrc && studentData.flyerImageSrc.startsWith('data:')) {
-            if (originalStudent.flyerImageSrc) await deleteFileFromSupabase(originalStudent.flyerImageSrc);
-            const blob = dataURIToBlob(studentData.flyerImageSrc);
+        if (studentData.flyer_image_src && studentData.flyer_image_src.startsWith('data:')) {
+            if (originalStudent.flyer_image_src) await deleteFileFromSupabase(originalStudent.flyer_image_src);
+            const blob = dataURIToBlob(studentData.flyer_image_src);
             if (blob) {
-                updatedPayload.flyerImageSrc = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
+                updatedPayload.flyer_image_src = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
             }
-        } else if (studentData.flyerImageSrc === null && originalStudent.flyerImageSrc) {
-            await deleteFileFromSupabase(originalStudent.flyerImageSrc);
+        } else if (studentData.flyer_image_src === null && originalStudent.flyer_image_src) {
+            await deleteFileFromSupabase(originalStudent.flyer_image_src);
         }
     } catch (e: any) {
         throw new Error(`Flyer image update failed: ${e.message}`);
@@ -393,8 +375,8 @@ Raw Error Object:`;
     
     const studentToDelete = students.find(s => s.id === studentId);
     if (studentToDelete) {
-      if (studentToDelete.imageSrc) await deleteFileFromSupabase(studentToDelete.imageSrc);
-      if (studentToDelete.flyerImageSrc) await deleteFileFromSupabase(studentToDelete.flyerImageSrc);
+      if (studentToDelete.image_src) await deleteFileFromSupabase(studentToDelete.image_src);
+      if (studentToDelete.flyer_image_src) await deleteFileFromSupabase(studentToDelete.flyer_image_src);
     }
 
     const { error } = await supabase.from('students').delete().eq('id', studentId);
@@ -460,7 +442,7 @@ Raw Error Object:`;
       {isLoading ? (
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
           <div className="w-32 h-32 md:w-48 md:h-48 flex items-center justify-center">
-            {logos.associationLogo ? (
+            {logos.associationLogo && isDataFetched ? (
               <Image 
                 src={logos.associationLogo} 
                 alt="Association Logo" 

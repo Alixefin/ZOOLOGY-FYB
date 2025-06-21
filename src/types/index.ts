@@ -17,8 +17,8 @@ export interface Student {
   class_rep_quote: string;
   parting_words: string;
   alternative_career: string;
-  imageSrc: string | null; 
-  flyerImageSrc: string | null; 
+  image_src: string | null; 
+  flyer_image_src: string | null; 
   // Supabase specific fields
   created_at?: string; 
   updated_at?: string;

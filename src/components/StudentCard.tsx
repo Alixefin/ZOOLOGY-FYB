@@ -16,9 +16,9 @@ export default function StudentCard({ student }: StudentCardProps) {
     <Link href={`/fyb-students/${student.id}`} className="block group">
       <Card className="overflow-hidden h-full flex flex-col hover:shadow-xl transition-shadow duration-300 rounded-lg">
         <div className="relative w-full aspect-[3/4] bg-muted">
-          {student.imageSrc ? (
+          {student.image_src ? (
             <Image
-              src={student.imageSrc}
+              src={student.image_src}
               alt={student.name}
               layout="fill"
               objectFit="cover"
