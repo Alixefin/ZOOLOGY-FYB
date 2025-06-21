@@ -1,4 +1,3 @@
-
 "use client";
 import type { ReactNode } from 'react';
 import Image from 'next/image';
@@ -465,10 +464,10 @@ Raw Error: ${extractedErrorMessage}`;
     }}>
       {isLoading ? (
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
-          <div className="w-32 h-32 md:w-48 md:h-48 animate-pulse">
+          <div className="w-32 h-32 md:w-48 md:h-48">
             <Image
-              src="/logo-placeholder.svg"
-              alt="Loading Logo"
+              src="/favicon.png"
+              alt="Association Logo"
               width={192}
               height={192}
               className="object-contain"
