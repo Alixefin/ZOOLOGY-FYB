@@ -74,7 +74,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       try {
         if (!supabase) {
-          console.error("Critical Error: Supabase client is not initialized. This usually means there's an issue with your environment variables (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY) or the supabaseClient.ts file itself.");
           throw new Error("Supabase client is not initialized. Check your environment variables and supabaseClient.ts.");
         }
 
@@ -108,78 +107,54 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false); 
       } catch (error: any) {
         setIsLoading(false); 
-        console.error('--- ERROR DURING INITIAL DATA LOAD FROM SUPABASE (see subsequent logs for details) ---');
         
         let isFailedToFetch = false;
         let extractedErrorMessage = "Unknown error during data load.";
 
         if (error && typeof error === 'object') {
-          if ('message' in error && typeof error.message === 'string') {
-            extractedErrorMessage = error.message;
-            if (error.message.toLowerCase().includes("failed to fetch") || error.message.toLowerCase().includes("typeerror: failed to fetch")) {
-              isFailedToFetch = true;
-            }
-          }
-          if (!isFailedToFetch && 'details' in error && typeof error.details === 'string') {
-            if (error.details.toLowerCase().includes("failed to fetch") || error.details.toLowerCase().includes("typeerror: failed to fetch")) {
-              isFailedToFetch = true;
-              if (extractedErrorMessage === "Unknown error during data load."){
-                extractedErrorMessage = error.details;
-              }
-            }
-          }
-        } else if (typeof error === 'string') {
-          extractedErrorMessage = error;
-          if (error.toLowerCase().includes("failed to fetch") || error.toLowerCase().includes("typeerror: failed to fetch")) {
+          if ('message' in error && typeof error.message === 'string' && (error.message.toLowerCase().includes("failed to fetch") || error.message.toLowerCase().includes("typeerror: failed to fetch"))) {
             isFailedToFetch = true;
+            extractedErrorMessage = error.message;
           }
+           if (!isFailedToFetch && 'details' in error && typeof error.details === 'string' && (error.details.toLowerCase().includes("failed to fetch") || error.details.toLowerCase().includes("typeerror: failed to fetch"))) {
+            isFailedToFetch = true;
+            extractedErrorMessage = error.details;
+          }
+        } else if (typeof error === 'string' && (error.toLowerCase().includes("failed to fetch") || error.toLowerCase().includes("typeerror: failed to fetch"))) {
+          isFailedToFetch = true;
+          extractedErrorMessage = error;
         }
 
         if (isFailedToFetch) {
-            console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            console.error("!!! CRITICAL CONNECTION ERROR: 'Failed to fetch'                             !!!");
-            console.error("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            console.error("This means your application could NOT connect to the Supabase server.");
-            console.error("The error message received was: ", extractedErrorMessage);
-            console.error("Please meticulously verify the following troubleshooting steps:");
-            console.error("1. `.env.local` File: Ensure this file exists in your project root.");
-            console.error("   - Check for typos in the filename: `.env.local` (NOT `.env` or `.env.development`).");
-            console.error("2. Supabase URL: In `.env.local`, `NEXT_PUBLIC_SUPABASE_URL` must be exactly `https://iwkslfapaxafwghfhefu.supabase.co`");
-            console.error("   - Verify no extra spaces or characters.");
-            console.error("3. Supabase Anon Key: In `.env.local`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` must be your correct public anonymous key from the Supabase dashboard (API settings).");
-            console.error("   - Your key starts with: `eyJhbGciOi...`");
-            console.error("   - Verify it's copied completely and accurately.");
-            console.error("4. Restart Server: After any changes to `.env.local`, YOU MUST RESTART your Next.js development server (e.g., stop it and run `npm run dev` or equivalent again).");
-            console.error("5. Internet Connection: Verify your computer has a stable internet connection.");
-            console.error("6. Firewalls/VPNs/Proxies/Ad-Blockers: Ensure no firewall, VPN, proxy, or ad-blocker (including browser extensions) is interfering with requests to `*.supabase.co` domains.");
-            console.error("   - Try temporarily disabling them to test.");
-            console.error("7. Supabase Project Status: Check your Supabase project dashboard (status.supabase.com or your project's dashboard in Supabase) to ensure it's active and healthy (not paused, no billing issues, etc.).");
-            console.error("8. Console Network Tab: Open your browser's developer tools (usually F12), go to the 'Network' tab, and refresh the page. Look for failed requests to `iwkslfapaxafwghfhefu.supabase.co`. The status and response of these requests can provide more clues.");
-            console.error("9. Correct Supabase Client Initialization: Ensure `src/lib/supabaseClient.ts` is correctly initializing the client with environment variables.");
-            console.error('Raw Error Object (for "Failed to fetch" errors):', error);
-        } else {
-            console.error('An unexpected error occurred while loading initial data from Supabase:');
-            console.error('Error Message:', extractedErrorMessage); 
-            if (error && typeof error === 'object') {
-                const details = (error as { details: string }).details;
-                const hint = (error as { hint: string }).hint;
-                const code = (error as { code: string }).code;
+            const troubleshootingMessage = `
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! CRITICAL CONNECTION ERROR: 'Failed to fetch'                             !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+This means your application could NOT connect to the Supabase server.
+The error message received was: "${extractedErrorMessage}"
 
-                if (details && typeof details === 'string' && details.trim() !== '') console.error('Error Details:', details);
-                if (hint && typeof hint === 'string' && hint.trim() !== '') console.error('Error Hint:', hint);
-                if (code && typeof code === 'string' && code.trim() !== '') console.error('Error Code:', code);
-            }
-            console.error('Raw Error Object (for non-fetch errors):', error);
-            try {
-                const fullErrorString = JSON.stringify(error, Object.getOwnPropertyNames(error), 2); 
-                console.error('Full Error (Stringified, for non-fetch errors):', fullErrorString);
-            } catch (e) {
-                console.error('Could not stringify the full error object.');
-            }
+Please meticulously verify the following troubleshooting steps:
+1.  \`.env.local\` File: Ensure this file exists in your project root.
+    - Check for typos in the filename: \`.env.local\` (NOT \`.env\` or \`.env.development\`).
+2.  Supabase URL: In \`.env.local\`, \`NEXT_PUBLIC_SUPABASE_URL\` must be exactly \`https://iwkslfapaxafwghfhefu.supabase.co\`
+    - Verify no extra spaces or characters.
+3.  Supabase Anon Key: In \`.env.local\`, \`NEXT_PUBLIC_SUPABASE_ANON_KEY\` must be your correct public anonymous key from the Supabase dashboard (API settings).
+    - Your key starts with: \`eyJhbGciOi...\`
+    - Verify it's copied completely and accurately.
+4.  Restart Server: After any changes to \`.env.local\`, YOU MUST RESTART your Next.js development server (e.g., stop and run \`npm run dev\` again).
+5.  Internet Connection: Verify your computer has a stable internet connection.
+6.  Firewalls/VPNs/Proxies/Ad-Blockers: Ensure no firewall, VPN, proxy, or ad-blocker (including browser extensions) is interfering with requests to \`*.supabase.co\` domains.
+    - Try temporarily disabling them to test.
+7.  Supabase Project Status: Check your Supabase project dashboard (status.supabase.com) to ensure it's active and healthy.
+8.  Console Network Tab: Open your browser's developer tools (F12), go to the 'Network' tab, and refresh the page. Look for failed requests to \`iwkslfapaxafwghfhefu.supabase.co\`. The status and response can provide more clues.
+
+Raw Error Object:`;
+            console.error(troubleshootingMessage, error);
+        } else {
+            console.error('An unexpected error occurred while loading initial data from Supabase:', error);
         }
         
-        console.error('--- END OF SUPABASE ERROR REPORT ---');
-        
+        // Fallback to defaults
         setStudents([]);
         setLogosState(defaultLogos);
         setFybWeekSettingsState(defaultFYBWeekSettings);
@@ -463,4 +438,3 @@ export const useAppContext = () => {
   }
   return context;
 };
-
