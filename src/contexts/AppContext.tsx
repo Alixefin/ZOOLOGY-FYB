@@ -201,18 +201,32 @@ Raw Error: ${extractedErrorMessage}`;
 
   const deleteFileFromSupabase = async (fileUrl: string | null): Promise<void> => {
     if (!fileUrl || !supabase) return;
+  
+    // Heuristic to check if the URL is from this project's Supabase Storage.
+    // This avoids trying to delete external URLs (e.g., from Google Drive).
+    const isSupabaseUrl = fileUrl.includes('iwkslfapaxafwghfhefu.supabase.co');
+  
+    if (!isSupabaseUrl) {
+      console.log('Skipping deletion for non-Supabase URL:', fileUrl);
+      return;
+    }
+  
     try {
       const url = new URL(fileUrl);
       const pathSegments = url.pathname.split('/');
+      // The path for an asset is like: /storage/v1/object/public/app-public-assets/logos/16...
       const bucketNameIndex = pathSegments.findIndex(segment => segment === STORAGE_BUCKET_NAME);
       if (bucketNameIndex === -1 || bucketNameIndex + 1 >= pathSegments.length) {
-        console.error("Could not determine file path from URL for deletion:", fileUrl);
+        console.warn("Could not determine file path from Supabase URL for deletion:", fileUrl);
         return;
       }
       const filePath = pathSegments.slice(bucketNameIndex + 1).join('/');
       
       const { error } = await supabase.storage.from(STORAGE_BUCKET_NAME).remove([filePath]);
-      if (error) console.error(`Error deleting file ${filePath}:`, error);
+      if (error) {
+        // This is not critical, the file might have been manually deleted.
+        console.warn(`Could not delete file '${filePath}' from storage: ${error.message}`);
+      }
     } catch (e) {
       console.error("Error parsing or deleting file URL:", fileUrl, e);
     }
