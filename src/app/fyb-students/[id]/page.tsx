@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, Trophy, ThumbsDown, MessageSquare, Edit3, Briefcase } from 'lucide-react';
+import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, Trophy, ThumbsDown, MessageSquare, Edit3, Briefcase, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { format, parse } from 'date-fns';
+import { useState } from 'react';
 
 interface DetailItemProps {
   icon: React.ElementType;
@@ -36,6 +37,7 @@ export default function StudentDetailPage() {
   const router = useRouter();
   const { students } = useAppContext();
   const studentId = params.id as string;
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const student = students.find(s => s.id === studentId);
 
@@ -53,24 +55,37 @@ export default function StudentDetailPage() {
   const formatBirthday = (birthdayStr: string | null | undefined): string | null => {
     if (!birthdayStr) return null;
     try {
-      // Assuming birthday is in "MM/DD/YYYY" format
       const date = parse(birthdayStr, 'MM/dd/yyyy', new Date());
-      // Format to "Month Day", e.g., "December 25"
       return format(date, 'MMMM d');
     } catch (e) {
       console.error("Error formatting birthday:", e);
-      return birthdayStr; // Fallback to original string on error
+      return birthdayStr;
     }
   };
 
-  const handleDownloadFlyer = () => {
-    if (student.flyer_image_src) {
+  const handleDownloadFlyer = async () => {
+    if (!student.flyer_image_src) return;
+    setIsDownloading(true);
+
+    try {
+      const response = await fetch(student.flyer_image_src);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = student.flyer_image_src;
-      link.download = `${student.name.replace(/\s+/g, '_')}_FYB_Flyer.png`; // Assuming PNG, adjust if type is known
+      link.href = url;
+      const fileExtension = blob.type.split('/')[1] || 'png';
+      link.download = `${student.name.replace(/\s+/g, '_')}_FYB_Flyer.${fileExtension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Flyer download failed:", error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -134,8 +149,18 @@ export default function StudentDetailPage() {
           </CardContent>
           {student.flyer_image_src && (
             <CardFooter className="p-6 md:p-8 bg-muted/50">
-              <Button onClick={handleDownloadFlyer} size="lg" className="w-full md:w-auto font-headline bg-accent hover:bg-accent/90 text-accent-foreground">
-                <Download className="mr-2 h-5 w-5" /> Download FYB Flyer
+              <Button onClick={handleDownloadFlyer} size="lg" className="w-full md:w-auto font-headline bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isDownloading}>
+                {isDownloading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Downloading...
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-5 w-5" />
+                    Download FYB Flyer
+                  </>
+                )}
               </Button>
             </CardFooter>
           )}
