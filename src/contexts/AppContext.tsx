@@ -466,7 +466,7 @@ Raw Error: ${extractedErrorMessage}`;
         <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
           <div className="w-32 h-32 md:w-48 md:h-48">
             <Image
-              src="/favicon.png"
+              src="/logo.svg"
               alt="Association Logo"
               width={192}
               height={192}
