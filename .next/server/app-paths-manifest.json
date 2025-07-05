@@ -1,11 +1,5 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/admin/manage-students/edit/[id]/page": "app/admin/manage-students/edit/[id]/page.js",
-  "/admin/manage-students/page": "app/admin/manage-students/page.js",
-  "/admin/page": "app/admin/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/fyb-students/[id]/page": "app/fyb-students/[id]/page.js",
   "/fyb-students/page": "app/fyb-students/page.js",
-  "/fyb-week/page": "app/fyb-week/page.js",
   "/page": "app/page.js"
 }

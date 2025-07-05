@@ -50,9 +50,9 @@ export default function ManageStudentsPage() {
         <Card className="shadow-lg rounded-xl">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle className="text-3xl font-headline text-primary">Manage FYB Students</CardTitle>
+              <CardTitle className="text-3xl font-headline text-primary">Manage Clan Students</CardTitle>
               <CardDescription className="font-body">
-                View, add, edit, or delete student profiles.
+                View, add, edit, or delete clan member profiles.
               </CardDescription>
             </div>
             <Button asChild className="font-headline bg-primary hover:bg-primary/90">

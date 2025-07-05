@@ -17,7 +17,7 @@ export default function HomePage() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/30 p-4 sm:p-8">
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden">
         <CardHeader className="bg-primary text-primary-foreground p-8 text-center">
-          <div className="flex flex-row items-center justify-center gap-6 mb-6"> {/* Changed: flex-col sm:flex-row to flex-row */}
+          <div className="flex flex-row items-center justify-center gap-6 mb-6">
             <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
               {logos.associationLogo ? (
                 <Image src={logos.associationLogo} alt="Association Logo" width={128} height={128} className="object-contain rounded-full" unoptimized />
@@ -34,13 +34,13 @@ export default function HomePage() {
             </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-headline tracking-tight">
-            Zoology FYB Week
+            Cyber Clan FYB Week
           </h1>
           <p className="text-lg md:text-xl font-body text-primary-foreground/80 mt-2">
-            National Association of Zoology Students (NAZS)
+            Nigerian Association of Computing Students (NACOS)
           </p>
           <p className="text-md font-body text-primary-foreground/70">
-            Lokoja Chapter, FULOKOJA
+            Federal University Lokoja Chapter
           </p>
         </CardHeader>
         <CardContent className="p-8 md:p-12 text-center">
@@ -51,13 +51,13 @@ export default function HomePage() {
             <Button asChild size="lg" className="font-headline text-lg py-8 bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-students">
                 <Users className="mr-3 h-6 w-6" />
-                Meet Our FYB
+                Meet the Cyber Clan
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-primary/10 shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-week">
                 <CalendarDays className="mr-3 h-6 w-6" />
-                FYB Week
+                Cyber Clan Week
               </Link>
             </Button>
           </div>
@@ -65,7 +65,7 @@ export default function HomePage() {
       </Card>
       <footer className="mt-12 text-center">
         <p className="text-sm text-muted-foreground font-body">
-          &copy; {new Date().getFullYear()} NAZS, FULOKOJA. All rights reserved.
+          &copy; 2025 NACOS. All rights reserved.
         </p>
       </footer>
     </div>

@@ -1,3 +1,4 @@
+
 "use client";
 import type { ReactNode } from 'react';
 import Image from 'next/image';
@@ -31,7 +32,7 @@ const defaultLogos: LogoSettings = {
 
 const defaultFYBWeekSettings: FYBWeekSettings = {
   isUnlocked: false,
-  title: 'FYB Week Extravaganza!',
+  title: 'Cyber Clan Week Extravaganza!',
   schedule: 'Detailed schedule coming soon...',
   activities: 'Exciting activities lineup to be announced!',
   eventImages: [],
@@ -143,7 +144,7 @@ Raw Error: ${extractedErrorMessage}`;
         setIsDataFetched(true);
       }
       
-      const storedAdminLogin = localStorage.getItem('nazsAdminLoggedIn');
+      const storedAdminLogin = localStorage.getItem('nacosAdminLoggedIn');
       if (storedAdminLogin === 'true') {
         setIsAdminLoggedIn(true);
       }
@@ -160,7 +161,7 @@ Raw Error: ${extractedErrorMessage}`;
   }, [isDataFetched]);
   
   useEffect(() => {
-    localStorage.setItem('nazsAdminLoggedIn', isAdminLoggedIn.toString());
+    localStorage.setItem('nacosAdminLoggedIn', isAdminLoggedIn.toString());
   }, [isAdminLoggedIn]);
 
   const loginAdmin = (pin: string) => {

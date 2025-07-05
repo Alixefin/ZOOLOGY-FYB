@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import type { Student } from '@/types';
@@ -171,7 +171,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                   <FormItem>
                     <FormLabel>Favourite Course</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., ZOO 301" {...field} disabled={isSubmitting} />
+                      <Input placeholder="e.g., CSC 401" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -223,7 +223,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                   <FormItem>
                     <FormLabel>Post(s) Held</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Class Rep, Non" {...field} disabled={isSubmitting} />
+                      <Input placeholder="e.g., Class Rep, None" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -288,9 +288,9 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                 name="alternative_career"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>If not Zoology, then what?</FormLabel>
+                    <FormLabel>If not Computing, then what?</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Professional Coder" {...field} disabled={isSubmitting} />
+                      <Input placeholder="e.g., Professional Artist" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -319,7 +319,7 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                 render={({ field }) => (
                   <FormItem>
                      <FileUpload
-                        label="Student FYB Flyer Image"
+                        label="Student Clan Flyer Image"
                         currentImagePreview={field.value}
                         onFileSelect={(dataUrl) => field.onChange(dataUrl)}
                         disabled={isSubmitting}

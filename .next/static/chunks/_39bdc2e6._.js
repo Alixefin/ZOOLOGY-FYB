@@ -205,7 +205,7 @@ function AssociationLogoPlaceholder(props) {
                 fontSize: "12",
                 fill: "hsl(var(--muted-foreground))",
                 textAnchor: "middle",
-                children: "NAZS Logo"
+                children: "NACOS Logo"
             }, void 0, false, {
                 fileName: "[project]/src/components/icons/AssociationLogoPlaceholder.tsx",
                 lineNumber: 13,
@@ -324,7 +324,6 @@ function HomePage() {
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex flex-row items-center justify-center gap-6 mb-6",
                                 children: [
-                                    " ",
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center",
                                         children: logos.associationLogo ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -383,7 +382,7 @@ function HomePage() {
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                                 className: "text-3xl md:text-4xl font-headline tracking-tight",
-                                children: "Zoology FYB Week"
+                                children: "Cyber Clan FYB Week"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
                                 lineNumber: 36,
@@ -391,7 +390,7 @@ function HomePage() {
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-lg md:text-xl font-body text-primary-foreground/80 mt-2",
-                                children: "National Association of Zoology Students (NAZS)"
+                                children: "Nigerian Association of Computing Students (NACOS)"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
                                 lineNumber: 39,
@@ -399,7 +398,7 @@ function HomePage() {
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "text-md font-body text-primary-foreground/70",
-                                children: "Lokoja Chapter, FULOKOJA"
+                                children: "Federal University Lokoja Chapter"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/page.tsx",
                                 lineNumber: 42,
@@ -439,7 +438,7 @@ function HomePage() {
                                                     lineNumber: 53,
                                                     columnNumber: 17
                                                 }, this),
-                                                "Meet Our FYB"
+                                                "Meet the Cyber Clan"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.tsx",
@@ -466,7 +465,7 @@ function HomePage() {
                                                     lineNumber: 59,
                                                     columnNumber: 17
                                                 }, this),
-                                                "FYB Week"
+                                                "Cyber Clan Week"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/page.tsx",
@@ -500,12 +499,8 @@ function HomePage() {
                 className: "mt-12 text-center",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                     className: "text-sm text-muted-foreground font-body",
-                    children: [
-                        "© ",
-                        new Date().getFullYear(),
-                        " NAZS, FULOKOJA. All rights reserved."
-                    ]
-                }, void 0, true, {
+                    children: "© 2025 NACOS. All rights reserved."
+                }, void 0, false, {
                     fileName: "[project]/src/app/page.tsx",
                     lineNumber: 67,
                     columnNumber: 9

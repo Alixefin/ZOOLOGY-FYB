@@ -10,6 +10,7 @@ import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, T
 import Link from 'next/link';
 import { format, parse } from 'date-fns';
 import { useState } from 'react';
+import type { Student } from '@/types';
 
 interface DetailItemProps {
   icon: React.ElementType;
@@ -130,21 +131,13 @@ export default function StudentDetailPage() {
             <DetailItem icon={User} label="Post(s) Held" value={student.posts_held} />
             <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
             <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
-            <DetailItem icon={Briefcase} label="If not Zoology, then what?" value={student.alternative_career} />
+            <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
             
             <div className="md:col-span-2 pt-4">
               <h3 className="text-lg font-headline text-primary mb-2">Reflections</h3>
               <DetailItem icon={MessageSquare} label="Your Class Rep Once Said:" value={`"${student.class_rep_quote}"`} />
               <DetailItem icon={MessageSquare} label="Parting Words:" value={`"${student.parting_words}"`} />
             </div>
-
-             {student.favourite_course === "ZOO 202" && student.name === "Idoko Sarah" && (
-              <div className="md:col-span-2 mt-4 p-4 bg-accent/10 rounded-md border border-accent/30">
-                 <p className="text-sm font-semibold text-accent font-headline">Special Note for Idoko Sarah:</p>
-                 <p className="text-sm text-accent/80 font-body">Microbiology might have been cool, but Zoology is where the wild things are! 😉</p>
-              </div>
-            )}
-
 
           </CardContent>
           {student.flyer_image_src && (
@@ -158,7 +151,7 @@ export default function StudentDetailPage() {
                 ) : (
                   <>
                     <Download className="mr-2 h-5 w-5" />
-                    Download FYB Flyer
+                    Download Clan Flyer
                   </>
                 )}
               </Button>

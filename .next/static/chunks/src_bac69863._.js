@@ -68,7 +68,7 @@ const defaultLogos = {
 };
 const defaultFYBWeekSettings = {
     isUnlocked: false,
-    title: 'FYB Week Extravaganza!',
+    title: 'Cyber Clan Week Extravaganza!',
     schedule: 'Detailed schedule coming soon...',
     activities: 'Exciting activities lineup to be announced!',
     eventImages: []
@@ -144,7 +144,7 @@ Raw Error: ${extractedErrorMessage}`;
                 } finally{
                     setIsDataFetched(true);
                 }
-                const storedAdminLogin = localStorage.getItem('nazsAdminLoggedIn');
+                const storedAdminLogin = localStorage.getItem('nacosAdminLoggedIn');
                 if (storedAdminLogin === 'true') {
                     setIsAdminLoggedIn(true);
                 }
@@ -169,7 +169,7 @@ Raw Error: ${extractedErrorMessage}`;
     ]);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AppProvider.useEffect": ()=>{
-            localStorage.setItem('nazsAdminLoggedIn', isAdminLoggedIn.toString());
+            localStorage.setItem('nacosAdminLoggedIn', isAdminLoggedIn.toString());
         }
     }["AppProvider.useEffect"], [
         isAdminLoggedIn
@@ -460,12 +460,12 @@ Raw Error: ${extractedErrorMessage}`;
                         priority: true
                     }, void 0, false, {
                         fileName: "[project]/src/contexts/AppContext.tsx",
-                        lineNumber: 468,
+                        lineNumber: 469,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 467,
+                    lineNumber: 468,
                     columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -473,18 +473,18 @@ Raw Error: ${extractedErrorMessage}`;
                     children: "Loading Application Data..."
                 }, void 0, false, {
                     fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 478,
+                    lineNumber: 479,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 466,
+            lineNumber: 467,
             columnNumber: 9
         }, this) : children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 455,
+        lineNumber: 456,
         columnNumber: 5
     }, this);
 };

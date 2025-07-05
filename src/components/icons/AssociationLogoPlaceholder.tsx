@@ -18,7 +18,7 @@ export function AssociationLogoPlaceholder(props: SVGProps<SVGSVGElement>) {
         fill="hsl(var(--muted-foreground))"
         textAnchor="middle"
       >
-        NAZS Logo
+        NACOS Logo
       </text>
     </svg>
   );

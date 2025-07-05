@@ -30,9 +30,9 @@ export default function FybWeekPage() {
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
           </Link>
         </Button>
-        <h1 className="text-4xl font-headline text-primary mb-2">{fybWeekSettings.title || "FYB Week"}</h1>
+        <h1 className="text-4xl font-headline text-primary mb-2">{fybWeekSettings.title || "Cyber Clan Week"}</h1>
         <p className="text-lg text-muted-foreground font-body">
-          {fybWeekSettings.isUnlocked ? "Check out the schedule, activities, and photos from the week!" : "Stay tuned for exciting updates about the FYB Week!"}
+          {fybWeekSettings.isUnlocked ? "Check out the schedule, activities, and photos from the week!" : "Stay tuned for exciting updates about the Cyber Clan Week!"}
         </p>
       </header>
 
@@ -47,7 +47,7 @@ export default function FybWeekPage() {
             </CardHeader>
             <CardContent>
               <p className="text-xl text-muted-foreground font-body mb-2">
-                The FYB Week page is currently under construction.
+                The Cyber Clan Week page is currently under construction.
               </p>
               <p className="text-md text-muted-foreground/80 font-body">
                 Our team is working hard to bring you all the details. Please check back later!
@@ -61,7 +61,7 @@ export default function FybWeekPage() {
                 <CardTitle className="text-2xl font-headline text-primary flex items-center">
                   <CalendarCheck className="mr-3 h-7 w-7" /> Schedule
                 </CardTitle>
-                <CardDescription className="font-body">The official timeline of events for the FYB Week.</CardDescription>
+                <CardDescription className="font-body">The official timeline of events for the Cyber Clan Week.</CardDescription>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-60 w-full rounded-md border p-4 bg-muted/30">
@@ -93,7 +93,7 @@ export default function FybWeekPage() {
                 <CardTitle className="text-2xl font-headline text-primary flex items-center">
                   <ImageIcon className="mr-3 h-7 w-7" /> Event Gallery
                 </CardTitle>
-                <CardDescription className="font-body">Memories from the FYB Week events. Click to download.</CardDescription>
+                <CardDescription className="font-body">Memories from the Cyber Clan Week events. Click to download.</CardDescription>
               </CardHeader>
               <CardContent>
                 {fybWeekSettings.eventImages.length > 0 ? (

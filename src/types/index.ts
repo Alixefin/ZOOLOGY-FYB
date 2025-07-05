@@ -31,7 +31,7 @@ export interface LogoSettings {
 
 export interface FYBEventImage {
   id: string; 
-  src: string | null;
+  src: string;
   name: string;
 }
 

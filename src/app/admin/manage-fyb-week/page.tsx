@@ -96,8 +96,8 @@ export default function ManageFybWeekPage() {
         activities: settings.activities,
       });
       toast({
-        title: "FYB Week Settings Updated",
-        description: "The FYB Week content has been saved successfully.",
+        title: "Cyber Clan Week Settings Updated",
+        description: "The Cyber Clan Week content has been saved successfully.",
       });
     } catch (error: any) {
       toast({
@@ -116,9 +116,9 @@ export default function ManageFybWeekPage() {
       <main className="container mx-auto p-4 md:p-8">
         <Card className="max-w-4xl mx-auto shadow-lg rounded-xl">
           <CardHeader>
-            <CardTitle className="text-3xl font-headline text-primary">Manage FYB Week</CardTitle>
+            <CardTitle className="text-3xl font-headline text-primary">Manage Cyber Clan Week</CardTitle>
             <CardDescription className="font-body">
-              Control the content displayed on the FYB Week page, including schedule, activities, and event gallery.
+              Control the content displayed on the Cyber Clan Week page, including schedule, activities, and event gallery.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-8">
@@ -127,10 +127,10 @@ export default function ManageFybWeekPage() {
                 id="unlock-fyb-week"
                 checked={settings.isUnlocked}
                 onCheckedChange={handleToggleUnlock}
-                aria-label="Unlock FYB Week Page"
+                aria-label="Unlock Cyber Clan Week Page"
               />
               <Label htmlFor="unlock-fyb-week" className="text-lg font-medium font-body">
-                {settings.isUnlocked ? "FYB Week Page is LIVE" : "FYB Week Page is LOCKED (Coming Soon)"}
+                {settings.isUnlocked ? "Cyber Clan Week Page is LIVE" : "Cyber Clan Week Page is LOCKED (Coming Soon)"}
               </Label>
             </div>
 
@@ -142,7 +142,7 @@ export default function ManageFybWeekPage() {
                 value={settings.title}
                 onChange={handleInputChange}
                 className="text-lg"
-                placeholder="Enter title for the FYB Week page"
+                placeholder="Enter title for the Cyber Clan Week page"
               />
             </div>
             
@@ -153,7 +153,7 @@ export default function ManageFybWeekPage() {
                 name="schedule"
                 value={settings.schedule}
                 onChange={handleInputChange}
-                placeholder="Enter the schedule for FYB Week..."
+                placeholder="Enter the schedule for Cyber Clan Week..."
                 rows={8}
                 className="font-mono text-sm"
               />
@@ -166,7 +166,7 @@ export default function ManageFybWeekPage() {
                 name="activities"
                 value={settings.activities}
                 onChange={handleInputChange}
-                placeholder="Describe the activities planned for FYB Week..."
+                placeholder="Describe the activities planned for Cyber Clan Week..."
                 rows={8}
                 className="font-mono text-sm"
               />
@@ -218,7 +218,7 @@ export default function ManageFybWeekPage() {
             <div className="flex justify-end pt-6">
               <Button onClick={handleSaveChanges} size="lg" className="font-headline" disabled={isSaving}>
                 {isSaving ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />} 
-                {isSaving ? 'Saving...' : 'Save FYB Week Settings'}
+                {isSaving ? 'Saving...' : 'Save Cyber Clan Week Settings'}
               </Button>
             </div>
           </CardContent>

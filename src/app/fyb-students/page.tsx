@@ -31,8 +31,8 @@ export default function FybStudentsPage() {
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
             </Link>
           </Button>
-          <h1 className="text-4xl font-headline text-primary mb-2">Meet Our Final Year Brethren</h1>
-          <p className="text-lg text-muted-foreground font-body">Browse through the profiles of our amazing final year students.</p>
+          <h1 className="text-4xl font-headline text-primary mb-2 font-bold">Meet the Cyber Clan</h1>
+          <p className="text-lg text-muted-foreground font-body">Browse through the profiles of our amazing clan members.</p>
         </div>
       </header>
 
