@@ -252,19 +252,19 @@ img, video {
   --card-foreground: 215 28% 17%;
   --popover: 210 40% 100%;
   --popover-foreground: 215 28% 17%;
-  --primary: 142 71% 45%;
+  --primary: 270 70% 50%;
   --primary-foreground: 210 40% 98%;
-  --secondary: 142 70% 90%;
-  --secondary-foreground: 142 71% 25%;
+  --secondary: 270 70% 90%;
+  --secondary-foreground: 270 70% 25%;
   --muted: 210 40% 96.1%;
   --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 200 85% 55%;
+  --accent: 142 71% 45%;
   --accent-foreground: 210 40% 98%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 142 71% 45%;
+  --ring: 270 70% 50%;
   --radius: .5rem;
   --chart-1: 142 70% 50%;
   --chart-2: 200 80% 50%;
@@ -273,12 +273,12 @@ img, video {
   --chart-5: 142 50% 70%;
   --sidebar-background: 210 40% 98%;
   --sidebar-foreground: 215 28% 17%;
-  --sidebar-primary: 142 71% 45%;
+  --sidebar-primary: 270 70% 50%;
   --sidebar-primary-foreground: 210 40% 98%;
-  --sidebar-accent: 200 85% 55%;
+  --sidebar-accent: 142 71% 45%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 214.3 31.8% 91.4%;
-  --sidebar-ring: 142 71% 45%;
+  --sidebar-ring: 270 70% 50%;
 }
 
 .dark {
@@ -288,19 +288,19 @@ img, video {
   --card-foreground: 210 40% 98%;
   --popover: 222 47% 11%;
   --popover-foreground: 210 40% 98%;
-  --primary: 142 71% 45%;
+  --primary: 270 70% 60%;
   --primary-foreground: 210 40% 98%;
-  --secondary: 142 70% 20%;
+  --secondary: 270 70% 20%;
   --secondary-foreground: 210 40% 98%;
   --muted: 217 32% 17%;
   --muted-foreground: 215 20% 65%;
-  --accent: 200 85% 55%;
+  --accent: 142 71% 45%;
   --accent-foreground: 210 40% 98%;
   --destructive: 0 63% 31%;
   --destructive-foreground: 210 40% 98%;
   --border: 217 32% 27%;
   --input: 217 32% 27%;
-  --ring: 142 71% 45%;
+  --ring: 270 70% 60%;
   --chart-1: 142 70% 60%;
   --chart-2: 200 80% 60%;
   --chart-3: 142 60% 70%;
@@ -308,12 +308,12 @@ img, video {
   --chart-5: 142 50% 80%;
   --sidebar-background: 222 47% 11%;
   --sidebar-foreground: 210 40% 98%;
-  --sidebar-primary: 142 71% 45%;
+  --sidebar-primary: 270 70% 60%;
   --sidebar-primary-foreground: 210 40% 98%;
-  --sidebar-accent: 200 85% 55%;
+  --sidebar-accent: 142 71% 45%;
   --sidebar-accent-foreground: 210 40% 98%;
   --sidebar-border: 217 32% 27%;
-  --sidebar-ring: 142 71% 45%;
+  --sidebar-ring: 270 70% 60%;
 }
 
 * {
@@ -509,6 +509,10 @@ body {
   z-index: 300;
 }
 
+.order-first {
+  order: -9999;
+}
+
 .-mx-1 {
   margin-left: -.25rem;
   margin-right: -.25rem;
@@ -597,6 +601,10 @@ body {
 
 .mt-4 {
   margin-top: 1rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
 }
 
 .block {
@@ -904,6 +912,10 @@ body {
   max-width: 72rem;
 }
 
+.max-w-7xl {
+  max-width: 80rem;
+}
+
 .max-w-\[--skeleton-width\] {
   max-width: var(--skeleton-width);
 }
@@ -914,6 +926,10 @@ body {
 
 .max-w-md {
   max-width: 28rem;
+}
+
+.max-w-sm {
+  max-width: 24rem;
 }
 
 .flex-1 {
@@ -1082,14 +1098,6 @@ body {
   gap: 2rem;
 }
 
-.gap-x-8 {
-  column-gap: 2rem;
-}
-
-.gap-y-2 {
-  row-gap: .5rem;
-}
-
 .space-x-1 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-x-reverse: 0;
   margin-right: calc(.25rem * var(--tw-space-x-reverse));
@@ -1148,6 +1156,16 @@ body {
   --tw-space-y-reverse: 0;
   margin-top: calc(2rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(2rem * var(--tw-space-y-reverse));
+}
+
+.divide-y > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-y-reverse: 0;
+  border-top-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+  border-bottom-width: calc(1px * var(--tw-divide-y-reverse));
+}
+
+.divide-border\/50 > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(var(--border) / .5);
 }
 
 .overflow-auto {
@@ -1244,6 +1262,10 @@ body {
   border-color: hsl(var(--border) / .5);
 }
 
+.border-card {
+  border-color: hsl(var(--card));
+}
+
 .border-destructive {
   border-color: hsl(var(--destructive));
 }
@@ -1258,10 +1280,6 @@ body {
 
 .border-primary {
   border-color: hsl(var(--primary));
-}
-
-.border-primary-foreground {
-  border-color: hsl(var(--primary-foreground));
 }
 
 .border-sidebar-border {
@@ -1383,10 +1401,6 @@ body {
   --tw-gradient-from: hsl(var(--primary) / .1) var(--tw-gradient-from-position);
   --tw-gradient-to: hsl(var(--primary) / 0) var(--tw-gradient-to-position);
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
-}
-
-.to-secondary\/10 {
-  --tw-gradient-to: hsl(var(--secondary) / .1) var(--tw-gradient-to-position);
 }
 
 .to-secondary\/20 {
@@ -1648,6 +1662,10 @@ body {
   font-weight: 600;
 }
 
+.uppercase {
+  text-transform: uppercase;
+}
+
 .tabular-nums {
   --tw-numeric-spacing: tabular-nums;
   font-variant-numeric: var(--tw-ordinal) var(--tw-slashed-zero) var(--tw-numeric-figure) var(--tw-numeric-spacing) var(--tw-numeric-fraction);
@@ -1663,6 +1681,10 @@ body {
 
 .tracking-tight {
   letter-spacing: -.025em;
+}
+
+.tracking-wider {
+  letter-spacing: .05em;
 }
 
 .tracking-widest {
@@ -2751,6 +2773,10 @@ body {
     display: flex;
   }
 
+  .sm\:w-auto {
+    width: auto;
+  }
+
   .sm\:max-w-sm {
     max-width: 24rem;
   }
@@ -2827,10 +2853,6 @@ body {
     height: 8rem;
   }
 
-  .md\:h-40 {
-    height: 10rem;
-  }
-
   .md\:h-48 {
     height: 12rem;
   }
@@ -2839,16 +2861,8 @@ body {
     width: 8rem;
   }
 
-  .md\:w-40 {
-    width: 10rem;
-  }
-
   .md\:w-48 {
     width: 12rem;
-  }
-
-  .md\:w-auto {
-    width: auto;
   }
 
   .md\:max-w-\[420px\] {
@@ -2867,10 +2881,6 @@ body {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .md\:flex-row {
-    flex-direction: row;
-  }
-
   .md\:p-12 {
     padding: 3rem;
   }
@@ -2879,9 +2889,19 @@ body {
     padding: 2rem;
   }
 
+  .md\:text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
   .md\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
+  }
+
+  .md\:text-6xl {
+    font-size: 3.75rem;
+    line-height: 1;
   }
 
   .md\:text-sm {
@@ -2927,6 +2947,18 @@ body {
 }
 
 @media (width >= 1024px) {
+  .lg\:order-none {
+    order: 0;
+  }
+
+  .lg\:col-span-4 {
+    grid-column: span 4 / span 4;
+  }
+
+  .lg\:grid-cols-12 {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+
   .lg\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
