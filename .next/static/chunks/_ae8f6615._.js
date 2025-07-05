@@ -165,14 +165,14 @@ function AdminDashboardPage() {
             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Image$3e$__["Image"]
         },
         {
-            title: "Manage FYB Students",
-            description: "Add, edit, or remove student profiles and flyers.",
+            title: "Manage Clan Students",
+            description: "Add, edit, or remove clan member profiles and flyers.",
             href: "/admin/manage-students",
             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"]
         },
         {
-            title: "Manage FYB Week",
-            description: "Control FYB Week page content, schedule, and gallery.",
+            title: "Manage Cyber Clan Week",
+            description: "Control Cyber Clan Week page content, schedule, and gallery.",
             href: "/admin/manage-fyb-week",
             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$calendar$2d$days$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__CalendarDays$3e$__["CalendarDays"]
         }

@@ -461,6 +461,8 @@ Raw Error: ${extractedErrorMessage}`;
       isAdminLoggedIn, 
       loginAdmin, logoutAdmin,
       addStudent, updateStudent, deleteStudent,
+      updateLogo,
+      updateFybWeekTextSettings,
       addFybEventImages, deleteFybEventImage
     }}>
       {isLoading ? (

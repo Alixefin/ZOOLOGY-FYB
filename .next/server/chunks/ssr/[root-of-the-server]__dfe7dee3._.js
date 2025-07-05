@@ -229,7 +229,7 @@ function AssociationLogoPlaceholder(props) {
                 fontSize: "12",
                 fill: "hsl(var(--muted-foreground))",
                 textAnchor: "middle",
-                children: "NAZS Logo"
+                children: "NACOS Logo"
             }, void 0, false, {
                 fileName: "[project]/src/components/icons/AssociationLogoPlaceholder.tsx",
                 lineNumber: 13,
