@@ -89,35 +89,43 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setIsMounted(true);
     
     async function loadInitialData() {
+      // This function is now more robust, loading data sequentially to pinpoint errors.
       try {
         if (!supabase) {
           throw new Error("Supabase client is not initialized.");
         }
         
-        const [studentsRes, settingsRes, awardsRes, nominationsRes] = await Promise.all([
-            supabase.from('students').select('*').order('name', { ascending: true }),
-            supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single(),
-            supabase.from('awards').select('*').order('name', { ascending: true }),
-            supabase.from('award_nominations').select('*, students(name, image_src)')
-        ]);
-
-        if (studentsRes.error) throw studentsRes.error;
+        // 1. Load Students
+        const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
+        if (studentsRes.error) throw { source: 'students', details: studentsRes.error };
         setStudents(studentsRes.data || []);
 
-        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') throw settingsRes.error;
+        // 2. Load App Settings
+        const settingsRes = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') { // PGRST116: no rows found, which is OK on first load.
+           throw { source: 'app_settings', details: settingsRes.error };
+        }
         if (settingsRes.data) {
           setLogosState(settingsRes.data.logos || defaultLogos);
           setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
         }
 
-        if (awardsRes.error) throw awardsRes.error;
+        // 3. Load Awards
+        const awardsRes = await supabase.from('awards').select('*').order('name', { ascending: true });
+        if (awardsRes.error) throw { source: 'awards', details: awardsRes.error };
         setAwards(awardsRes.data || []);
-        
-        if (nominationsRes.error) throw nominationsRes.error;
+
+        // 4. Load Nominations with Student Details
+        const nominationsRes = await supabase.from('award_nominations').select('*, students(name, image_src)');
+        if (nominationsRes.error) throw { source: 'nominations', details: nominationsRes.error };
         setNominations(nominationsRes.data || []);
 
       } catch (error: any) {
-        console.error('An unexpected error occurred while loading initial data from Supabase:', error);
+        // Provide more detailed error logging.
+        console.error(
+          `An error occurred while loading data from Supabase table "${error.source}":`, 
+          error.details || error
+        );
       } finally {
         setIsLoading(false);
       }

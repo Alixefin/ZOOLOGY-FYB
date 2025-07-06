@@ -201,33 +201,51 @@ const AppProvider = ({ children })=>{
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         setIsMounted(true);
         async function loadInitialData() {
+            // This function is now more robust, loading data sequentially to pinpoint errors.
             try {
                 if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) {
                     throw new Error("Supabase client is not initialized.");
                 }
-                const [studentsRes, settingsRes, awardsRes, nominationsRes] = await Promise.all([
-                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
-                        ascending: true
-                    }),
-                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single(),
-                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('awards').select('*').order('name', {
-                        ascending: true
-                    }),
-                    __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('award_nominations').select('*, students(name, image_src)')
-                ]);
-                if (studentsRes.error) throw studentsRes.error;
+                // 1. Load Students
+                const studentsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
+                    ascending: true
+                });
+                if (studentsRes.error) throw {
+                    source: 'students',
+                    details: studentsRes.error
+                };
                 setStudents(studentsRes.data || []);
-                if (settingsRes.error && settingsRes.error.code !== 'PGRST116') throw settingsRes.error;
+                // 2. Load App Settings
+                const settingsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+                if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
+                    throw {
+                        source: 'app_settings',
+                        details: settingsRes.error
+                    };
+                }
                 if (settingsRes.data) {
                     setLogosState(settingsRes.data.logos || defaultLogos);
                     setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
                 }
-                if (awardsRes.error) throw awardsRes.error;
+                // 3. Load Awards
+                const awardsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('awards').select('*').order('name', {
+                    ascending: true
+                });
+                if (awardsRes.error) throw {
+                    source: 'awards',
+                    details: awardsRes.error
+                };
                 setAwards(awardsRes.data || []);
-                if (nominationsRes.error) throw nominationsRes.error;
+                // 4. Load Nominations with Student Details
+                const nominationsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('award_nominations').select('*, students(name, image_src)');
+                if (nominationsRes.error) throw {
+                    source: 'nominations',
+                    details: nominationsRes.error
+                };
                 setNominations(nominationsRes.data || []);
             } catch (error) {
-                console.error('An unexpected error occurred while loading initial data from Supabase:', error);
+                // Provide more detailed error logging.
+                console.error(`An error occurred while loading data from Supabase table "${error.source}":`, error.details || error);
             } finally{
                 setIsLoading(false);
             }
@@ -413,7 +431,7 @@ const AppProvider = ({ children })=>{
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 297,
+            lineNumber: 305,
             columnNumber: 12
         }, this);
     }
@@ -443,7 +461,7 @@ const AppProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 301,
+        lineNumber: 309,
         columnNumber: 5
     }, this);
 };
