@@ -1,9 +1,3 @@
--- This script resets your Supabase database tables for the Cyber Clan FYB Week app.
--- To use this, navigate to the "SQL Editor" in your Supabase project dashboard,
--- paste the entire content of this file, and click "Run".
-
--- Step 1: Drop existing tables to ensure a clean slate.
--- The CASCADE option will automatically drop dependent objects.
 DROP TABLE IF EXISTS public.students CASCADE;
 DROP TABLE IF EXISTS public.app_settings CASCADE;
 

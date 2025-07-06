@@ -32,7 +32,7 @@ const defaultLogos: LogoSettings = {
 
 const defaultFYBWeekSettings: FYBWeekSettings = {
   isUnlocked: false,
-  title: 'Cyber Clan Week Extravaganza!',
+  title: 'Cyber Clan FYB Week Extravaganza!',
   schedule: 'Detailed schedule coming soon...',
   activities: 'Exciting activities lineup to be announced!',
   eventImages: [],
@@ -247,11 +247,14 @@ Raw Error: ${extractedErrorMessage}`;
     const updatedLogos = { ...logos, [logoType]: newLogoUrl };
     const { error } = await supabase
       .from('app_settings')
-      .upsert({ id: APP_SETTINGS_ID, logos: updatedLogos, fyb_week_settings: fybWeekSettings })
+      .upsert({ id: APP_SETTINGS_ID, logos: updatedLogos })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase error during logo update:", error);
+      throw error;
+    }
     setLogosState(updatedLogos);
   };
   
@@ -261,11 +264,14 @@ Raw Error: ${extractedErrorMessage}`;
     const updatedSettings = { ...fybWeekSettings, ...settings };
     const { error } = await supabase
       .from('app_settings')
-      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings })
       .select()
       .single();
     
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase error during FYB week settings update:", error);
+      throw error;
+    }
     setFybWeekSettingsState(updatedSettings);
   };
 
@@ -324,7 +330,7 @@ Raw Error: ${extractedErrorMessage}`;
   
       const { error } = await supabase
         .from('app_settings')
-        .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+        .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings })
         .select()
         .single();
   
@@ -355,7 +361,7 @@ Raw Error: ${extractedErrorMessage}`;
 
     const { error } = await supabase
       .from('app_settings')
-      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings, logos: logos })
+      .upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings })
       .select()
       .single();
 
@@ -406,3 +412,5 @@ export const useAppContext = () => {
   }
   return context;
 };
+
+    

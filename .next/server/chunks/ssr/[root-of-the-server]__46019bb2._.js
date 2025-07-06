@@ -159,7 +159,7 @@ const defaultLogos = {
 };
 const defaultFYBWeekSettings = {
     isUnlocked: false,
-    title: 'Cyber Clan Week Extravaganza!',
+    title: 'Cyber Clan FYB Week Extravaganza!',
     schedule: 'Detailed schedule coming soon...',
     activities: 'Exciting activities lineup to be announced!',
     eventImages: []
@@ -329,10 +329,12 @@ Raw Error: ${extractedErrorMessage}`;
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
             id: APP_SETTINGS_ID,
-            logos: updatedLogos,
-            fyb_week_settings: fybWeekSettings
+            logos: updatedLogos
         }).select().single();
-        if (error) throw error;
+        if (error) {
+            console.error("Supabase error during logo update:", error);
+            throw error;
+        }
         setLogosState(updatedLogos);
     };
     const updateFybWeekTextSettings = async (settings)=>{
@@ -343,10 +345,12 @@ Raw Error: ${extractedErrorMessage}`;
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
             id: APP_SETTINGS_ID,
-            fyb_week_settings: updatedSettings,
-            logos: logos
+            fyb_week_settings: updatedSettings
         }).select().single();
-        if (error) throw error;
+        if (error) {
+            console.error("Supabase error during FYB week settings update:", error);
+            throw error;
+        }
         setFybWeekSettingsState(updatedSettings);
     };
     const addStudent = async (studentData)=>{
@@ -395,8 +399,7 @@ Raw Error: ${extractedErrorMessage}`;
             };
             const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
                 id: APP_SETTINGS_ID,
-                fyb_week_settings: updatedSettings,
-                logos: logos
+                fyb_week_settings: updatedSettings
             }).select().single();
             if (error) {
                 // If the DB update fails, try to clean up the uploaded files
@@ -423,8 +426,7 @@ Raw Error: ${extractedErrorMessage}`;
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
             id: APP_SETTINGS_ID,
-            fyb_week_settings: updatedSettings,
-            logos: logos
+            fyb_week_settings: updatedSettings
         }).select().single();
         if (error) throw error;
         setFybWeekSettingsState(updatedSettings);
@@ -462,12 +464,12 @@ Raw Error: ${extractedErrorMessage}`;
                         priority: true
                     }, void 0, false, {
                         fileName: "[project]/src/contexts/AppContext.tsx",
-                        lineNumber: 383,
+                        lineNumber: 389,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 382,
+                    lineNumber: 388,
                     columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -475,18 +477,18 @@ Raw Error: ${extractedErrorMessage}`;
                     children: "Loading Application Data..."
                 }, void 0, false, {
                     fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 393,
+                    lineNumber: 399,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 381,
+            lineNumber: 387,
             columnNumber: 9
         }, this) : children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 368,
+        lineNumber: 374,
         columnNumber: 5
     }, this);
 };
