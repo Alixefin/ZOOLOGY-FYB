@@ -70,7 +70,7 @@ export default function HomePage() {
                 Meet the Cyber Clan
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg transition-transform hover:scale-105">
+            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-week">
                 <CalendarDays className="mr-3 h-6 w-6" />
                 Cyber Clan Week

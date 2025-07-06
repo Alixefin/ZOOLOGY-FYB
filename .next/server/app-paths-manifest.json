@@ -1,8 +1,5 @@
 {
-  "/admin/manage-logos/page": "app/admin/manage-logos/page.js",
-  "/admin/page": "app/admin/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/fyb-students/[id]/page": "app/fyb-students/[id]/page.js",
-  "/fyb-students/page": "app/fyb-students/page.js",
   "/page": "app/page.js"
 }
