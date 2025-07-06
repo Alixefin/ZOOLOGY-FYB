@@ -306,7 +306,7 @@ function FybWeekPage() {
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
                         className: "text-4xl font-headline text-primary mb-2",
-                        children: fybWeekSettings.title || "FYB Week"
+                        children: fybWeekSettings.title || "Cyber Clan Week"
                     }, void 0, false, {
                         fileName: "[project]/src/app/fyb-week/page.tsx",
                         lineNumber: 33,
@@ -314,7 +314,7 @@ function FybWeekPage() {
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "text-lg text-muted-foreground font-body",
-                        children: fybWeekSettings.isUnlocked ? "Check out the schedule, activities, and photos from the week!" : "Stay tuned for exciting updates about the FYB Week!"
+                        children: fybWeekSettings.isUnlocked ? "Check out the schedule, activities, and photos from the week!" : "Stay tuned for exciting updates about the Cyber Clan Week!"
                     }, void 0, false, {
                         fileName: "[project]/src/app/fyb-week/page.tsx",
                         lineNumber: 34,
@@ -365,7 +365,7 @@ function FybWeekPage() {
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "text-xl text-muted-foreground font-body mb-2",
-                                    children: "The FYB Week page is currently under construction."
+                                    children: "The Cyber Clan Week page is currently under construction."
                                 }, void 0, false, {
                                     fileName: "[project]/src/app/fyb-week/page.tsx",
                                     lineNumber: 49,
@@ -417,7 +417,7 @@ function FybWeekPage() {
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             className: "font-body",
-                                            children: "The official timeline of events for the FYB Week."
+                                            children: "The official timeline of events for the Cyber Clan Week."
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/fyb-week/page.tsx",
                                             lineNumber: 64,
@@ -543,7 +543,7 @@ function FybWeekPage() {
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                             className: "font-body",
-                                            children: "Memories from the FYB Week events. Click to download."
+                                            children: "Memories from the Cyber Clan Week events. Click to download."
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/fyb-week/page.tsx",
                                             lineNumber: 96,

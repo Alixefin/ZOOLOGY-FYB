@@ -660,7 +660,7 @@ function HomePage() {
     _s();
     const { logos } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$contexts$2f$AppContext$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useAppContext"])();
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/30 p-4 sm:p-8",
+        className: "flex flex-col items-center min-h-screen bg-gradient-to-br from-background to-secondary/30 px-4 py-8 sm:px-8 sm:py-12",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
                 className: "w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden",
@@ -829,7 +829,7 @@ function HomePage() {
                                         asChild: true,
                                         variant: "outline",
                                         size: "lg",
-                                        className: "font-headline text-lg py-8 border-primary text-primary hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105",
+                                        className: "font-headline text-lg py-8 border-primary text-primary hover:bg-accent hover:text-accent-foreground hover:border-accent shadow-lg transition-transform hover:scale-105",
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                                             href: "/fyb-week",
                                             children: [

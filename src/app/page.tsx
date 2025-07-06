@@ -15,7 +15,7 @@ export default function HomePage() {
   const { logos } = useAppContext();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/30 p-4 sm:p-8">
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-background to-secondary/30 px-4 py-8 sm:px-8 sm:py-12">
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden">
         <CardHeader className="text-primary-foreground p-8 text-center relative">
           {/* Background Image */}
@@ -70,7 +70,7 @@ export default function HomePage() {
                 Meet the Cyber Clan
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105">
+            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-accent hover:text-accent-foreground hover:border-accent shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-week">
                 <CalendarDays className="mr-3 h-6 w-6" />
                 Cyber Clan Week
