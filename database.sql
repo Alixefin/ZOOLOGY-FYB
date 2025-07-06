@@ -1,69 +1,76 @@
--- Drop existing tables if they exist to ensure a clean slate.
-DROP TABLE IF EXISTS "public"."students";
-DROP TABLE IF EXISTS "public"."app_settings";
+-- Drop old tables if they exist to ensure a clean slate
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS app_settings;
 
--- Create the app_settings table to store global application settings like logos.
-CREATE TABLE "public"."app_settings" (
-    "id" bigint NOT NULL,
-    "logos" jsonb,
-    "fyb_week_settings" jsonb,
-    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+-- Create the new students table
+CREATE TABLE students (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  nickname TEXT,
+  best_level TEXT NOT NULL,
+  worst_level TEXT NOT NULL,
+  favourite_lecturer TEXT NOT NULL,
+  relationship_status TEXT NOT NULL,
+  alternative_career TEXT NOT NULL,
+  best_experience TEXT NOT NULL,
+  worst_experience TEXT NOT NULL,
+  will_miss TEXT NOT NULL,
+  image_src TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create the students table with the new structure for student profiles.
-CREATE TABLE "public"."students" (
-    "id" text NOT NULL,
-    "name" text NOT NULL,
-    "nickname" text,
-    "best_level" text,
-    "worst_level" text,
-    "favourite_lecturer" text,
-    "relationship_status" text,
-    "alternative_career" text,
-    "best_experience" text,
-    "worst_experience" text,
-    "will_miss" text,
-    "image_src" text,
-    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
-    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
+-- Create the app_settings table
+CREATE TABLE app_settings (
+  id INT PRIMARY KEY,
+  logos JSONB,
+  fyb_week_settings JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Define the primary keys for the tables.
-ALTER TABLE ONLY "public"."app_settings" ADD CONSTRAINT "app_settings_pkey" PRIMARY KEY ("id");
-ALTER TABLE ONLY "public"."students" ADD CONSTRAINT "students_pkey" PRIMARY KEY ("id");
+-- Insert the single row for app settings
+INSERT INTO app_settings (id, logos, fyb_week_settings)
+VALUES (1, '{"associationLogo": null, "schoolLogo": null}', '{"isUnlocked": false, "title": "Cyber Clan FYB Week Extravaganza!", "schedule": "Detailed schedule coming soon...", "activities": "Exciting activities lineup to be announced!", "eventImages": []}')
+ON CONFLICT (id) DO NOTHING;
 
--- Insert a default row into app_settings so that the app has a settings object to update.
-INSERT INTO "public"."app_settings" ("id", "logos", "fyb_week_settings") VALUES
-(1, '{"schoolLogo": null, "associationLogo": null}', '{"title": "Cyber Clan FYB Week Extravaganza!", "isUnlocked": false, "schedule": "Detailed schedule coming soon...", "activities": "Exciting activities lineup to be announced!", "eventImages": []}');
 
--- Enable Row Level Security (RLS) on both tables.
--- This is a crucial security step. All access will be denied by default unless a policy grants it.
-ALTER TABLE "public"."app_settings" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "public"."students" ENABLE ROW LEVEL SECURITY;
+-- ======== ROW LEVEL SECURITY POLICIES ========
 
--- Create policies for the app_settings table.
--- This policy allows anyone to read the application settings.
-CREATE POLICY "Public read access for app settings" ON "public"."app_settings"
-AS PERMISSIVE FOR SELECT
-TO public
+-- Drop existing policies to ensure a clean slate
+-- Note: Using 'IF EXISTS' prevents errors if the policies don't exist.
+DROP POLICY IF EXISTS "Allow public read access to students" ON public.students;
+DROP POLICY IF EXISTS "Allow anon writes for students" ON public.students;
+DROP POLICY IF EXISTS "Allow public read access to app settings" ON public.app_settings;
+DROP POLICY IF EXISTS "Allow anon modification of app settings" ON public.app_settings;
+
+
+-- Enable Row Level Security (RLS) for the tables
+ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
+
+-- == Policies for 'students' table ==
+-- 1. Allow anyone to read all student profiles
+CREATE POLICY "Allow public read access to students"
+ON public.students FOR SELECT
 USING (true);
 
--- This policy allows the application (using the 'anon' key) to perform all operations.
-CREATE POLICY "Allow all operations for anon users on app settings" ON "public"."app_settings"
-AS PERMISSIVE FOR ALL
-TO anon
+-- 2. Allow any client (using the anon key) to create, update, and delete students
+CREATE POLICY "Allow anon writes for students"
+ON public.students FOR ALL -- Covers INSERT, UPDATE, DELETE
+USING (true)
 WITH CHECK (true);
 
--- Create policies for the students table.
--- This policy allows anyone to read the student profiles.
-CREATE POLICY "Public read access for students" ON "public"."students"
-AS PERMISSIVE FOR SELECT
-TO public
-USING (true);
 
--- This policy allows the application (using the 'anon' key) to perform all operations.
-CREATE POLICY "Allow all operations for anon users on students" ON "public"."students"
-AS PERMISSIVE FOR ALL
-TO anon
-WITH CHECK (true);
+-- == Policies for 'app_settings' table ==
+-- 1. Allow anyone to read the application settings (the single row with id = 1)
+CREATE POLICY "Allow public read access to app settings"
+ON public.app_settings FOR SELECT
+USING (id = 1);
+
+-- 2. Allow any client (using the anon key) to insert or update the single settings row
+CREATE POLICY "Allow anon modification of app settings"
+ON public.app_settings FOR ALL -- Covers INSERT, UPDATE
+USING (id = 1)
+WITH CHECK (id = 1);
