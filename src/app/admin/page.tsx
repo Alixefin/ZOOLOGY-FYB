@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Image as ImageIcon, Users, CalendarDays, Settings } from 'lucide-react';
+import { Image as ImageIcon, Users, Award, Settings } from 'lucide-react';
 import AdminHeader from '@/components/AdminHeader';
 
 export default function AdminDashboardPage() {
@@ -17,15 +17,15 @@ export default function AdminDashboardPage() {
     },
     {
       title: "Manage Clan Students",
-      description: "Add, edit, or remove clan member profiles and flyers.",
+      description: "Add, edit, or remove clan member profiles.",
       href: "/admin/manage-students",
       icon: Users,
     },
     {
-      title: "Manage Cyber Clan Week",
-      description: "Control Cyber Clan Week page content, schedule, and gallery.",
-      href: "/admin/manage-fyb-week",
-      icon: CalendarDays,
+      title: "Manage Award Voting",
+      description: "Control Award Night voting, categories, and results.",
+      href: "/admin/manage-awards",
+      icon: Award,
     },
   ];
 

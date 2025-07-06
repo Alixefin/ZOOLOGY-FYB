@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export const metadata: Metadata = {
-  title: 'Cyber Clan FYB Week',
+  title: 'Cyber Clan',
   description: 'Online magazine for the Nigerian Association of Computing Students (NACOS), Federal University Lokoja Chapter.',
   icons: {
     icon: '/favicon.ico',

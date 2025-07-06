@@ -23,25 +23,31 @@ export interface LogoSettings {
   schoolLogo: string | null; 
 }
 
-export interface FYBEventImage {
-  id: string; 
-  src: string;
+export interface Award {
+  id: string; // uuid
   name: string;
+  description: string | null;
+  created_at?: string;
 }
 
-export interface FYBWeekSettings {
-  isUnlocked: boolean;
-  title: string;
-  schedule: string;
-  activities: string;
-  eventImages: FYBEventImage[];
+export interface AwardNomination {
+  id: string; // uuid
+  award_id: string;
+  student_id: string;
+  votes: number;
+  created_at?: string;
+  // Joined data from Supabase
+  students?: { name: string; image_src: string | null; } | null;
+}
+
+export interface VotingSettings {
+  isVotingActive: boolean;
 }
 
 export interface AppSettingsFromSupabase {
   id: number;
   logos: LogoSettings | null; 
-  fyb_week_settings: FYBWeekSettings | null;
-  admin_pin_hash?: string | null; 
+  voting_settings: VotingSettings | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -49,7 +55,9 @@ export interface AppSettingsFromSupabase {
 export interface AppState {
   students: Student[];
   logos: LogoSettings;
-  fybWeekSettings: FYBWeekSettings;
+  votingSettings: VotingSettings;
+  awards: Award[];
+  nominations: AwardNomination[];
   adminPin: string; 
   isAdminLoggedIn: boolean;
 }

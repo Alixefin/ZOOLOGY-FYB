@@ -141,7 +141,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ThemePr
 ;
 ;
 const metadata = {
-    title: 'Cyber Clan FYB Week',
+    title: 'Cyber Clan',
     description: 'Online magazine for the Nigerian Association of Computing Students (NACOS), Federal University Lokoja Chapter.',
     icons: {
         icon: '/favicon.ico'

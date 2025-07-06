@@ -8,14 +8,75 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from '@/contexts/AppContext';
 import { AssociationLogoPlaceholder } from '@/components/icons/AssociationLogoPlaceholder';
 import { SchoolLogoPlaceholder } from '@/components/icons/SchoolLogoPlaceholder';
-import { Users, CalendarDays } from 'lucide-react';
+import { Users, Award, X } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useState } from 'react';
 
 export default function HomePage() {
-  const { logos } = useAppContext();
+  const { logos, votingSettings } = useAppContext();
+  const [showVotingInactiveDialog, setShowVotingInactiveDialog] = useState(false);
+
+  const handleVoteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!votingSettings.isVotingActive) {
+      e.preventDefault();
+      setShowVotingInactiveDialog(true);
+    }
+  };
+
+  const votingButton = (
+    <Button
+      asChild={votingSettings.isVotingActive}
+      size="lg"
+      className={`font-headline text-lg py-8 shadow-lg transition-all hover:scale-105 w-full ${
+        votingSettings.isVotingActive
+          ? 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50'
+          : 'bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500'
+      }`}
+      onClick={!votingSettings.isVotingActive ? () => setShowVotingInactiveDialog(true) : undefined}
+    >
+      {votingSettings.isVotingActive ? (
+        <Link href="/vote">
+          <Award className="mr-3 h-6 w-6" />
+          Award Night Voting
+        </Link>
+      ) : (
+        <span>
+          <Award className="mr-3 h-6 w-6" />
+          Award Night Voting
+        </span>
+      )}
+    </Button>
+  );
+
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-background to-secondary/30 px-4 py-8 sm:px-8 sm:py-12">
+       <AlertDialog open={showVotingInactiveDialog} onOpenChange={setShowVotingInactiveDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Voting Not Yet Open</AlertDialogTitle>
+            <AlertDialogDescription>
+              The voting session has not started yet. Please check back later for updates.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+             <Button variant="outline" onClick={() => setShowVotingInactiveDialog(false)}>
+                <X className="mr-2 h-4 w-4" /> Close
+              </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden">
         <CardHeader className="bg-primary text-primary-foreground p-8 text-center">
           <div className="flex flex-row items-center justify-center gap-6 mb-6">
@@ -35,7 +96,7 @@ export default function HomePage() {
             </div>
           </div>
           <h1 className="text-3xl md:text-4xl font-headline tracking-tight">
-            Cyber Clan FYB Week
+            Cyber Clan
           </h1>
           <p className="text-lg md:text-xl font-body text-primary-foreground/80 mt-2">
             Nigerian Association of Computing Students (NACOS)
@@ -55,12 +116,7 @@ export default function HomePage() {
                 Meet the Cyber Clan
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-accent hover:text-accent-foreground hover:border-accent shadow-lg transition-transform hover:scale-105">
-              <Link href="/fyb-week">
-                <CalendarDays className="mr-3 h-6 w-6" />
-                Cyber Clan Week
-              </Link>
-            </Button>
+            {votingButton}
           </div>
         </CardContent>
       </Card>

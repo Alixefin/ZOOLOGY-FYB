@@ -3,9 +3,8 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Student, LogoSettings, FYBWeekSettings, AppState, FYBEventImage } from '@/types';
+import type { Student, LogoSettings, VotingSettings, AppState, Award, AwardNomination } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
-import { v4 as uuidv4 } from 'uuid';
 
 // Helper to convert Data URI to Blob for Supabase upload
 function dataURIToBlob(dataURI: string): Blob | null {
@@ -30,31 +29,31 @@ const defaultLogos: LogoSettings = {
   schoolLogo: null,
 };
 
-const defaultFYBWeekSettings: FYBWeekSettings = {
-  isUnlocked: false,
-  title: 'Cyber Clan FYB Week Extravaganza!',
-  schedule: 'Detailed schedule coming soon...',
-  activities: 'Exciting activities lineup to be announced!',
-  eventImages: [],
+const defaultVotingSettings: VotingSettings = {
+  isVotingActive: false,
 };
 
-const defaultAdminPin = "171225"; // Keep client-side for UI lock, not for DB auth
+const defaultAdminPin = "171225"; 
 
-const APP_SETTINGS_ID = 1; // Singleton row ID for app_settings table
+const APP_SETTINGS_ID = 1; 
 const STORAGE_BUCKET_NAME = 'app-public-assets';
 
 
 interface AppContextType extends AppState {
   setStudents: React.Dispatch<React.SetStateAction<Student[]>>;
   updateLogo: (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => Promise<void>;
-  updateFybWeekTextSettings: (settings: Partial<Pick<FYBWeekSettings, 'title' | 'schedule' | 'activities' | 'isUnlocked'>>) => Promise<void>;
   loginAdmin: (pin: string) => boolean;
   logoutAdmin: () => void;
   addStudent: (studentData: Omit<Student, 'created_at' | 'updated_at'>) => Promise<void>;
   updateStudent: (studentData: Student) => Promise<void>;
   deleteStudent: (studentId: string) => Promise<void>;
-  addFybEventImages: (files: File[]) => Promise<void>;
-  deleteFybEventImage: (imageId: string) => Promise<void>;
+  // Voting related functions
+  updateVotingStatus: (isActive: boolean) => Promise<void>;
+  addAward: (awardData: Pick<Award, 'name' | 'description'>) => Promise<void>;
+  deleteAward: (awardId: string) => Promise<void>;
+  addNomination: (nominationData: Pick<AwardNomination, 'award_id' | 'student_id'>) => Promise<void>;
+  deleteNomination: (nominationId: string) => Promise<void>;
+  submitVotes: (votes: { awardId: string; nominationId: string }[]) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -79,7 +78,9 @@ const LoadingComponent = () => (
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [logos, setLogosState] = useState<LogoSettings>(defaultLogos);
-  const [fybWeekSettings, setFybWeekSettingsState] = useState<FYBWeekSettings>(defaultFYBWeekSettings);
+  const [votingSettings, setVotingSettingsState] = useState<VotingSettings>(defaultVotingSettings);
+  const [awards, setAwards] = useState<Award[]>([]);
+  const [nominations, setNominations] = useState<AwardNomination[]>([]);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -90,29 +91,33 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     async function loadInitialData() {
       try {
         if (!supabase) {
-          throw new Error("Supabase client is not initialized. Check your environment variables and supabaseClient.ts.");
+          throw new Error("Supabase client is not initialized.");
         }
-        // Fetch students
-        const { data: studentsData, error: studentsError } = await supabase.from('students').select('*').order('name', { ascending: true });
-        if (studentsError) throw studentsError;
-        setStudents(studentsData || []);
+        
+        const [studentsRes, settingsRes, awardsRes, nominationsRes] = await Promise.all([
+            supabase.from('students').select('*').order('name', { ascending: true }),
+            supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single(),
+            supabase.from('awards').select('*').order('name', { ascending: true }),
+            supabase.from('award_nominations').select('*, students(name, image_src)')
+        ]);
 
-        // Fetch app_settings
-        const { data: settingsData, error: settingsError } = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
-        if (settingsError && settingsError.code !== 'PGRST116') throw settingsError;
+        if (studentsRes.error) throw studentsRes.error;
+        setStudents(studentsRes.data || []);
 
-        if (settingsData) {
-          setLogosState(settingsData.logos || defaultLogos);
-          setFybWeekSettingsState(settingsData.fyb_week_settings || defaultFYBWeekSettings);
-        } else {
-          setLogosState(defaultLogos);
-          setFybWeekSettingsState(defaultFYBWeekSettings);
+        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') throw settingsRes.error;
+        if (settingsRes.data) {
+          setLogosState(settingsRes.data.logos || defaultLogos);
+          setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
         }
+
+        if (awardsRes.error) throw awardsRes.error;
+        setAwards(awardsRes.data || []);
+        
+        if (nominationsRes.error) throw nominationsRes.error;
+        setNominations(nominationsRes.data || []);
+
       } catch (error: any) {
         console.error('An unexpected error occurred while loading initial data from Supabase:', error);
-        setStudents([]);
-        setLogosState(defaultLogos);
-        setFybWeekSettingsState(defaultFYBWeekSettings);
       } finally {
         setIsLoading(false);
       }
@@ -165,7 +170,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       const pathSegments = url.pathname.split('/');
       const bucketNameIndex = pathSegments.findIndex(segment => segment === STORAGE_BUCKET_NAME);
       if (bucketNameIndex === -1 || bucketNameIndex + 1 >= pathSegments.length) {
-        console.warn("Could not determine file path from Supabase URL for deletion:", fileUrl);
         return;
       }
       const filePath = pathSegments.slice(bucketNameIndex + 1).join('/');
@@ -177,7 +181,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
-    if (!supabase) throw new Error("Supabase client not available for updating logo.");
+    if (!supabase) throw new Error("Supabase client not available.");
     let newLogoUrl: string | null = null;
     const currentSettings = (await supabase.from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single()).data?.logos || defaultLogos;
     const currentLogoUrl = currentSettings[logoType];
@@ -191,21 +195,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } else if (currentLogoUrl) {
       await deleteFileFromSupabase(currentLogoUrl);
     }
-    const updatedLogos = { ...currentSettings, [logoType]: newLogoUrl };
+    const updatedLogos = { ...logos, [logoType]: newLogoUrl };
     const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, logos: updatedLogos });
     if (error) throw error;
     setLogosState(updatedLogos);
   };
   
-  const updateFybWeekTextSettings = async (settings: Partial<Pick<FYBWeekSettings, 'title' | 'schedule' | 'activities' | 'isUnlocked'>>) => {
-    if (!supabase) throw new Error("Supabase client not available.");
-    const currentSettings = (await supabase.from('app_settings').select('fyb_week_settings').eq('id', APP_SETTINGS_ID).single()).data?.fyb_week_settings || defaultFYBWeekSettings;
-    const updatedSettings = { ...currentSettings, ...settings };
-    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings });
-    if (error) throw error;
-    setFybWeekSettingsState(updatedSettings);
-  };
-
   const addStudent = async (studentData: Omit<Student, 'created_at' | 'updated_at'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
     const { data: newStudent, error } = await supabase.from('students').insert(studentData).select().single();
@@ -228,41 +223,75 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setStudents(prev => prev.filter(s => s.id !== studentId));
   };
   
-  const addFybEventImages = async (files: File[]) => {
+  // VOTING FUNCTIONS
+  const updateVotingStatus = async (isActive: boolean) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    const currentSettings = (await supabase.from('app_settings').select('fyb_week_settings').eq('id', APP_SETTINGS_ID).single()).data?.fyb_week_settings || defaultFYBWeekSettings;
-    const uploadPromises = files.map(file => {
-      const imageId = uuidv4();
-      const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
-      return uploadFileToSupabase(file, 'fyb_event_images', `${imageId}_${safeFileName}`)
-        .then(imageUrl => ({ id: imageId, src: imageUrl, name: file.name }));
-    });
-    try {
-      const newImages: FYBEventImage[] = await Promise.all(uploadPromises);
-      const updatedImages = [...currentSettings.eventImages, ...newImages];
-      const updatedSettings = { ...currentSettings, eventImages: updatedImages };
-      const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings });
-      if (error) {
-        newImages.forEach(img => deleteFileFromSupabase(img.src));
-        throw error;
-      }
-      setFybWeekSettingsState(updatedSettings);
-    } catch (uploadError) {
-      throw new Error("One or more image uploads failed. Please try again.");
-    }
+    const newVotingSettings = { ...votingSettings, isVotingActive: isActive };
+    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, voting_settings: newVotingSettings });
+    if (error) throw error;
+    setVotingSettingsState(newVotingSettings);
   };
 
-  const deleteFybEventImage = async (imageId: string) => {
+  const addAward = async (awardData: Pick<Award, 'name' | 'description'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    const currentSettings = (await supabase.from('app_settings').select('fyb_week_settings').eq('id', APP_SETTINGS_ID).single()).data?.fyb_week_settings || defaultFYBWeekSettings;
-    const imageToDelete = currentSettings.eventImages.find(img => img.id === imageId);
-    if (imageToDelete?.src) await deleteFileFromSupabase(imageToDelete.src);
-    const updatedImages = currentSettings.eventImages.filter(img => img.id !== imageId);
-    const updatedSettings = { ...currentSettings, eventImages: updatedImages };
-    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, fyb_week_settings: updatedSettings });
+    const { data, error } = await supabase.from('awards').insert(awardData).select().single();
     if (error) throw error;
-    setFybWeekSettingsState(updatedSettings);
+    setAwards(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
   };
+
+  const deleteAward = async (awardId: string) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    const { error } = await supabase.from('awards').delete().eq('id', awardId);
+    if (error) throw error;
+    setAwards(prev => prev.filter(a => a.id !== awardId));
+    setNominations(prev => prev.filter(n => n.award_id !== awardId));
+  };
+
+  const addNomination = async (nominationData: Pick<AwardNomination, 'award_id' | 'student_id'>) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    const { data, error } = await supabase.from('award_nominations').insert(nominationData).select('*, students(name, image_src)').single();
+    if (error) throw error;
+    setNominations(prev => [...prev, data]);
+  };
+
+  const deleteNomination = async (nominationId: string) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    const { error } = await supabase.from('award_nominations').delete().eq('id', nominationId);
+    if (error) throw error;
+    setNominations(prev => prev.filter(n => n.id !== nominationId));
+  };
+  
+  const submitVotes = async (votesToSubmit: { awardId: string; nominationId: string }[]) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    
+    // Use Promise.all to call the RPC function for each vote
+    const votePromises = votesToSubmit.map(vote => 
+      supabase.rpc('increment_vote', { nomination_id_in: vote.nominationId })
+    );
+    
+    const results = await Promise.allSettled(votePromises);
+
+    // Check for any failed promises
+    const failedVotes = results.filter(result => result.status === 'rejected');
+    if (failedVotes.length > 0) {
+      console.error("Some votes failed to submit:", failedVotes);
+      // Rollback not easily possible without a transaction, but we can log it.
+      // For a production app, a single transaction function in Supabase would be better.
+      throw new Error("Could not submit all votes. Please try again.");
+    }
+
+    // Optimistically update the local state for a smoother user experience
+    setNominations(prevNominations => {
+        return prevNominations.map(nom => {
+            const didVoteForThis = votesToSubmit.find(v => v.nominationId === nom.id);
+            if (didVoteForThis) {
+                return { ...nom, votes: nom.votes + 1 };
+            }
+            return nom;
+        });
+    });
+  };
+
 
   if (!isMounted || isLoading) {
     return <LoadingComponent />;
@@ -272,14 +301,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider value={{
       students, setStudents, 
       logos, 
-      fybWeekSettings, 
+      votingSettings,
+      awards,
+      nominations,
       adminPin: defaultAdminPin,
       isAdminLoggedIn, 
       loginAdmin, logoutAdmin,
       addStudent, updateStudent, deleteStudent,
       updateLogo,
-      updateFybWeekTextSettings,
-      addFybEventImages, deleteFybEventImage
+      updateVotingStatus,
+      addAward, deleteAward,
+      addNomination, deleteNomination,
+      submitVotes
     }}>
       {children}
     </AppContext.Provider>
