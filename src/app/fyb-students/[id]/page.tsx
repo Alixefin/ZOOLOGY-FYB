@@ -1,4 +1,3 @@
-
 "use client";
 
 import { usePathname, useRouter } from 'next/navigation';
@@ -107,10 +106,10 @@ export default function StudentDetailPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           
           {/* Left Column */}
-          <Card className="lg:col-span-4 shadow-lg rounded-xl">
+          <Card className="shadow-lg rounded-xl">
             <CardContent className="p-6 divide-y divide-border/50">
               <DetailItem icon={Cake} label="Birthday" value={formatBirthday(student.birthday)} />
               <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
@@ -122,21 +121,8 @@ export default function StudentDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Center Image */}
-          <div className="lg:col-span-4 flex justify-center order-first lg:order-none">
-            <div className="relative w-full max-w-sm aspect-[3/4] rounded-xl overflow-hidden shadow-2xl border-4 border-card transform hover:scale-105 transition-transform duration-300">
-              {student.image_src ? (
-                <Image src={student.image_src} alt={student.name} layout="fill" objectFit="cover" unoptimized data-ai-hint="student profile" />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
-                  <User className="w-24 h-24 text-muted-foreground" />
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Right Column */}
-          <Card className="lg:col-span-4 shadow-lg rounded-xl">
+          <Card className="shadow-lg rounded-xl">
             <CardContent className="p-6 divide-y divide-border/50">
               <DetailItem icon={BookOpen} label="Favourite Course" value={student.favourite_course} />
               <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
