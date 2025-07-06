@@ -53,7 +53,7 @@ interface AppContextType extends AppState {
   loginAdmin: (pin: string) => boolean;
   logoutAdmin: () => void;
   
-  addStudent: (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  addStudent: (studentData: Omit<Student, 'created_at' | 'updated_at'>) => Promise<void>;
   updateStudent: (studentData: Student) => Promise<void>;
   deleteStudent: (studentId: string) => Promise<void>;
   
@@ -205,7 +205,7 @@ Raw Error: ${extractedErrorMessage}`;
     const isSupabaseUrl = fileUrl.includes('iwkslfapaxafwghfhefu.supabase.co');
   
     if (!isSupabaseUrl) {
-      console.log('Skipping deletion for non-Supabase URL:', fileUrl);
+      // Don't try to delete external URLs
       return;
     }
   
@@ -269,126 +269,38 @@ Raw Error: ${extractedErrorMessage}`;
     setFybWeekSettingsState(updatedSettings);
   };
 
-  const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
+  const addStudent = async (studentData: Omit<Student, 'created_at' | 'updated_at'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
-
-    let profileImageUrl: string | null = studentData.image_src;
-    let flyerImageUrl: string | null = studentData.flyer_image_src;
-
-    try {
-      if (studentData.image_src && studentData.image_src.startsWith('data:')) {
-        const blob = dataURIToBlob(studentData.image_src);
-        if (blob) {
-          profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${uuidv4()}`);
-        }
-      }
-    } catch (e: any) {
-      throw new Error(`Profile image upload failed: ${e.message}`);
-    }
-
-    try {
-      if (studentData.flyer_image_src && studentData.flyer_image_src.startsWith('data:')) {
-        const blob = dataURIToBlob(studentData.flyer_image_src);
-        if (blob) {
-          flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${uuidv4()}`);
-        }
-      }
-    } catch (e: any) {
-      if (profileImageUrl && profileImageUrl !== studentData.image_src) {
-        await deleteFileFromSupabase(profileImageUrl);
-      }
-      throw new Error(`Flyer image upload failed: ${e.message}`);
-    }
-
-    const studentToInsert = {
-      ...studentData,
-      id: uuidv4(),
-      image_src: profileImageUrl,
-      flyer_image_src: flyerImageUrl,
-    };
-
-    try {
-      const { data: newStudent, error } = await supabase
+    
+    const { data: newStudent, error } = await supabase
         .from('students')
-        .insert(studentToInsert)
+        .insert(studentData)
         .select()
         .single();
 
-      if (error) throw error;
-      if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
-    } catch (e: any) {
-      if (profileImageUrl && profileImageUrl !== studentData.image_src) {
-        await deleteFileFromSupabase(profileImageUrl);
-      }
-      if (flyerImageUrl && flyerImageUrl !== studentData.flyer_image_src) {
-        await deleteFileFromSupabase(flyerImageUrl);
-      }
-      throw new Error(`Database insert failed: ${e.message}`);
-    }
+    if (error) throw error;
+    if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
   };
 
   const updateStudent = async (studentData: Student) => {
     if (!supabase) throw new Error("Supabase client not available.");
-
-    const originalStudent = students.find(s => s.id === studentData.id);
-    if (!originalStudent) throw new Error("Student not found for update");
-
-    let updatedPayload = { ...studentData };
-
-    try {
-        if (studentData.image_src && studentData.image_src.startsWith('data:')) {
-            if (originalStudent.image_src) await deleteFileFromSupabase(originalStudent.image_src);
-            const blob = dataURIToBlob(studentData.image_src);
-            if (blob) {
-                updatedPayload.image_src = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
-            }
-        } else if (studentData.image_src === null && originalStudent.image_src) {
-            await deleteFileFromSupabase(originalStudent.image_src);
-        }
-    } catch (e: any) {
-        throw new Error(`Profile image update failed: ${e.message}`);
-    }
-
-    try {
-        if (studentData.flyer_image_src && studentData.flyer_image_src.startsWith('data:')) {
-            if (originalStudent.flyer_image_src) await deleteFileFromSupabase(originalStudent.flyer_image_src);
-            const blob = dataURIToBlob(studentData.flyer_image_src);
-            if (blob) {
-                updatedPayload.flyer_image_src = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
-            }
-        } else if (studentData.flyer_image_src === null && originalStudent.flyer_image_src) {
-            await deleteFileFromSupabase(originalStudent.flyer_image_src);
-        }
-    } catch (e: any) {
-        throw new Error(`Flyer image update failed: ${e.message}`);
-    }
     
-    try {
-      const { id, created_at, updated_at, ...updateForDb } = updatedPayload;
+    const { id, created_at, updated_at, ...updatePayload } = studentData;
 
-      const { data: updatedStudent, error } = await supabase
-        .from('students')
-        .update(updateForDb)
-        .eq('id', studentData.id)
-        .select()
-        .single();
+    const { data: updatedStudent, error } = await supabase
+      .from('students')
+      .update(updatePayload)
+      .eq('id', studentData.id)
+      .select()
+      .single();
 
-      if (error) throw error;
-      if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a, b) => a.name.localeCompare(b.name)));
-    } catch (e: any) {
-        throw new Error(`Database update failed: ${e.message}`);
-    }
+    if (error) throw error;
+    if (updatedStudent) setStudents(prev => prev.map(s => s.id === updatedStudent.id ? updatedStudent : s).sort((a,b) => a.name.localeCompare(b.name)));
   };
 
   const deleteStudent = async (studentId: string) => {
     if (!supabase) throw new Error("Supabase client not available for deleting student.");
-    
-    const studentToDelete = students.find(s => s.id === studentId);
-    if (studentToDelete) {
-      if (studentToDelete.image_src) await deleteFileFromSupabase(studentToDelete.image_src);
-      if (studentToDelete.flyer_image_src) await deleteFileFromSupabase(studentToDelete.flyer_image_src);
-    }
-
+    // No longer deleting images from storage as they are external links.
     const { error } = await supabase.from('students').delete().eq('id', studentId);
     if (error) throw error;
     setStudents(prev => prev.filter(s => s.id !== studentId));

@@ -1,28 +1,22 @@
 
 export interface Student {
-  id: string; 
+  id: string; // User-provided ID
   name: string;
   nickname: string;
-  birthday: string; 
-  relationship_status: string;
-  state_of_origin: string;
-  lga: string;
-  favourite_course: string;
-  favourite_lecturer: string;
-  favourite_coursemates: string[];
-  hobbies: string[];
-  posts_held: string;
   best_level: string;
   worst_level: string;
-  class_rep_quote: string;
-  parting_words: string;
-  alternative_career: string;
-  image_src: string | null; 
-  flyer_image_src: string | null; 
+  favourite_lecturer: string;
+  relationship_status: string;
+  alternative_career: string; // "IF NOT CSC, WHAT COURSE?"
+  best_experience: string;
+  worst_experience: string;
+  will_miss: string;
+  image_src: string | null; // Direct image URL
   // Supabase specific fields
   created_at?: string; 
   updated_at?: string;
 }
+
 
 export interface LogoSettings {
   associationLogo: string | null; 

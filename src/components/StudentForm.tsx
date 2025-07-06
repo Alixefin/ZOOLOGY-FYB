@@ -8,30 +8,23 @@ import type { Student } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import FileUpload from '@/components/FileUpload';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, Loader2 } from 'lucide-react';
 
 const studentFormSchema = z.object({
+  id: z.string().min(1, "Student ID is required."),
   name: z.string().min(2, "Name must be at least 2 characters."),
   nickname: z.string().optional(),
-  birthday: z.string().regex(/^\d{2}\/\d{2}\/\d{4}$/, "Birthday must be in MM/DD/YYYY format."),
-  relationship_status: z.string().min(1, "Relationship status is required."),
-  state_of_origin: z.string().min(1, "State of origin is required."),
-  lga: z.string().min(1, "LGA is required."),
-  favourite_course: z.string().min(1, "Favourite course is required."),
-  favourite_lecturer: z.string().min(1, "Favourite lecturer is required."),
-  favourite_coursemates: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
-  hobbies: z.string().transform(val => val.split(',').map(s => s.trim()).filter(Boolean)),
-  posts_held: z.string().min(1, "Posts held is required."),
   best_level: z.string().min(1, "Best level is required."),
   worst_level: z.string().min(1, "Worst level is required."),
-  class_rep_quote: z.string().min(1, "Class rep quote is required."),
-  parting_words: z.string().min(1, "Parting words are required."),
+  favourite_lecturer: z.string().min(1, "Favourite lecturer is required."),
+  relationship_status: z.string().min(1, "Relationship status is required."),
   alternative_career: z.string().min(1, "This field is required."),
-  image_src: z.string().nullable().optional(),
-  flyer_image_src: z.string().nullable().optional(),
+  best_experience: z.string().min(1, "Best experience is required."),
+  worst_experience: z.string().min(1, "Worst experience is required."),
+  will_miss: z.string().min(1, "This field is required."),
+  image_src: z.string().url("Please enter a valid image URL.").nullable().optional(),
 });
 
 type StudentFormData = z.infer<typeof studentFormSchema>;
@@ -47,24 +40,18 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
   const form = useForm<StudentFormData>({
     resolver: zodResolver(studentFormSchema),
     defaultValues: {
+      id: student?.id || '',
       name: student?.name || '',
       nickname: student?.nickname || '',
-      birthday: student?.birthday || '',
-      relationship_status: student?.relationship_status || '',
-      state_of_origin: student?.state_of_origin || '',
-      lga: student?.lga || '',
-      favourite_course: student?.favourite_course || '',
-      favourite_lecturer: student?.favourite_lecturer || '',
-      favourite_coursemates: (student?.favourite_coursemates || []).join(', '),
-      hobbies: (student?.hobbies || []).join(', '),
-      posts_held: student?.posts_held || '',
       best_level: student?.best_level || '',
       worst_level: student?.worst_level || '',
-      class_rep_quote: student?.class_rep_quote || '',
-      parting_words: student?.parting_words || '',
+      favourite_lecturer: student?.favourite_lecturer || '',
+      relationship_status: student?.relationship_status || '',
       alternative_career: student?.alternative_career || '',
-      image_src: student?.image_src || null,
-      flyer_image_src: student?.flyer_image_src || null,
+      best_experience: student?.best_experience || '',
+      worst_experience: student?.worst_experience || '',
+      will_miss: student?.will_miss || '',
+      image_src: student?.image_src || '',
     },
   });
 
@@ -88,6 +75,19 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
                 control={form.control}
+                name="id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Student ID</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., C/UG/17/1234" {...field} disabled={isEditing || isSubmitting} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -107,123 +107,6 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                     <FormLabel>Nickname (Optional)</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g., Johnny" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="birthday"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Birthday (MM/DD/YYYY)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., 12/25/2000" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="relationship_status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Relationship Status</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Single" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="state_of_origin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>State of Origin</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Kogi State" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lga"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>LGA</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Lokoja" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="favourite_course"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Favourite Course</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., CSC 401" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="favourite_lecturer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Favourite Lecturer</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Dr. Smith" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="favourite_coursemates"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Favourite Coursemate(s) (comma-separated)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Alice, Bob, Charlie" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="hobbies"
-                render={({ field }) => (
-                  <FormItem className="md:col-span-2">
-                    <FormLabel>Hobby(s) (comma-separated)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Reading, Hiking, Coding" {...field} disabled={isSubmitting} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="posts_held"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Post(s) Held</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Class Rep, None" {...field} disabled={isSubmitting} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -255,35 +138,33 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                   </FormItem>
                 )}
               />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="class_rep_quote"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Your Class Rep Once Said</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Enter the quote..." {...field} disabled={isSubmitting} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="parting_words"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Parting Words</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Enter parting words..." {...field} disabled={isSubmitting} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <FormField
+              <FormField
+                control={form.control}
+                name="favourite_lecturer"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Favourite Lecturer</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Dr. Smith" {...field} disabled={isSubmitting} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="relationship_status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Relationship Status</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Single" {...field} disabled={isSubmitting} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
                 control={form.control}
                 name="alternative_career"
                 render={({ field }) => (
@@ -296,39 +177,60 @@ export default function StudentForm({ student, onSubmit, isEditing = false, isSu
                   </FormItem>
                 )}
               />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
-               <FormField
+            </div>
+            
+            <FormField
+              control={form.control}
+              name="best_experience"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Best Experience in FUL</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Describe your best experience..." {...field} disabled={isSubmitting} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="worst_experience"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Worst Experience in FUL</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Describe your worst experience..." {...field} disabled={isSubmitting} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="will_miss"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>What will you miss after FUL?</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="What will you miss the most..." {...field} disabled={isSubmitting} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
                 control={form.control}
                 name="image_src"
                 render={({ field }) => (
                   <FormItem>
-                    <FileUpload
-                      label="Student Profile Image"
-                      currentImagePreview={field.value}
-                      onFileSelect={(dataUrl) => field.onChange(dataUrl)}
-                      disabled={isSubmitting}
-                    />
-                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="flyer_image_src"
-                render={({ field }) => (
-                  <FormItem>
-                     <FileUpload
-                        label="Student Clan Flyer Image"
-                        currentImagePreview={field.value}
-                        onFileSelect={(dataUrl) => field.onChange(dataUrl)}
-                        disabled={isSubmitting}
-                      />
+                    <FormLabel>Image Link</FormLabel>
+                    <FormControl>
+                      <Input placeholder="https://example.com/image.png" {...field} value={field.value ?? ''} disabled={isSubmitting} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
             
             <div className="flex justify-end pt-6">
               <Button type="submit" size="lg" className="font-headline bg-primary hover:bg-primary/90" disabled={isSubmitting}>

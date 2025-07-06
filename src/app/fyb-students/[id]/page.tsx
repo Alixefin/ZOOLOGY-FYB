@@ -1,13 +1,12 @@
+
 "use client";
 
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { ArrowLeft, Download, User, Cake, Heart, MapPin, BookOpen, Mic, Users, Trophy, ThumbsDown, MessageSquare, Edit3, Briefcase, Loader2 } from 'lucide-react';
-import { format, parse } from 'date-fns';
-import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowLeft, User, Heart, Mic, Trophy, ThumbsDown, Briefcase, Smile, Frown, Send } from 'lucide-react';
 
 interface DetailItemProps {
   icon: React.ElementType;
@@ -23,7 +22,7 @@ const DetailItem: React.FC<DetailItemProps> = ({ icon: Icon, label, value }) => 
       <Icon className="h-6 w-6 text-primary mt-1 flex-shrink-0" />
       <div>
         <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{label}</p>
-        <p className="text-md text-foreground font-body">{displayValue}</p>
+        <p className="text-md text-foreground font-body">{`"${displayValue}"`}</p>
       </div>
     </div>
   );
@@ -38,8 +37,6 @@ export default function StudentDetailPage() {
   const segments = pathname.split('/');
   const studentId = segments[segments.length - 1];
 
-  const [isDownloading, setIsDownloading] = useState(false);
-
   const student = students.find(s => s.id === studentId);
 
   if (!student) {
@@ -52,43 +49,6 @@ export default function StudentDetailPage() {
       </div>
     );
   }
-  
-  const formatBirthday = (birthdayStr: string | null | undefined): string | null => {
-    if (!birthdayStr) return null;
-    try {
-      const date = parse(birthdayStr, 'MM/dd/yyyy', new Date());
-      return format(date, 'MMMM d');
-    } catch (e) {
-      console.error("Error formatting birthday:", e);
-      return birthdayStr;
-    }
-  };
-
-  const handleDownloadFlyer = async () => {
-    if (!student.flyer_image_src) return;
-    setIsDownloading(true);
-
-    try {
-      const response = await fetch(student.flyer_image_src);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch image: ${response.statusText}`);
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      const fileExtension = blob.type.split('/')[1] || 'png';
-      link.download = `${student.name.replace(/\s+/g, '_')}_FYB_Flyer.${fileExtension}`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Flyer download failed:", error);
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 sm:p-8">
@@ -105,17 +65,15 @@ export default function StudentDetailPage() {
           <div className="lg:col-span-1 space-y-8">
             <Card className="shadow-lg rounded-xl">
               <CardContent className="p-6 divide-y divide-border/50">
-                <DetailItem icon={Cake} label="Birthday" value={formatBirthday(student.birthday)} />
-                <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
-                <DetailItem icon={MapPin} label="State of Origin" value={student.state_of_origin} />
-                <DetailItem icon={MapPin} label="LGA" value={student.lga} />
+                 <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
+                 <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
+                 <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
               </CardContent>
             </Card>
              <Card className="shadow-lg rounded-xl">
               <CardContent className="p-6 divide-y divide-border/50">
-                 <DetailItem icon={User} label="Post(s) Held" value={student.posts_held} />
-                 <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
-                 <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
+                 <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
+                 <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
               </CardContent>
             </Card>
           </div>
@@ -144,32 +102,15 @@ export default function StudentDetailPage() {
                 <p className="text-xl md:text-2xl text-muted-foreground font-body mt-2">"{student.nickname}"</p>
               )}
             </div>
-            {student.flyer_image_src && (
-              <Button onClick={handleDownloadFlyer} size="lg" className="w-full font-headline bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isDownloading}>
-                {isDownloading ? (
-                  <> <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Downloading... </>
-                ) : (
-                  <> <Download className="mr-2 h-5 w-5" /> Download Clan Flyer </>
-                )}
-              </Button>
-            )}
           </div>
           
           {/* Right Column */}
           <div className="lg:col-span-1 space-y-8">
             <Card className="shadow-lg rounded-xl">
               <CardContent className="p-6 divide-y divide-border/50">
-                <DetailItem icon={BookOpen} label="Favourite Course" value={student.favourite_course} />
-                <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
-                <DetailItem icon={Users} label="Favourite Coursemate(s)" value={student.favourite_coursemates} />
-                <DetailItem icon={Edit3} label="Hobby(s)" value={student.hobbies} />
-              </CardContent>
-            </Card>
-             <Card className="shadow-lg rounded-xl">
-              <CardContent className="p-6 divide-y divide-border/50">
-                <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
-                <DetailItem icon={MessageSquare} label="Your Class Rep Once Said:" value={`"${student.class_rep_quote}"`} />
-                <DetailItem icon={MessageSquare} label="Parting Words:" value={`"${student.parting_words}"`} />
+                <DetailItem icon={Smile} label="Best Experience in FUL" value={student.best_experience} />
+                <DetailItem icon={Frown} label="Worst Experience in FUL" value={student.worst_experience} />
+                <DetailItem icon={Send} label="What will you miss after FUL?" value={student.will_miss} />
               </CardContent>
             </Card>
           </div>

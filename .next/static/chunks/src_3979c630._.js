@@ -208,7 +208,7 @@ Raw Error: ${extractedErrorMessage}`;
         if (!fileUrl || !__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) return;
         const isSupabaseUrl = fileUrl.includes('iwkslfapaxafwghfhefu.supabase.co');
         if (!isSupabaseUrl) {
-            console.log('Skipping deletion for non-Supabase URL:', fileUrl);
+            // Don't try to delete external URLs
             return;
         }
         try {
@@ -271,103 +271,23 @@ Raw Error: ${extractedErrorMessage}`;
     };
     const addStudent = async (studentData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
-        let profileImageUrl = studentData.image_src;
-        let flyerImageUrl = studentData.flyer_image_src;
-        try {
-            if (studentData.image_src && studentData.image_src.startsWith('data:')) {
-                const blob = dataURIToBlob(studentData.image_src);
-                if (blob) {
-                    profileImageUrl = await uploadFileToSupabase(blob, 'student_profiles', `profile_${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])()}`);
-                }
-            }
-        } catch (e) {
-            throw new Error(`Profile image upload failed: ${e.message}`);
-        }
-        try {
-            if (studentData.flyer_image_src && studentData.flyer_image_src.startsWith('data:')) {
-                const blob = dataURIToBlob(studentData.flyer_image_src);
-                if (blob) {
-                    flyerImageUrl = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])()}`);
-                }
-            }
-        } catch (e) {
-            if (profileImageUrl && profileImageUrl !== studentData.image_src) {
-                await deleteFileFromSupabase(profileImageUrl);
-            }
-            throw new Error(`Flyer image upload failed: ${e.message}`);
-        }
-        const studentToInsert = {
-            ...studentData,
-            id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])(),
-            image_src: profileImageUrl,
-            flyer_image_src: flyerImageUrl
-        };
-        try {
-            const { data: newStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').insert(studentToInsert).select().single();
-            if (error) throw error;
-            if (newStudent) setStudents((prev)=>[
-                    ...prev,
-                    newStudent
-                ].sort((a, b)=>a.name.localeCompare(b.name)));
-        } catch (e) {
-            if (profileImageUrl && profileImageUrl !== studentData.image_src) {
-                await deleteFileFromSupabase(profileImageUrl);
-            }
-            if (flyerImageUrl && flyerImageUrl !== studentData.flyer_image_src) {
-                await deleteFileFromSupabase(flyerImageUrl);
-            }
-            throw new Error(`Database insert failed: ${e.message}`);
-        }
+        const { data: newStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').insert(studentData).select().single();
+        if (error) throw error;
+        if (newStudent) setStudents((prev)=>[
+                ...prev,
+                newStudent
+            ].sort((a, b)=>a.name.localeCompare(b.name)));
     };
     const updateStudent = async (studentData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
-        const originalStudent = students.find((s)=>s.id === studentData.id);
-        if (!originalStudent) throw new Error("Student not found for update");
-        let updatedPayload = {
-            ...studentData
-        };
-        try {
-            if (studentData.image_src && studentData.image_src.startsWith('data:')) {
-                if (originalStudent.image_src) await deleteFileFromSupabase(originalStudent.image_src);
-                const blob = dataURIToBlob(studentData.image_src);
-                if (blob) {
-                    updatedPayload.image_src = await uploadFileToSupabase(blob, 'student_profiles', `profile_${studentData.id}_${Date.now()}`);
-                }
-            } else if (studentData.image_src === null && originalStudent.image_src) {
-                await deleteFileFromSupabase(originalStudent.image_src);
-            }
-        } catch (e) {
-            throw new Error(`Profile image update failed: ${e.message}`);
-        }
-        try {
-            if (studentData.flyer_image_src && studentData.flyer_image_src.startsWith('data:')) {
-                if (originalStudent.flyer_image_src) await deleteFileFromSupabase(originalStudent.flyer_image_src);
-                const blob = dataURIToBlob(studentData.flyer_image_src);
-                if (blob) {
-                    updatedPayload.flyer_image_src = await uploadFileToSupabase(blob, 'student_flyers', `flyer_${studentData.id}_${Date.now()}`);
-                }
-            } else if (studentData.flyer_image_src === null && originalStudent.flyer_image_src) {
-                await deleteFileFromSupabase(originalStudent.flyer_image_src);
-            }
-        } catch (e) {
-            throw new Error(`Flyer image update failed: ${e.message}`);
-        }
-        try {
-            const { id, created_at, updated_at, ...updateForDb } = updatedPayload;
-            const { data: updatedStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').update(updateForDb).eq('id', studentData.id).select().single();
-            if (error) throw error;
-            if (updatedStudent) setStudents((prev)=>prev.map((s)=>s.id === updatedStudent.id ? updatedStudent : s).sort((a, b)=>a.name.localeCompare(b.name)));
-        } catch (e) {
-            throw new Error(`Database update failed: ${e.message}`);
-        }
+        const { id, created_at, updated_at, ...updatePayload } = studentData;
+        const { data: updatedStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').update(updatePayload).eq('id', studentData.id).select().single();
+        if (error) throw error;
+        if (updatedStudent) setStudents((prev)=>prev.map((s)=>s.id === updatedStudent.id ? updatedStudent : s).sort((a, b)=>a.name.localeCompare(b.name)));
     };
     const deleteStudent = async (studentId)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for deleting student.");
-        const studentToDelete = students.find((s)=>s.id === studentId);
-        if (studentToDelete) {
-            if (studentToDelete.image_src) await deleteFileFromSupabase(studentToDelete.image_src);
-            if (studentToDelete.flyer_image_src) await deleteFileFromSupabase(studentToDelete.flyer_image_src);
-        }
+        // No longer deleting images from storage as they are external links.
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').delete().eq('id', studentId);
         if (error) throw error;
         setStudents((prev)=>prev.filter((s)=>s.id !== studentId));
@@ -462,12 +382,12 @@ Raw Error: ${extractedErrorMessage}`;
                         priority: true
                     }, void 0, false, {
                         fileName: "[project]/src/contexts/AppContext.tsx",
-                        lineNumber: 471,
+                        lineNumber: 383,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 470,
+                    lineNumber: 382,
                     columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -475,18 +395,18 @@ Raw Error: ${extractedErrorMessage}`;
                     children: "Loading Application Data..."
                 }, void 0, false, {
                     fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 481,
+                    lineNumber: 393,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 469,
+            lineNumber: 381,
             columnNumber: 9
         }, this) : children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 456,
+        lineNumber: 368,
         columnNumber: 5
     }, this);
 };
