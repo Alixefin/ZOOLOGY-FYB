@@ -99,67 +99,81 @@ export default function StudentDetailPage() {
       </header>
 
       <main className="container mx-auto max-w-7xl">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-6xl font-headline text-primary font-bold tracking-tight">{student.name}</h1>
-          {student.nickname && student.nickname.toLowerCase() !== 'non' && (
-            <p className="text-xl md:text-2xl text-muted-foreground font-body mt-2">"{student.nickname}"</p>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
           {/* Left Column */}
-          <Card className="shadow-lg rounded-xl">
-            <CardContent className="p-6 divide-y divide-border/50">
-              <DetailItem icon={Cake} label="Birthday" value={formatBirthday(student.birthday)} />
-              <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
-              <DetailItem icon={MapPin} label="State of Origin" value={student.state_of_origin} />
-              <DetailItem icon={MapPin} label="LGA" value={student.lga} />
-              <DetailItem icon={User} label="Post(s) Held" value={student.posts_held} />
-              <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
-              <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
-            </CardContent>
-          </Card>
+          <div className="lg:col-span-1 space-y-8">
+            <Card className="shadow-lg rounded-xl">
+              <CardContent className="p-6 divide-y divide-border/50">
+                <DetailItem icon={Cake} label="Birthday" value={formatBirthday(student.birthday)} />
+                <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
+                <DetailItem icon={MapPin} label="State of Origin" value={student.state_of_origin} />
+                <DetailItem icon={MapPin} label="LGA" value={student.lga} />
+              </CardContent>
+            </Card>
+             <Card className="shadow-lg rounded-xl">
+              <CardContent className="p-6 divide-y divide-border/50">
+                 <DetailItem icon={User} label="Post(s) Held" value={student.posts_held} />
+                 <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
+                 <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Right Column */}
-          <Card className="shadow-lg rounded-xl">
-            <CardContent className="p-6 divide-y divide-border/50">
-              <DetailItem icon={BookOpen} label="Favourite Course" value={student.favourite_course} />
-              <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
-              <DetailItem icon={Users} label="Favourite Coursemate(s)" value={student.favourite_coursemates} />
-              <DetailItem icon={Edit3} label="Hobby(s)" value={student.hobbies} />
-              <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Reflections and Download */}
-        <Card className="mt-8 shadow-lg rounded-xl">
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline text-primary">Reflections</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <DetailItem icon={MessageSquare} label="Your Class Rep Once Said:" value={`"${student.class_rep_quote}"`} />
-            <DetailItem icon={MessageSquare} label="Parting Words:" value={`"${student.parting_words}"`} />
-          </CardContent>
-          {student.flyer_image_src && (
-            <CardFooter className="bg-muted/50 p-6 flex justify-center">
-              <Button onClick={handleDownloadFlyer} size="lg" className="w-full sm:w-auto font-headline bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isDownloading}>
+          {/* Center Column (Image) */}
+          <div className="lg:col-span-1 flex flex-col items-center space-y-4">
+             <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl border-4 border-card">
+              {student.image_src ? (
+                <Image
+                  src={student.image_src}
+                  alt={student.name}
+                  layout="fill"
+                  objectFit="cover"
+                  unoptimized
+                  data-ai-hint="student portrait"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-muted">
+                  <User className="w-24 h-24 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl font-headline text-primary font-bold tracking-tight">{student.name}</h1>
+              {student.nickname && student.nickname.toLowerCase() !== 'non' && (
+                <p className="text-xl md:text-2xl text-muted-foreground font-body mt-2">"{student.nickname}"</p>
+              )}
+            </div>
+            {student.flyer_image_src && (
+              <Button onClick={handleDownloadFlyer} size="lg" className="w-full font-headline bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isDownloading}>
                 {isDownloading ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Downloading...
-                  </>
+                  <> <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Downloading... </>
                 ) : (
-                  <>
-                    <Download className="mr-2 h-5 w-5" />
-                    Download Clan Flyer
-                  </>
+                  <> <Download className="mr-2 h-5 w-5" /> Download Clan Flyer </>
                 )}
               </Button>
-            </CardFooter>
-          )}
-        </Card>
+            )}
+          </div>
+          
+          {/* Right Column */}
+          <div className="lg:col-span-1 space-y-8">
+            <Card className="shadow-lg rounded-xl">
+              <CardContent className="p-6 divide-y divide-border/50">
+                <DetailItem icon={BookOpen} label="Favourite Course" value={student.favourite_course} />
+                <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
+                <DetailItem icon={Users} label="Favourite Coursemate(s)" value={student.favourite_coursemates} />
+                <DetailItem icon={Edit3} label="Hobby(s)" value={student.hobbies} />
+              </CardContent>
+            </Card>
+             <Card className="shadow-lg rounded-xl">
+              <CardContent className="p-6 divide-y divide-border/50">
+                <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
+                <DetailItem icon={MessageSquare} label="Your Class Rep Once Said:" value={`"${student.class_rep_quote}"`} />
+                <DetailItem icon={MessageSquare} label="Parting Words:" value={`"${student.parting_words}"`} />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
     </div>
   );

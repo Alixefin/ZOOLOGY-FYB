@@ -17,47 +17,32 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-background to-secondary/30 px-4 py-8 sm:px-8 sm:py-12">
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden">
-        <CardHeader className="text-primary-foreground p-8 text-center relative">
-          {/* Background Image */}
-          <Image
-            alt="Person using a laptop"
-            src="https://placehold.co/1000x500/e5e7eb/e5e7eb.png"
-            data-ai-hint="laptop user"
-            layout="fill"
-            objectFit="cover"
-            className="z-0"
-          />
-          {/* Color Overlay */}
-          <div className="absolute inset-0 bg-primary opacity-90 z-10" />
-
-          {/* Content */}
-          <div className="relative z-20">
-            <div className="flex flex-row items-center justify-center gap-6 mb-6">
-              <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
-                {logos.associationLogo ? (
-                  <Image src={logos.associationLogo} alt="Association Logo" width={128} height={128} className="object-contain rounded-full" unoptimized />
-                ) : (
-                  <AssociationLogoPlaceholder className="w-full h-full text-primary-foreground" />
-                )}
-              </div>
-              <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
-                {logos.schoolLogo ? (
-                  <Image src={logos.schoolLogo} alt="School Logo" width={128} height={128} className="object-contain rounded-full" unoptimized />
-                ) : (
-                  <SchoolLogoPlaceholder className="w-full h-full text-primary-foreground" />
-                )}
-              </div>
+        <CardHeader className="bg-primary text-primary-foreground p-8 text-center">
+          <div className="flex flex-row items-center justify-center gap-6 mb-6">
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
+              {logos.associationLogo ? (
+                <Image src={logos.associationLogo} alt="Association Logo" width={128} height={128} className="object-contain rounded-full" unoptimized />
+              ) : (
+                <AssociationLogoPlaceholder className="w-full h-full text-primary-foreground" />
+              )}
             </div>
-            <h1 className="text-3xl md:text-4xl font-headline tracking-tight">
-              Cyber Clan FYB Week
-            </h1>
-            <p className="text-lg md:text-xl font-body text-primary-foreground/80 mt-2">
-              Nigerian Association of Computing Students (NACOS)
-            </p>
-            <p className="text-md font-body text-primary-foreground/70">
-              Federal University Lokoja Chapter
-            </p>
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
+              {logos.schoolLogo ? (
+                <Image src={logos.schoolLogo} alt="School Logo" width={128} height={128} className="object-contain rounded-full" unoptimized />
+              ) : (
+                <SchoolLogoPlaceholder className="w-full h-full text-primary-foreground" />
+              )}
+            </div>
           </div>
+          <h1 className="text-3xl md:text-4xl font-headline tracking-tight">
+            Cyber Clan FYB Week
+          </h1>
+          <p className="text-lg md:text-xl font-body text-primary-foreground/80 mt-2">
+            Nigerian Association of Computing Students (NACOS)
+          </p>
+          <p className="text-md font-body text-primary-foreground/70">
+            Federal University Lokoja Chapter
+          </p>
         </CardHeader>
         <CardContent className="p-8 md:p-12 text-center">
           <p className="text-muted-foreground mb-8 text-lg font-body">
