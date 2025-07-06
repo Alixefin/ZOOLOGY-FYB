@@ -1,70 +1,69 @@
-DROP TABLE IF EXISTS public.students CASCADE;
-DROP TABLE IF EXISTS public.app_settings CASCADE;
+-- Drop existing tables if they exist to ensure a clean slate.
+DROP TABLE IF EXISTS "public"."students";
+DROP TABLE IF EXISTS "public"."app_settings";
 
--- Step 2: Create the new 'students' table with the updated schema.
--- This schema matches the fields in the updated StudentForm component.
-CREATE TABLE public.students (
-    id TEXT PRIMARY KEY NOT NULL, -- User-provided ID
-    name TEXT NOT NULL,
-    nickname TEXT,
-    best_level TEXT NOT NULL,
-    worst_level TEXT NOT NULL,
-    favourite_lecturer TEXT NOT NULL,
-    relationship_status TEXT NOT NULL,
-    alternative_career TEXT NOT NULL,
-    best_experience TEXT NOT NULL,
-    worst_experience TEXT NOT NULL,
-    will_miss TEXT NOT NULL,
-    image_src TEXT, -- URL link to an image
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- Create the app_settings table to store global application settings like logos.
+CREATE TABLE "public"."app_settings" (
+    "id" bigint NOT NULL,
+    "logos" jsonb,
+    "fyb_week_settings" jsonb,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 
--- Step 3: Create the 'app_settings' table to store global application settings.
--- This table is designed to hold a single row of data (with id = 1).
-CREATE TABLE public.app_settings (
-    id INT PRIMARY KEY NOT NULL,
-    logos JSONB,
-    fyb_week_settings JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- Create the students table with the new structure for student profiles.
+CREATE TABLE "public"."students" (
+    "id" text NOT NULL,
+    "name" text NOT NULL,
+    "nickname" text,
+    "best_level" text,
+    "worst_level" text,
+    "favourite_lecturer" text,
+    "relationship_status" text,
+    "alternative_career" text,
+    "best_experience" text,
+    "worst_experience" text,
+    "will_miss" text,
+    "image_src" text,
+    "created_at" timestamp with time zone DEFAULT now() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 
--- Step 4: Enable Row Level Security (RLS) for the tables.
--- This is a standard security best practice.
-ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+-- Define the primary keys for the tables.
+ALTER TABLE ONLY "public"."app_settings" ADD CONSTRAINT "app_settings_pkey" PRIMARY KEY ("id");
+ALTER TABLE ONLY "public"."students" ADD CONSTRAINT "students_pkey" PRIMARY KEY ("id");
 
--- Step 5: Create policies to allow public read access to the data.
--- This is necessary so the application can fetch data without requiring users to log in.
-CREATE POLICY "Allow public read access to students" ON public.students
-FOR SELECT USING (true);
+-- Insert a default row into app_settings so that the app has a settings object to update.
+INSERT INTO "public"."app_settings" ("id", "logos", "fyb_week_settings") VALUES
+(1, '{"schoolLogo": null, "associationLogo": null}', '{"title": "Cyber Clan FYB Week Extravaganza!", "isUnlocked": false, "schedule": "Detailed schedule coming soon...", "activities": "Exciting activities lineup to be announced!", "eventImages": []}');
 
-CREATE POLICY "Allow public read access to app settings" ON public.app_settings
-FOR SELECT USING (true);
+-- Enable Row Level Security (RLS) on both tables.
+-- This is a crucial security step. All access will be denied by default unless a policy grants it.
+ALTER TABLE "public"."app_settings" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "public"."students" ENABLE ROW LEVEL SECURITY;
 
--- Step 6: Create a trigger function to automatically update the 'updated_at' timestamp on any row update.
-CREATE OR REPLACE FUNCTION handle_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = NOW();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- Create policies for the app_settings table.
+-- This policy allows anyone to read the application settings.
+CREATE POLICY "Public read access for app settings" ON "public"."app_settings"
+AS PERMISSIVE FOR SELECT
+TO public
+USING (true);
 
--- Step 7: Attach the trigger to both tables.
-CREATE TRIGGER on_students_updated
-BEFORE UPDATE ON public.students
-FOR EACH ROW
-EXECUTE FUNCTION handle_updated_at();
+-- This policy allows the application (using the 'anon' key) to perform all operations.
+CREATE POLICY "Allow all operations for anon users on app settings" ON "public"."app_settings"
+AS PERMISSIVE FOR ALL
+TO anon
+WITH CHECK (true);
 
-CREATE TRIGGER on_app_settings_updated
-BEFORE UPDATE ON public.app_settings
-FOR EACH ROW
-EXECUTE FUNCTION handle_updated_at();
+-- Create policies for the students table.
+-- This policy allows anyone to read the student profiles.
+CREATE POLICY "Public read access for students" ON "public"."students"
+AS PERMISSIVE FOR SELECT
+TO public
+USING (true);
 
--- Final Note on Supabase Storage:
--- This SQL script does NOT clear out your Supabase Storage bucket ('app-public-assets').
--- If you want to clear old images that were previously uploaded, you must do so manually
--- via the Supabase dashboard. Navigate to Storage -> app-public-assets and delete
--- the folders or files as needed.
+-- This policy allows the application (using the 'anon' key) to perform all operations.
+CREATE POLICY "Allow all operations for anon users on students" ON "public"."students"
+AS PERMISSIVE FOR ALL
+TO anon
+WITH CHECK (true);
