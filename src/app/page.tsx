@@ -20,7 +20,7 @@ export default function HomePage() {
           {/* Background Image */}
           <Image
             alt="Person using a laptop"
-            src="https://placehold.co/1000x500.png"
+            src="https://placehold.co/1000x500/e5e7eb/e5e7eb.png"
             data-ai-hint="laptop user"
             layout="fill"
             objectFit="cover"
