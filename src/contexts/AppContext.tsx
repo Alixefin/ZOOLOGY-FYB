@@ -396,7 +396,6 @@ Raw Error: ${extractedErrorMessage}`;
               priority
             />
           </div>
-          <p className="mt-4 text-lg font-headline text-primary">Loading Application Data...</p>
         </div>
       ) : (
         children
