@@ -8,30 +8,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAppContext } from '@/contexts/AppContext';
 import { AssociationLogoPlaceholder } from '@/components/icons/AssociationLogoPlaceholder';
 import { SchoolLogoPlaceholder } from '@/components/icons/SchoolLogoPlaceholder';
-import { Users, Award, X } from 'lucide-react';
+import { Users, Award, X, CalendarDays } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import { useState } from 'react';
 
 export default function HomePage() {
   const { logos, votingSettings } = useAppContext();
   const [showVotingInactiveDialog, setShowVotingInactiveDialog] = useState(false);
-
-  const handleVoteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!votingSettings.isVotingActive) {
-      e.preventDefault();
-      setShowVotingInactiveDialog(true);
-    }
-  };
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
 
   const votingButton = (
     <Button
@@ -58,6 +50,17 @@ export default function HomePage() {
     </Button>
   );
 
+  const scheduleButton = (
+    <Button
+     size="lg"
+     className="font-headline text-lg py-8 bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500 shadow-lg transition-all hover:scale-105 w-full"
+     onClick={() => setShowScheduleDialog(true)}
+   >
+     <CalendarDays className="mr-3 h-6 w-6" />
+     Event Schedule
+   </Button>
+ );
+
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-background to-secondary/30 px-4 py-8 sm:px-8 sm:py-12">
@@ -71,6 +74,22 @@ export default function HomePage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
              <Button variant="outline" onClick={() => setShowVotingInactiveDialog(false)}>
+                <X className="mr-2 h-4 w-4" /> Close
+              </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Coming Soon!</AlertDialogTitle>
+            <AlertDialogDescription>
+              The event schedule is not yet available. Please check back later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+             <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>
                 <X className="mr-2 h-4 w-4" /> Close
               </Button>
           </AlertDialogFooter>
@@ -109,13 +128,14 @@ export default function HomePage() {
           <p className="text-muted-foreground mb-8 text-lg font-body">
             Welcome to the official portal for the Final Year Brethren activities and celebrations.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <Button asChild size="lg" className="font-headline text-lg py-8 bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-students">
                 <Users className="mr-3 h-6 w-6" />
                 Meet the Cyber Clan
               </Link>
             </Button>
+            {scheduleButton}
             {votingButton}
           </div>
         </CardContent>
