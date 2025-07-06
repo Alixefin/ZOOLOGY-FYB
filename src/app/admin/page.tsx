@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Image as ImageIcon, Users, Award, Settings } from 'lucide-react';
+import { Image as ImageIcon, Users, Award, Settings, CalendarDays } from 'lucide-react';
 import AdminHeader from '@/components/AdminHeader';
 
 export default function AdminDashboardPage() {
@@ -27,6 +27,12 @@ export default function AdminDashboardPage() {
       href: "/admin/manage-awards",
       icon: Award,
     },
+    {
+      title: "Manage FYB Week",
+      description: "Control the FYB Week schedule and activities.",
+      href: "/admin/manage-fyb-week",
+      icon: CalendarDays,
+    }
   ];
 
   return (
@@ -40,7 +46,7 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {features.map((feature) => (
             <Card key={feature.title} className="hover:shadow-xl transition-shadow duration-300 rounded-lg flex flex-col">
               <CardHeader className="items-center text-center">

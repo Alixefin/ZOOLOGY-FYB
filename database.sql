@@ -1,92 +1,101 @@
 
--- Drop old tables and functions if they exist to ensure a clean slate
-DROP FUNCTION IF EXISTS "increment_vote"(uuid);
-DROP TABLE IF EXISTS "award_nominations" CASCADE;
-DROP TABLE IF EXISTS "awards" CASCADE;
-DROP TABLE IF EXISTS "students" CASCADE;
-DROP TABLE IF EXISTS "app_settings" CASCADE;
-
-
--- Create students table
-CREATE TABLE "students" (
-    "id" TEXT NOT NULL PRIMARY KEY,
-    "name" TEXT NOT NULL,
-    "nickname" TEXT,
-    "best_level" TEXT,
-    "worst_level" TEXT,
-    "favourite_lecturer" TEXT,
-    "relationship_status" TEXT,
-    "alternative_career" TEXT,
-    "best_experience" TEXT,
-    "worst_experience" TEXT,
-    "will_miss" TEXT,
-    "image_src" TEXT,
-    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
+-- Drop existing tables to ensure a clean slate
+DROP TABLE IF EXISTS public.award_votes;
+DROP TABLE IF EXISTS public.award_nominations;
+DROP TABLE IF EXISTS public.awards;
+DROP TABLE IF EXISTS public.students;
+DROP TABLE IF EXISTS public.app_settings;
 
 -- Create app_settings table
-CREATE TABLE "app_settings" (
-    "id" INT PRIMARY KEY,
-    "logos" JSONB,
-    "voting_settings" JSONB,
-    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- This table stores global settings for the application.
+CREATE TABLE public.app_settings (
+    id smallint PRIMARY KEY,
+    logos jsonb null,
+    voting_settings jsonb null,
+    fyb_week_settings jsonb null,
+    created_at timestamptz not null default now(),
+    updated_at timestamptz not null default now()
 );
+-- RLS for app_settings
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow authenticated users to read app settings" ON public.app_settings FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Allow authenticated users to update their own settings" ON public.app_settings FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Allow authenticated insert" ON public.app_settings FOR INSERT TO authenticated WITH CHECK (true);
+
+-- Create students table
+-- This table stores student profiles.
+CREATE TABLE public.students (
+    id text not null,
+    created_at timestamp with time zone not null default now(),
+    updated_at timestamp with time zone not null default now(),
+    name text not null,
+    nickname text null,
+    best_level text null,
+    worst_level text null,
+    favourite_lecturer text null,
+    relationship_status text null,
+    alternative_career text null,
+    best_experience text null,
+    worst_experience text null,
+    will_miss text null,
+    image_src text null,
+    CONSTRAINT students_pkey PRIMARY KEY (id)
+);
+-- RLS for students
+ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON public.students FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON public.students FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Enable update for authenticated users only" ON public.students FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for authenticated users only" ON public.students FOR DELETE TO authenticated USING (true);
 
 -- Create awards table
-CREATE TABLE "awards" (
-    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "name" TEXT NOT NULL,
-    "description" TEXT,
-    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE public.awards (
+    id uuid not null default gen_random_uuid(),
+    created_at timestamp with time zone not null default now(),
+    name text not null,
+    description text null,
+    CONSTRAINT awards_pkey PRIMARY KEY (id)
 );
+-- RLS for awards
+ALTER TABLE public.awards ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON public.awards FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON public.awards FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Enable update for authenticated users only" ON public.awards FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for authenticated users only" ON public.awards FOR DELETE TO authenticated USING (true);
 
 -- Create award_nominations table
-CREATE TABLE "award_nominations" (
-    "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "award_id" UUID NOT NULL REFERENCES "awards"(id) ON DELETE CASCADE,
-    "student_id" TEXT NOT NULL REFERENCES "students"(id) ON DELETE CASCADE,
-    "votes" INTEGER NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE("award_id", "student_id") -- a student can only be nominated once per award
+CREATE TABLE public.award_nominations (
+    id uuid not null default gen_random_uuid(),
+    created_at timestamp with time zone not null default now(),
+    award_id uuid not null,
+    student_id text not null,
+    votes integer not null default 0,
+    CONSTRAINT award_nominations_pkey PRIMARY KEY (id),
+    CONSTRAINT award_nominations_award_id_fkey FOREIGN KEY (award_id) REFERENCES awards (id) ON DELETE CASCADE,
+    CONSTRAINT award_nominations_student_id_fkey FOREIGN KEY (student_id) REFERENCES students (id) ON DELETE CASCADE
 );
+-- RLS for award_nominations
+ALTER TABLE public.award_nominations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON public.award_nominations FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON public.award_nominations FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY "Enable update for authenticated users only" ON public.award_nominations FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for authenticated users only" ON public.award_nominations FOR DELETE TO authenticated USING (true);
 
--- Enable RLS
-ALTER TABLE "students" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "app_settings" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "awards" ENABLE ROW LEVEL SECURITY;
-ALTER TABLE "award_nominations" ENABLE ROW LEVEL SECURITY;
+-- Function to increment votes
+create or replace function increment_vote (nomination_id_in uuid)
+returns void as
+$$
+  update public.award_nominations
+  set votes = votes + 1
+  where id = nomination_id_in;
+$$
+language sql volatile;
 
--- Policies for students
-CREATE POLICY "Allow public read access to students" ON "students" FOR SELECT USING (true);
-CREATE POLICY "Allow admin full access to students" ON "students" FOR ALL USING (true) WITH CHECK (true);
+-- Seed initial app_settings row if it doesn't exist
+INSERT INTO public.app_settings (id, logos, voting_settings, fyb_week_settings)
+SELECT 1, '{"associationLogo": null, "schoolLogo": null}', '{"isVotingActive": false}', '{"isFybWeekActive": false}'
+WHERE NOT EXISTS (SELECT 1 FROM public.app_settings WHERE id = 1);
 
--- Policies for app_settings
-CREATE POLICY "Allow public read access to app settings" ON "app_settings" FOR SELECT USING (true);
-CREATE POLICY "Allow admin full access to app settings" ON "app_settings" FOR ALL USING (true) WITH CHECK (true);
-
--- Policies for awards
-CREATE POLICY "Allow public read access to awards" ON "awards" FOR SELECT USING (true);
-CREATE POLICY "Allow admin full access to awards" ON "awards" FOR ALL USING (true) WITH CHECK (true);
-
--- Policies for award_nominations
-CREATE POLICY "Allow public read access to nominations" ON "award_nominations" FOR SELECT USING (true);
-CREATE POLICY "Allow admin full access to nominations" ON "award_nominations" FOR ALL USING (true) WITH CHECK (true);
--- Allow authenticated users (i.e., via the anon key) to update votes via the RPC function
-CREATE POLICY "Allow vote increment" ON "award_nominations" FOR UPDATE USING (true) WITH CHECK(true);
-
-
--- Function to increment votes safely
-CREATE OR REPLACE FUNCTION increment_vote(nomination_id_in uuid)
-RETURNS void AS $$
-BEGIN
-  UPDATE public.award_nominations
-  SET votes = votes + 1
-  WHERE id = nomination_id_in;
-END;
-$$ LANGUAGE plpgsql;
-
--- Grant usage on the function to the public role so it can be called via the API
-GRANT EXECUTE ON FUNCTION increment_vote(uuid) TO authenticated;
-GRANT EXECUTE ON FUNCTION increment_vote(uuid) TO service_role;
+-- Grant usage on schema public to postgres and anon roles
+GRANT USAGE ON SCHEMA public TO postgres;
+GRANT USAGE ON SCHEMA public TO anon;

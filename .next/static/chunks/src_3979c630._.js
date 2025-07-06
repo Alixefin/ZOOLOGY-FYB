@@ -67,6 +67,9 @@ const defaultLogos = {
 const defaultVotingSettings = {
     isVotingActive: false
 };
+const defaultFybWeekSettings = {
+    isFybWeekActive: false
+};
 const defaultAdminPin = "171225";
 const APP_SETTINGS_ID = 1;
 const STORAGE_BUCKET_NAME = 'app-public-assets';
@@ -85,17 +88,17 @@ const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
                 priority: true
             }, void 0, false, {
                 fileName: "[project]/src/contexts/AppContext.tsx",
-                lineNumber: 64,
+                lineNumber: 68,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 63,
+            lineNumber: 67,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 62,
+        lineNumber: 66,
         columnNumber: 5
     }, this);
 _c = LoadingComponent;
@@ -104,6 +107,7 @@ const AppProvider = ({ children })=>{
     const [students, setStudents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [logos, setLogosState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(defaultLogos);
     const [votingSettings, setVotingSettingsState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(defaultVotingSettings);
+    const [fybWeekSettings, setFybWeekSettingsState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(defaultFybWeekSettings);
     const [awards, setAwards] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [nominations, setNominations] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isAdminLoggedIn, setIsAdminLoggedIn] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -113,12 +117,10 @@ const AppProvider = ({ children })=>{
         "AppProvider.useEffect": ()=>{
             setIsMounted(true);
             async function loadInitialData() {
-                // This function is now more robust, loading data sequentially to pinpoint errors.
                 try {
                     if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) {
                         throw new Error("Supabase client is not initialized.");
                     }
-                    // 1. Load Students
                     const studentsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
                         ascending: true
                     });
@@ -127,7 +129,6 @@ const AppProvider = ({ children })=>{
                         details: studentsRes.error
                     };
                     setStudents(studentsRes.data || []);
-                    // 2. Load App Settings
                     const settingsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
                     if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
                         throw {
@@ -138,8 +139,8 @@ const AppProvider = ({ children })=>{
                     if (settingsRes.data) {
                         setLogosState(settingsRes.data.logos || defaultLogos);
                         setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
+                        setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
                     }
-                    // 3. Load Awards
                     const awardsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('awards').select('*').order('name', {
                         ascending: true
                     });
@@ -148,7 +149,6 @@ const AppProvider = ({ children })=>{
                         details: awardsRes.error
                     };
                     setAwards(awardsRes.data || []);
-                    // 4. Load Nominations with Student Details
                     const nominationsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('award_nominations').select('*, students(name, image_src)');
                     if (nominationsRes.error) throw {
                         source: 'nominations',
@@ -156,8 +156,7 @@ const AppProvider = ({ children })=>{
                     };
                     setNominations(nominationsRes.data || []);
                 } catch (error) {
-                    // Provide more detailed error logging.
-                    console.error(`An error occurred while loading data from Supabase table "${error.source}":`, error.details || error);
+                    console.error(`An error occurred while loading data from Supabase table "${error.source || 'unknown'}":`, error.details || error);
                 } finally{
                     setIsLoading(false);
                 }
@@ -225,7 +224,8 @@ const AppProvider = ({ children })=>{
     const updateLogo = async (logoType, fileDataUrl)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         let newLogoUrl = null;
-        const currentSettings = (await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single()).data?.logos || defaultLogos;
+        const { data: currentData } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single();
+        const currentSettings = currentData?.logos || defaultLogos;
         const currentLogoUrl = currentSettings[logoType];
         if (fileDataUrl) {
             const blob = dataURIToBlob(fileDataUrl);
@@ -237,7 +237,7 @@ const AppProvider = ({ children })=>{
             await deleteFileFromSupabase(currentLogoUrl);
         }
         const updatedLogos = {
-            ...logos,
+            ...currentSettings,
             [logoType]: newLogoUrl
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
@@ -269,7 +269,6 @@ const AppProvider = ({ children })=>{
         if (error) throw error;
         setStudents((prev)=>prev.filter((s)=>s.id !== studentId));
     };
-    // VOTING FUNCTIONS
     const updateVotingStatus = async (isActive)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         const newVotingSettings = {
@@ -282,6 +281,19 @@ const AppProvider = ({ children })=>{
         });
         if (error) throw error;
         setVotingSettingsState(newVotingSettings);
+    };
+    const updateFybWeekStatus = async (isActive)=>{
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const newFybWeekSettings = {
+            ...fybWeekSettings,
+            isFybWeekActive: isActive
+        };
+        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
+            id: APP_SETTINGS_ID,
+            fyb_week_settings: newFybWeekSettings
+        });
+        if (error) throw error;
+        setFybWeekSettingsState(newFybWeekSettings);
     };
     const addAward = async (awardData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
@@ -316,20 +328,15 @@ const AppProvider = ({ children })=>{
     };
     const submitVotes = async (votesToSubmit)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
-        // Use Promise.all to call the RPC function for each vote
         const votePromises = votesToSubmit.map((vote)=>__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].rpc('increment_vote', {
                 nomination_id_in: vote.nominationId
             }));
         const results = await Promise.allSettled(votePromises);
-        // Check for any failed promises
         const failedVotes = results.filter((result)=>result.status === 'rejected');
         if (failedVotes.length > 0) {
             console.error("Some votes failed to submit:", failedVotes);
-            // Rollback not easily possible without a transaction, but we can log it.
-            // For a production app, a single transaction function in Supabase would be better.
             throw new Error("Could not submit all votes. Please try again.");
         }
-        // Optimistically update the local state for a smoother user experience
         setNominations((prevNominations)=>{
             return prevNominations.map((nom)=>{
                 const didVoteForThis = votesToSubmit.find((v)=>v.nominationId === nom.id);
@@ -346,7 +353,7 @@ const AppProvider = ({ children })=>{
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 305,
+            lineNumber: 307,
             columnNumber: 12
         }, this);
     }
@@ -356,6 +363,7 @@ const AppProvider = ({ children })=>{
             setStudents,
             logos,
             votingSettings,
+            fybWeekSettings,
             awards,
             nominations,
             adminPin: defaultAdminPin,
@@ -367,6 +375,7 @@ const AppProvider = ({ children })=>{
             deleteStudent,
             updateLogo,
             updateVotingStatus,
+            updateFybWeekStatus,
             addAward,
             deleteAward,
             addNomination,
@@ -376,11 +385,11 @@ const AppProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 309,
+        lineNumber: 311,
         columnNumber: 5
     }, this);
 };
-_s(AppProvider, "gFm8trM8fkxJ5wWA4e7mS28fGfw=");
+_s(AppProvider, "to/0gpomsz0VllpSF6noVG42ggA=");
 _c1 = AppProvider;
 const useAppContext = ()=>{
     _s1();

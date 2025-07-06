@@ -44,10 +44,15 @@ export interface VotingSettings {
   isVotingActive: boolean;
 }
 
+export interface FYBWeekSettings {
+  isFybWeekActive: boolean;
+}
+
 export interface AppSettingsFromSupabase {
   id: number;
   logos: LogoSettings | null; 
   voting_settings: VotingSettings | null;
+  fyb_week_settings: FYBWeekSettings | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -56,6 +61,7 @@ export interface AppState {
   students: Student[];
   logos: LogoSettings;
   votingSettings: VotingSettings;
+  fybWeekSettings: FYBWeekSettings;
   awards: Award[];
   nominations: AwardNomination[];
   adminPin: string; 

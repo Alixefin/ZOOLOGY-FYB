@@ -599,6 +599,10 @@ body {
   margin-top: 2rem;
 }
 
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
 .block {
   display: block;
 }
@@ -874,6 +878,10 @@ body {
 
 .w-full {
   width: 100%;
+}
+
+.w-px {
+  width: 1px;
 }
 
 .min-w-0 {
@@ -1883,6 +1891,11 @@ body {
 
 .shadow-green-500\/50 {
   --tw-shadow-color: #22c55e80;
+  --tw-shadow: var(--tw-shadow-colored);
+}
+
+.shadow-yellow-500\/50 {
+  --tw-shadow-color: #eab30880;
   --tw-shadow: var(--tw-shadow-colored);
 }
 
@@ -3053,6 +3066,12 @@ body {
   }
 
   .lg\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1280px) {
+  .xl\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }

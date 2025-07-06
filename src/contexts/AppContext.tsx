@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Student, LogoSettings, VotingSettings, AppState, Award, AwardNomination } from '@/types';
+import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
 
 // Helper to convert Data URI to Blob for Supabase upload
@@ -33,6 +33,10 @@ const defaultVotingSettings: VotingSettings = {
   isVotingActive: false,
 };
 
+const defaultFybWeekSettings: FYBWeekSettings = {
+  isFybWeekActive: false,
+};
+
 const defaultAdminPin = "171225"; 
 
 const APP_SETTINGS_ID = 1; 
@@ -47,8 +51,8 @@ interface AppContextType extends AppState {
   addStudent: (studentData: Omit<Student, 'created_at' | 'updated_at'>) => Promise<void>;
   updateStudent: (studentData: Student) => Promise<void>;
   deleteStudent: (studentId: string) => Promise<void>;
-  // Voting related functions
   updateVotingStatus: (isActive: boolean) => Promise<void>;
+  updateFybWeekStatus: (isActive: boolean) => Promise<void>;
   addAward: (awardData: Pick<Award, 'name' | 'description'>) => Promise<void>;
   deleteAward: (awardId: string) => Promise<void>;
   addNomination: (nominationData: Pick<AwardNomination, 'award_id' | 'student_id'>) => Promise<void>;
@@ -79,6 +83,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [logos, setLogosState] = useState<LogoSettings>(defaultLogos);
   const [votingSettings, setVotingSettingsState] = useState<VotingSettings>(defaultVotingSettings);
+  const [fybWeekSettings, setFybWeekSettingsState] = useState<FYBWeekSettings>(defaultFybWeekSettings);
   const [awards, setAwards] = useState<Award[]>([]);
   const [nominations, setNominations] = useState<AwardNomination[]>([]);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
@@ -89,41 +94,36 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setIsMounted(true);
     
     async function loadInitialData() {
-      // This function is now more robust, loading data sequentially to pinpoint errors.
       try {
         if (!supabase) {
           throw new Error("Supabase client is not initialized.");
         }
         
-        // 1. Load Students
         const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
         if (studentsRes.error) throw { source: 'students', details: studentsRes.error };
         setStudents(studentsRes.data || []);
 
-        // 2. Load App Settings
         const settingsRes = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
-        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') { // PGRST116: no rows found, which is OK on first load.
+        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
            throw { source: 'app_settings', details: settingsRes.error };
         }
         if (settingsRes.data) {
           setLogosState(settingsRes.data.logos || defaultLogos);
           setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
+          setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
         }
 
-        // 3. Load Awards
         const awardsRes = await supabase.from('awards').select('*').order('name', { ascending: true });
         if (awardsRes.error) throw { source: 'awards', details: awardsRes.error };
         setAwards(awardsRes.data || []);
 
-        // 4. Load Nominations with Student Details
         const nominationsRes = await supabase.from('award_nominations').select('*, students(name, image_src)');
         if (nominationsRes.error) throw { source: 'nominations', details: nominationsRes.error };
         setNominations(nominationsRes.data || []);
 
       } catch (error: any) {
-        // Provide more detailed error logging.
         console.error(
-          `An error occurred while loading data from Supabase table "${error.source}":`, 
+          `An error occurred while loading data from Supabase table "${error.source || 'unknown'}":`, 
           error.details || error
         );
       } finally {
@@ -191,7 +191,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
     if (!supabase) throw new Error("Supabase client not available.");
     let newLogoUrl: string | null = null;
-    const currentSettings = (await supabase.from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single()).data?.logos || defaultLogos;
+    const {data: currentData} = await supabase.from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single();
+    const currentSettings = currentData?.logos || defaultLogos;
     const currentLogoUrl = currentSettings[logoType];
     
     if (fileDataUrl) { 
@@ -203,7 +204,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } else if (currentLogoUrl) {
       await deleteFileFromSupabase(currentLogoUrl);
     }
-    const updatedLogos = { ...logos, [logoType]: newLogoUrl };
+    const updatedLogos = { ...currentSettings, [logoType]: newLogoUrl };
     const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, logos: updatedLogos });
     if (error) throw error;
     setLogosState(updatedLogos);
@@ -231,13 +232,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setStudents(prev => prev.filter(s => s.id !== studentId));
   };
   
-  // VOTING FUNCTIONS
   const updateVotingStatus = async (isActive: boolean) => {
     if (!supabase) throw new Error("Supabase client not available.");
     const newVotingSettings = { ...votingSettings, isVotingActive: isActive };
     const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, voting_settings: newVotingSettings });
     if (error) throw error;
     setVotingSettingsState(newVotingSettings);
+  };
+
+  const updateFybWeekStatus = async (isActive: boolean) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    const newFybWeekSettings = { ...fybWeekSettings, isFybWeekActive: isActive };
+    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, fyb_week_settings: newFybWeekSettings });
+    if (error) throw error;
+    setFybWeekSettingsState(newFybWeekSettings);
   };
 
   const addAward = async (awardData: Pick<Award, 'name' | 'description'>) => {
@@ -272,23 +280,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const submitVotes = async (votesToSubmit: { awardId: string; nominationId: string }[]) => {
     if (!supabase) throw new Error("Supabase client not available.");
     
-    // Use Promise.all to call the RPC function for each vote
     const votePromises = votesToSubmit.map(vote => 
       supabase.rpc('increment_vote', { nomination_id_in: vote.nominationId })
     );
     
     const results = await Promise.allSettled(votePromises);
 
-    // Check for any failed promises
     const failedVotes = results.filter(result => result.status === 'rejected');
     if (failedVotes.length > 0) {
       console.error("Some votes failed to submit:", failedVotes);
-      // Rollback not easily possible without a transaction, but we can log it.
-      // For a production app, a single transaction function in Supabase would be better.
       throw new Error("Could not submit all votes. Please try again.");
     }
 
-    // Optimistically update the local state for a smoother user experience
     setNominations(prevNominations => {
         return prevNominations.map(nom => {
             const didVoteForThis = votesToSubmit.find(v => v.nominationId === nom.id);
@@ -300,7 +303,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-
   if (!isMounted || isLoading) {
     return <LoadingComponent />;
   }
@@ -310,6 +312,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       students, setStudents, 
       logos, 
       votingSettings,
+      fybWeekSettings,
       awards,
       nominations,
       adminPin: defaultAdminPin,
@@ -318,6 +321,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       addStudent, updateStudent, deleteStudent,
       updateLogo,
       updateVotingStatus,
+      updateFybWeekStatus,
       addAward, deleteAward,
       addNomination, deleteNomination,
       submitVotes

@@ -21,9 +21,34 @@ import {
 import { useState } from 'react';
 
 export default function HomePage() {
-  const { logos, votingSettings } = useAppContext();
+  const { logos, votingSettings, fybWeekSettings } = useAppContext();
   const [showVotingInactiveDialog, setShowVotingInactiveDialog] = useState(false);
-  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const [showFybWeekInactiveDialog, setShowFybWeekInactiveDialog] = useState(false);
+
+  const fybWeekButton = (
+    <Button
+      asChild={fybWeekSettings.isFybWeekActive}
+      size="lg"
+      className={`font-headline text-lg py-8 shadow-lg transition-all hover:scale-105 w-full ${
+        fybWeekSettings.isFybWeekActive
+          ? 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-yellow-500/50'
+          : 'bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500'
+      }`}
+      onClick={!fybWeekSettings.isFybWeekActive ? () => setShowFybWeekInactiveDialog(true) : undefined}
+    >
+      {fybWeekSettings.isFybWeekActive ? (
+        <Link href="/fyb-week">
+          <CalendarDays className="mr-3 h-6 w-6" />
+          FYB Week Schedule
+        </Link>
+      ) : (
+        <span>
+          <CalendarDays className="mr-3 h-6 w-6" />
+          FYB Week Schedule
+        </span>
+      )}
+    </Button>
+  );
 
   const votingButton = (
     <Button
@@ -50,18 +75,6 @@ export default function HomePage() {
     </Button>
   );
 
-  const scheduleButton = (
-    <Button
-     size="lg"
-     className="font-headline text-lg py-8 bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500 shadow-lg transition-all hover:scale-105 w-full"
-     onClick={() => setShowScheduleDialog(true)}
-   >
-     <CalendarDays className="mr-3 h-6 w-6" />
-     Event Schedule
-   </Button>
- );
-
-
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-background to-secondary/30 px-4 py-8 sm:px-8 sm:py-12">
        <AlertDialog open={showVotingInactiveDialog} onOpenChange={setShowVotingInactiveDialog}>
@@ -80,16 +93,16 @@ export default function HomePage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={showScheduleDialog} onOpenChange={setShowScheduleDialog}>
+      <AlertDialog open={showFybWeekInactiveDialog} onOpenChange={setShowFybWeekInactiveDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Coming Soon!</AlertDialogTitle>
             <AlertDialogDescription>
-              The event schedule is not yet available. Please check back later.
+              The FYB Week schedule is not yet available. Please check back later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-             <Button variant="outline" onClick={() => setShowScheduleDialog(false)}>
+             <Button variant="outline" onClick={() => setShowFybWeekInactiveDialog(false)}>
                 <X className="mr-2 h-4 w-4" /> Close
               </Button>
           </AlertDialogFooter>
@@ -135,7 +148,7 @@ export default function HomePage() {
                 Meet the Cyber Clan
               </Link>
             </Button>
-            {scheduleButton}
+            {fybWeekButton}
             {votingButton}
           </div>
         </CardContent>
