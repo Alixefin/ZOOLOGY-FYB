@@ -78,7 +78,7 @@ const APP_SETTINGS_ID = 1; // Singleton row ID for app_settings table
 const STORAGE_BUCKET_NAME = 'app-public-assets';
 const AppContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createContext"])(undefined);
 const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background",
+        className: "fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white dark:bg-gray-950",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "w-32 h-32 md:w-48 md:h-48",
             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -210,7 +210,8 @@ const AppProvider = ({ children })=>{
     const updateLogo = async (logoType, fileDataUrl)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for updating logo.");
         let newLogoUrl = null;
-        const currentLogoUrl = logos[logoType];
+        const currentSettings = (await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single()).data?.logos || defaultLogos;
+        const currentLogoUrl = currentSettings[logoType];
         if (fileDataUrl) {
             const blob = dataURIToBlob(fileDataUrl);
             if (blob) {
@@ -221,7 +222,7 @@ const AppProvider = ({ children })=>{
             await deleteFileFromSupabase(currentLogoUrl);
         }
         const updatedLogos = {
-            ...logos,
+            ...currentSettings,
             [logoType]: newLogoUrl
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
@@ -322,7 +323,7 @@ const AppProvider = ({ children })=>{
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 266,
+            lineNumber: 268,
             columnNumber: 12
         }, this);
     }
@@ -347,7 +348,7 @@ const AppProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 270,
+        lineNumber: 272,
         columnNumber: 5
     }, this);
 };

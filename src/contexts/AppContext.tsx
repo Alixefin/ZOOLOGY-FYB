@@ -60,7 +60,7 @@ interface AppContextType extends AppState {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const LoadingComponent = () => (
-    <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background">
+    <div className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-white dark:bg-gray-950">
         <div className="w-32 h-32 md:w-48 md:h-48">
             <Image
                 src="/favicon.ico"
@@ -179,7 +179,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
     if (!supabase) throw new Error("Supabase client not available for updating logo.");
     let newLogoUrl: string | null = null;
-    const currentLogoUrl = logos[logoType];
+    const currentSettings = (await supabase.from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single()).data?.logos || defaultLogos;
+    const currentLogoUrl = currentSettings[logoType];
+    
     if (fileDataUrl) { 
       const blob = dataURIToBlob(fileDataUrl);
       if (blob) {
@@ -189,7 +191,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } else if (currentLogoUrl) {
       await deleteFileFromSupabase(currentLogoUrl);
     }
-    const updatedLogos = { ...logos, [logoType]: newLogoUrl };
+    const updatedLogos = { ...currentSettings, [logoType]: newLogoUrl };
     const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, logos: updatedLogos });
     if (error) throw error;
     setLogosState(updatedLogos);
