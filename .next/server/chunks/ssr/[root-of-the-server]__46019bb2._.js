@@ -168,14 +168,42 @@ const defaultAdminPin = "171225"; // Keep client-side for UI lock, not for DB au
 const APP_SETTINGS_ID = 1; // Singleton row ID for app_settings table
 const STORAGE_BUCKET_NAME = 'app-public-assets';
 const AppContext = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["createContext"])(undefined);
+const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "w-32 h-32 md:w-48 md:h-48",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                src: "/favicon.ico",
+                alt: "Association Logo",
+                width: 192,
+                height: 192,
+                className: "object-contain",
+                unoptimized: true,
+                priority: true
+            }, void 0, false, {
+                fileName: "[project]/src/contexts/AppContext.tsx",
+                lineNumber: 65,
+                columnNumber: 13
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/src/contexts/AppContext.tsx",
+            lineNumber: 64,
+            columnNumber: 9
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/src/contexts/AppContext.tsx",
+        lineNumber: 63,
+        columnNumber: 5
+    }, this);
 const AppProvider = ({ children })=>{
     const [students, setStudents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     const [logos, setLogosState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(defaultLogos);
     const [fybWeekSettings, setFybWeekSettingsState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(defaultFYBWeekSettings);
     const [isAdminLoggedIn, setIsAdminLoggedIn] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
-    const [isDataFetched, setIsDataFetched] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [isMounted, setIsMounted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        setIsMounted(true);
         async function loadInitialData() {
             try {
                 if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) {
@@ -188,71 +216,37 @@ const AppProvider = ({ children })=>{
                 if (studentsError) throw studentsError;
                 setStudents(studentsData || []);
                 // Fetch app_settings
-                const { data: settingsData, error: settingsError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('logos, fyb_week_settings').eq('id', APP_SETTINGS_ID).single();
-                if (settingsError && settingsError.code !== 'PGRST116') {
-                    throw settingsError;
-                }
+                const { data: settingsData, error: settingsError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+                if (settingsError && settingsError.code !== 'PGRST116') throw settingsError;
                 if (settingsData) {
                     setLogosState(settingsData.logos || defaultLogos);
                     setFybWeekSettingsState(settingsData.fyb_week_settings || defaultFYBWeekSettings);
                 } else {
-                    console.warn("No app_settings found in database (ID: ", APP_SETTINGS_ID, "). Using client-side defaults. Consider seeding this table.");
                     setLogosState(defaultLogos);
                     setFybWeekSettingsState(defaultFYBWeekSettings);
                 }
             } catch (error) {
-                let isFailedToFetch = false;
-                let extractedErrorMessage = "Unknown error during data load.";
-                if (error && typeof error === 'object') {
-                    if ('message' in error && typeof error.message === 'string' && (error.message.toLowerCase().includes("failed to fetch") || error.message.toLowerCase().includes("typeerror: failed to fetch"))) {
-                        isFailedToFetch = true;
-                        extractedErrorMessage = error.message;
-                    }
-                    if (!isFailedToFetch && 'details' in error && typeof error.details === 'string' && (error.details.toLowerCase().includes("failed to fetch") || error.details.toLowerCase().includes("typeerror: failed to fetch"))) {
-                        isFailedToFetch = true;
-                        extractedErrorMessage = error.details;
-                    }
-                } else if (typeof error === 'string' && (error.toLowerCase().includes("failed to fetch") || error.toLowerCase().includes("typeerror: failed to fetch"))) {
-                    isFailedToFetch = true;
-                    extractedErrorMessage = error;
-                }
-                if (isFailedToFetch) {
-                    const troubleshootingMessage = `
-CRITICAL CONNECTION ERROR: 'Failed to fetch'
-This means your application could NOT connect to the Supabase server.
-Please meticulously verify the troubleshooting steps in the README or previous console logs.
-Raw Error: ${extractedErrorMessage}`;
-                    console.error(troubleshootingMessage, error);
-                } else {
-                    console.error('An unexpected error occurred while loading initial data from Supabase:', error);
-                }
-                // Fallback to defaults
+                console.error('An unexpected error occurred while loading initial data from Supabase:', error);
                 setStudents([]);
                 setLogosState(defaultLogos);
                 setFybWeekSettingsState(defaultFYBWeekSettings);
             } finally{
-                setIsDataFetched(true);
-            }
-            const storedAdminLogin = localStorage.getItem('nacosAdminLoggedIn');
-            if (storedAdminLogin === 'true') {
-                setIsAdminLoggedIn(true);
+                setIsLoading(false);
             }
         }
         loadInitialData();
+        const storedAdminLogin = localStorage.getItem('nacosAdminLoggedIn');
+        if (storedAdminLogin === 'true') {
+            setIsAdminLoggedIn(true);
+        }
     }, []);
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        if (isDataFetched) {
-            // Add a small delay to prevent a jarring flash of content on fast connections
-            const timer = setTimeout(()=>setIsLoading(false), 250);
-            return ()=>clearTimeout(timer);
+        if (isMounted) {
+            localStorage.setItem('nacosAdminLoggedIn', isAdminLoggedIn.toString());
         }
     }, [
-        isDataFetched
-    ]);
-    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
-        localStorage.setItem('nacosAdminLoggedIn', isAdminLoggedIn.toString());
-    }, [
-        isAdminLoggedIn
+        isAdminLoggedIn,
+        isMounted
     ]);
     const loginAdmin = (pin)=>{
         if (pin === defaultAdminPin) {
@@ -265,32 +259,22 @@ Raw Error: ${extractedErrorMessage}`;
         setIsAdminLoggedIn(false);
     };
     const uploadFileToSupabase = async (fileBlob, pathPrefix, fileNameWithoutExt)=>{
-        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) {
-            throw new Error("Supabase client not available for file upload.");
-        }
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for file upload.");
         const fileExt = fileBlob.type.split('/')[1] || 'png';
         const fullFileName = `${fileNameWithoutExt}.${fileExt}`;
         const filePath = `${pathPrefix}/${Date.now()}_${fullFileName}`;
         const { error: uploadError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].storage.from(STORAGE_BUCKET_NAME).upload(filePath, fileBlob, {
             upsert: true
         });
-        if (uploadError) {
-            console.error(`Error uploading ${fullFileName}:`, uploadError);
-            throw uploadError;
-        }
+        if (uploadError) throw uploadError;
         const { data } = __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].storage.from(STORAGE_BUCKET_NAME).getPublicUrl(filePath);
-        if (!data.publicUrl) {
-            throw new Error("Upload succeeded but failed to get public URL.");
-        }
+        if (!data.publicUrl) throw new Error("Upload succeeded but failed to get public URL.");
         return data.publicUrl;
     };
     const deleteFileFromSupabase = async (fileUrl)=>{
         if (!fileUrl || !__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) return;
         const isSupabaseUrl = fileUrl.includes('iwkslfapaxafwghfhefu.supabase.co');
-        if (!isSupabaseUrl) {
-            // Don't try to delete external URLs
-            return;
-        }
+        if (!isSupabaseUrl) return;
         try {
             const url = new URL(fileUrl);
             const pathSegments = url.pathname.split('/');
@@ -303,9 +287,7 @@ Raw Error: ${extractedErrorMessage}`;
             const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].storage.from(STORAGE_BUCKET_NAME).remove([
                 filePath
             ]);
-            if (error) {
-                console.warn(`Could not delete file '${filePath}' from storage: ${error.message}`);
-            }
+            if (error) console.warn(`Could not delete file '${filePath}' from storage: ${error.message}`);
         } catch (e) {
             console.error("Error parsing or deleting file URL:", fileUrl, e);
         }
@@ -330,27 +312,22 @@ Raw Error: ${extractedErrorMessage}`;
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
             id: APP_SETTINGS_ID,
             logos: updatedLogos
-        }).select().single();
-        if (error) {
-            console.error("Supabase error during logo update:", error);
-            throw error;
-        }
+        });
+        if (error) throw error;
         setLogosState(updatedLogos);
     };
     const updateFybWeekTextSettings = async (settings)=>{
-        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for updating FYB week settings.");
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const currentSettings = (await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('fyb_week_settings').eq('id', APP_SETTINGS_ID).single()).data?.fyb_week_settings || defaultFYBWeekSettings;
         const updatedSettings = {
-            ...fybWeekSettings,
+            ...currentSettings,
             ...settings
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
             id: APP_SETTINGS_ID,
             fyb_week_settings: updatedSettings
-        }).select().single();
-        if (error) {
-            console.error("Supabase error during FYB week settings update:", error);
-            throw error;
-        }
+        });
+        if (error) throw error;
         setFybWeekSettingsState(updatedSettings);
     };
     const addStudent = async (studentData)=>{
@@ -370,14 +347,14 @@ Raw Error: ${extractedErrorMessage}`;
         if (updatedStudent) setStudents((prev)=>prev.map((s)=>s.id === updatedStudent.id ? updatedStudent : s).sort((a, b)=>a.name.localeCompare(b.name)));
     };
     const deleteStudent = async (studentId)=>{
-        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for deleting student.");
-        // No longer deleting images from storage as they are external links.
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('students').delete().eq('id', studentId);
         if (error) throw error;
         setStudents((prev)=>prev.filter((s)=>s.id !== studentId));
     };
     const addFybEventImages = async (files)=>{
-        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for adding FYB event images.");
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const currentSettings = (await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('fyb_week_settings').eq('id', APP_SETTINGS_ID).single()).data?.fyb_week_settings || defaultFYBWeekSettings;
         const uploadPromises = files.map((file)=>{
             const imageId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$node$2f$v4$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])();
             const safeFileName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
@@ -390,47 +367,50 @@ Raw Error: ${extractedErrorMessage}`;
         try {
             const newImages = await Promise.all(uploadPromises);
             const updatedImages = [
-                ...fybWeekSettings.eventImages,
+                ...currentSettings.eventImages,
                 ...newImages
             ];
             const updatedSettings = {
-                ...fybWeekSettings,
+                ...currentSettings,
                 eventImages: updatedImages
             };
             const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
                 id: APP_SETTINGS_ID,
                 fyb_week_settings: updatedSettings
-            }).select().single();
+            });
             if (error) {
-                // If the DB update fails, try to clean up the uploaded files
                 newImages.forEach((img)=>deleteFileFromSupabase(img.src));
                 throw error;
             }
             setFybWeekSettingsState(updatedSettings);
         } catch (uploadError) {
-            // This will catch any error from Promise.all, including individual upload failures.
-            console.error("An error occurred during the bulk image upload process:", uploadError);
             throw new Error("One or more image uploads failed. Please try again.");
         }
     };
     const deleteFybEventImage = async (imageId)=>{
-        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available for deleting FYB event image.");
-        const imageToDelete = fybWeekSettings.eventImages.find((img)=>img.id === imageId);
-        if (imageToDelete?.src) {
-            await deleteFileFromSupabase(imageToDelete.src);
-        }
-        const updatedImages = fybWeekSettings.eventImages.filter((img)=>img.id !== imageId);
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const currentSettings = (await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('fyb_week_settings').eq('id', APP_SETTINGS_ID).single()).data?.fyb_week_settings || defaultFYBWeekSettings;
+        const imageToDelete = currentSettings.eventImages.find((img)=>img.id === imageId);
+        if (imageToDelete?.src) await deleteFileFromSupabase(imageToDelete.src);
+        const updatedImages = currentSettings.eventImages.filter((img)=>img.id !== imageId);
         const updatedSettings = {
-            ...fybWeekSettings,
+            ...currentSettings,
             eventImages: updatedImages
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
             id: APP_SETTINGS_ID,
             fyb_week_settings: updatedSettings
-        }).select().single();
+        });
         if (error) throw error;
         setFybWeekSettingsState(updatedSettings);
     };
+    if (!isMounted || isLoading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
+            fileName: "[project]/src/contexts/AppContext.tsx",
+            lineNumber: 266,
+            columnNumber: 12
+        }, this);
+    }
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AppContext.Provider, {
         value: {
             students,
@@ -449,36 +429,10 @@ Raw Error: ${extractedErrorMessage}`;
             addFybEventImages,
             deleteFybEventImage
         },
-        children: isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-            className: "fixed inset-0 z-[300] flex flex-col items-center justify-center bg-background",
-            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "w-32 h-32 md:w-48 md:h-48",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                    src: "/favicon.ico",
-                    alt: "Association Logo",
-                    width: 192,
-                    height: 192,
-                    className: "object-contain",
-                    unoptimized: true,
-                    priority: true
-                }, void 0, false, {
-                    fileName: "[project]/src/contexts/AppContext.tsx",
-                    lineNumber: 389,
-                    columnNumber: 13
-                }, this)
-            }, void 0, false, {
-                fileName: "[project]/src/contexts/AppContext.tsx",
-                lineNumber: 388,
-                columnNumber: 11
-            }, this)
-        }, void 0, false, {
-            fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 387,
-            columnNumber: 9
-        }, this) : children
+        children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 374,
+        lineNumber: 270,
         columnNumber: 5
     }, this);
 };
