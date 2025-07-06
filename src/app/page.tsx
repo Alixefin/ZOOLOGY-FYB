@@ -9,6 +9,7 @@ import { useAppContext } from '@/contexts/AppContext';
 import { AssociationLogoPlaceholder } from '@/components/icons/AssociationLogoPlaceholder';
 import { SchoolLogoPlaceholder } from '@/components/icons/SchoolLogoPlaceholder';
 import { Users, CalendarDays } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function HomePage() {
   const { logos } = useAppContext();
@@ -63,13 +64,13 @@ export default function HomePage() {
             Welcome to the official portal for the Final Year Brethren activities and celebrations.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <Button asChild size="lg" className="font-headline text-lg py-8 bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transition-transform hover:scale-105">
+            <Button asChild size="lg" className="font-headline text-lg py-8 bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-students">
                 <Users className="mr-3 h-6 w-6" />
                 Meet the Cyber Clan
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-primary/10 shadow-lg transition-transform hover:scale-105">
+            <Button asChild variant="outline" size="lg" className="font-headline text-lg py-8 border-primary text-primary hover:bg-primary hover:text-primary-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-week">
                 <CalendarDays className="mr-3 h-6 w-6" />
                 Cyber Clan Week
@@ -78,7 +79,8 @@ export default function HomePage() {
           </div>
         </CardContent>
       </Card>
-      <footer className="mt-12 text-center">
+      <footer className="mt-12 text-center space-y-4">
+        <ThemeToggle />
         <p className="text-sm text-muted-foreground font-body">
           &copy; 2025 NACOS. All rights reserved.
         </p>

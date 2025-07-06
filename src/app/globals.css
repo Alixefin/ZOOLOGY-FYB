@@ -23,9 +23,9 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* --- Blue Accent --- */
-    --accent: 217 91% 60%;
-    --accent-foreground: 210 40% 98%;
+    /* --- Gold Accent --- */
+    --accent: 45 95% 51%;
+    --accent-foreground: 224 71% 4%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -38,9 +38,9 @@
 
     /* Chart colors */
     --chart-1: 142 70% 50%;
-    --chart-2: 217 80% 50%;
+    --chart-2: 45 80% 50%;
     --chart-3: 142 60% 60%;
-    --chart-4: 217 70% 60%;
+    --chart-4: 45 70% 60%;
     --chart-5: 142 50% 70%;
 
     /* Sidebar specific colors - harmonized */
@@ -48,8 +48,8 @@
     --sidebar-foreground: 215 28% 17%;
     --sidebar-primary: 142 71% 45%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 91% 60%;
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-accent: 45 95% 51%;
+    --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-ring: 142 71% 45%;
   }
@@ -74,9 +74,9 @@
     --muted: 217 32% 17%;
     --muted-foreground: 215 20% 65%;
 
-    /* --- Blue Accent --- */
-    --accent: 217 91% 70%;
-    --accent-foreground: 210 40% 98%;
+    /* --- Gold Accent --- */
+    --accent: 45 95% 61%;
+    --accent-foreground: 224 71% 4%;
 
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
@@ -87,17 +87,17 @@
 
     /* Chart colors */
     --chart-1: 142 70% 60%;
-    --chart-2: 217 80% 60%;
+    --chart-2: 45 80% 60%;
     --chart-3: 142 60% 70%;
-    --chart-4: 217 70% 70%;
+    --chart-4: 45 70% 70%;
     --chart-5: 142 50% 80%;
     
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
     --sidebar-primary: 142 71% 55%;
     --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 91% 70%;
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-accent: 45 95% 61%;
+    --sidebar-accent-foreground: 224 71% 4%;
     --sidebar-border: 217 32% 27%;
     --sidebar-ring: 142 71% 55%;
   }

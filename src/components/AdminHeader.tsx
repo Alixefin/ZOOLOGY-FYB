@@ -6,6 +6,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { LogOut, Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function AdminHeader() {
   const { logoutAdmin, logos } = useAppContext();
@@ -24,7 +25,7 @@ export default function AdminHeader() {
            {/* Placeholder for a small admin logo/icon or text */}
           <span className="font-headline text-xl text-primary">Admin Panel</span>
         </Link>
-        <div className="space-x-2">
+        <div className="flex items-center space-x-2">
           {pathname !== "/admin" && (
             <Button variant="outline" asChild>
               <Link href="/admin">
@@ -32,6 +33,7 @@ export default function AdminHeader() {
               </Link>
             </Button>
           )}
+          <ThemeToggle />
           <Button variant="ghost" onClick={handleLogout} className="text-destructive hover:bg-destructive/10 hover:text-destructive">
             <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
