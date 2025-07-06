@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
@@ -32,10 +32,13 @@ const DetailItem: React.FC<DetailItemProps> = ({ icon: Icon, label, value }) => 
 
 
 export default function StudentDetailPage() {
-  const params = useParams();
+  const pathname = usePathname();
   const router = useRouter();
   const { students } = useAppContext();
-  const studentId = params.id as string;
+  
+  const segments = pathname.split('/');
+  const studentId = segments[segments.length - 1];
+
   const [isDownloading, setIsDownloading] = useState(false);
 
   const student = students.find(s => s.id === studentId);

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useParams, useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAppContext } from '@/contexts/AppContext';
 import StudentForm from '@/components/StudentForm';
 import AdminHeader from '@/components/AdminHeader';
@@ -12,11 +12,14 @@ import type { Student } from '@/types';
 import { useState } from 'react';
 
 export default function EditStudentPage() {
-  const params = useParams();
+  const pathname = usePathname();
   const router = useRouter();
   const { students, updateStudent } = useAppContext();
   const { toast } = useToast();
-  const studentId = params.id as string;
+  
+  const segments = pathname.split('/');
+  const studentId = segments[segments.length - 1];
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const student = students.find(s => s.id === studentId);
