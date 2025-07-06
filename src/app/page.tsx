@@ -16,16 +16,21 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/30 p-4 sm:p-8">
       <Card className="w-full max-w-2xl shadow-2xl rounded-xl overflow-hidden">
-        <CardHeader className="bg-primary text-primary-foreground p-8 text-center relative">
+        <CardHeader className="text-primary-foreground p-8 text-center relative">
+          {/* Background Image */}
           <Image
             alt="Person using a laptop"
             src="https://placehold.co/1000x500.png"
             data-ai-hint="laptop user"
             layout="fill"
             objectFit="cover"
-            className="opacity-10 z-0"
+            className="z-0"
           />
-          <div className="relative z-10">
+          {/* Color Overlay */}
+          <div className="absolute inset-0 bg-primary opacity-90 z-10" />
+
+          {/* Content */}
+          <div className="relative z-20">
             <div className="flex flex-row items-center justify-center gap-6 mb-6">
               <div className="w-24 h-24 md:w-32 md:h-32 bg-primary-foreground/20 rounded-full p-2 flex items-center justify-center">
                 {logos.associationLogo ? (
