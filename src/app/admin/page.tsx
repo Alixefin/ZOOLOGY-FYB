@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Image as ImageIcon, Users, Award, Settings, CalendarDays } from 'lucide-react';
+import { Image as ImageIcon, Users, Award, Settings, CalendarDays, Flame } from 'lucide-react';
 import AdminHeader from '@/components/AdminHeader';
 
 export default function AdminDashboardPage() {
@@ -32,6 +32,12 @@ export default function AdminDashboardPage() {
       description: "Control the FYB Week schedule and activities.",
       href: "/admin/manage-fyb-week",
       icon: CalendarDays,
+    },
+    {
+      title: "Manage Roast Image",
+      description: "Set the background for the AI roast feature.",
+      href: "/admin/manage-roast",
+      icon: Flame,
     }
   ];
 

@@ -62,7 +62,8 @@ function dataURIToBlob(dataURI) {
 }
 const defaultLogos = {
     associationLogo: null,
-    schoolLogo: null
+    schoolLogo: null,
+    roastBackground: null
 };
 const defaultVotingSettings = {
     isVotingActive: false
@@ -88,17 +89,17 @@ const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
                 priority: true
             }, void 0, false, {
                 fileName: "[project]/src/contexts/AppContext.tsx",
-                lineNumber: 68,
+                lineNumber: 70,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 67,
+            lineNumber: 69,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 66,
+        lineNumber: 68,
         columnNumber: 5
     }, this);
 _c = LoadingComponent;
@@ -117,9 +118,18 @@ const AppProvider = ({ children })=>{
         "AppProvider.useEffect": ()=>{
             setIsMounted(true);
             async function loadInitialData() {
+                setIsLoading(true);
                 try {
-                    if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) {
-                        throw new Error("Supabase client is not initialized.");
+                    if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client is not initialized.");
+                    const settingsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+                    if (settingsRes.error && settingsRes.error.code !== 'PGRST116') throw {
+                        source: 'app_settings',
+                        details: settingsRes.error
+                    };
+                    if (settingsRes.data) {
+                        setLogosState(settingsRes.data.logos || defaultLogos);
+                        setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
+                        setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
                     }
                     const studentsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
                         ascending: true
@@ -129,18 +139,6 @@ const AppProvider = ({ children })=>{
                         details: studentsRes.error
                     };
                     setStudents(studentsRes.data || []);
-                    const settingsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
-                    if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
-                        throw {
-                            source: 'app_settings',
-                            details: settingsRes.error
-                        };
-                    }
-                    if (settingsRes.data) {
-                        setLogosState(settingsRes.data.logos || defaultLogos);
-                        setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
-                        setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
-                    }
                     const awardsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('awards').select('*').order('name', {
                         ascending: true
                     });
@@ -224,9 +222,14 @@ const AppProvider = ({ children })=>{
     const updateLogo = async (logoType, fileDataUrl)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         let newLogoUrl = null;
-        const { data: currentData } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single();
-        const currentSettings = currentData?.logos || defaultLogos;
-        const currentLogoUrl = currentSettings[logoType];
+        // Fetch the entire settings object first
+        const { data: currentData, error: fetchError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+        if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+        const currentSettings = currentData || {
+            id: APP_SETTINGS_ID
+        };
+        const currentLogos = currentSettings.logos || defaultLogos;
+        const currentLogoUrl = currentLogos[logoType];
         if (fileDataUrl) {
             const blob = dataURIToBlob(fileDataUrl);
             if (blob) {
@@ -237,13 +240,15 @@ const AppProvider = ({ children })=>{
             await deleteFileFromSupabase(currentLogoUrl);
         }
         const updatedLogos = {
-            ...currentSettings,
+            ...currentLogos,
             [logoType]: newLogoUrl
         };
-        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
-            id: APP_SETTINGS_ID,
+        // Build the payload with only what's changing
+        const payload = {
+            ...currentSettings,
             logos: updatedLogos
-        });
+        };
+        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert(payload);
         if (error) throw error;
         setLogosState(updatedLogos);
     };
@@ -271,12 +276,17 @@ const AppProvider = ({ children })=>{
     };
     const updateVotingStatus = async (isActive)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const { data: currentData, error: fetchError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+        if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+        const currentSettings = currentData || {
+            id: APP_SETTINGS_ID
+        };
         const newVotingSettings = {
-            ...votingSettings,
+            ...currentSettings.voting_settings,
             isVotingActive: isActive
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
-            id: APP_SETTINGS_ID,
+            ...currentSettings,
             voting_settings: newVotingSettings
         });
         if (error) throw error;
@@ -284,12 +294,17 @@ const AppProvider = ({ children })=>{
     };
     const updateFybWeekStatus = async (isActive)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const { data: currentData, error: fetchError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+        if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+        const currentSettings = currentData || {
+            id: APP_SETTINGS_ID
+        };
         const newFybWeekSettings = {
-            ...fybWeekSettings,
+            ...currentSettings.fyb_week_settings,
             isFybWeekActive: isActive
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
-            id: APP_SETTINGS_ID,
+            ...currentSettings,
             fyb_week_settings: newFybWeekSettings
         });
         if (error) throw error;
@@ -353,7 +368,7 @@ const AppProvider = ({ children })=>{
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 307,
+            lineNumber: 324,
             columnNumber: 12
         }, this);
     }
@@ -385,7 +400,7 @@ const AppProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 311,
+        lineNumber: 328,
         columnNumber: 5
     }, this);
 };

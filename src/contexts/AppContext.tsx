@@ -5,6 +5,7 @@ import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
+import { Toaster, useToast } from "@/components/ui/toaster"; // Assuming Toaster is a default export now
 
 // Helper to convert Data URI to Blob for Supabase upload
 function dataURIToBlob(dataURI: string): Blob | null {
@@ -27,6 +28,7 @@ function dataURIToBlob(dataURI: string): Blob | null {
 const defaultLogos: LogoSettings = {
   associationLogo: null,
   schoolLogo: null,
+  roastBackground: null,
 };
 
 const defaultVotingSettings: VotingSettings = {
@@ -45,7 +47,7 @@ const STORAGE_BUCKET_NAME = 'app-public-assets';
 
 interface AppContextType extends AppState {
   setStudents: React.Dispatch<React.SetStateAction<Student[]>>;
-  updateLogo: (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => Promise<void>;
+  updateLogo: (logoType: 'associationLogo' | 'schoolLogo' | 'roastBackground', fileDataUrl: string | null) => Promise<void>;
   loginAdmin: (pin: string) => boolean;
   logoutAdmin: () => void;
   addStudent: (studentData: Omit<Student, 'created_at' | 'updated_at'>) => Promise<void>;
@@ -94,24 +96,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setIsMounted(true);
     
     async function loadInitialData() {
+      setIsLoading(true);
       try {
-        if (!supabase) {
-          throw new Error("Supabase client is not initialized.");
-        }
+        if (!supabase) throw new Error("Supabase client is not initialized.");
         
-        const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
-        if (studentsRes.error) throw { source: 'students', details: studentsRes.error };
-        setStudents(studentsRes.data || []);
-
         const settingsRes = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
-        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
-           throw { source: 'app_settings', details: settingsRes.error };
-        }
+        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') throw { source: 'app_settings', details: settingsRes.error };
         if (settingsRes.data) {
           setLogosState(settingsRes.data.logos || defaultLogos);
           setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
           setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
         }
+
+        const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
+        if (studentsRes.error) throw { source: 'students', details: studentsRes.error };
+        setStudents(studentsRes.data || []);
 
         const awardsRes = await supabase.from('awards').select('*').order('name', { ascending: true });
         if (awardsRes.error) throw { source: 'awards', details: awardsRes.error };
@@ -122,7 +121,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         setNominations(nominationsRes.data || []);
 
       } catch (error: any) {
-        console.error(
+         console.error(
           `An error occurred while loading data from Supabase table "${error.source || 'unknown'}":`, 
           error.details || error
         );
@@ -188,12 +187,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo', fileDataUrl: string | null) => {
+  const updateLogo = async (logoType: 'associationLogo' | 'schoolLogo' | 'roastBackground', fileDataUrl: string | null) => {
     if (!supabase) throw new Error("Supabase client not available.");
     let newLogoUrl: string | null = null;
-    const {data: currentData} = await supabase.from('app_settings').select('logos').eq('id', APP_SETTINGS_ID).single();
-    const currentSettings = currentData?.logos || defaultLogos;
-    const currentLogoUrl = currentSettings[logoType];
+    
+    // Fetch the entire settings object first
+    const {data: currentData, error: fetchError} = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+
+    const currentSettings = currentData || { id: APP_SETTINGS_ID };
+    const currentLogos = currentSettings.logos || defaultLogos;
+    const currentLogoUrl = currentLogos[logoType];
     
     if (fileDataUrl) { 
       const blob = dataURIToBlob(fileDataUrl);
@@ -204,8 +208,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     } else if (currentLogoUrl) {
       await deleteFileFromSupabase(currentLogoUrl);
     }
-    const updatedLogos = { ...currentSettings, [logoType]: newLogoUrl };
-    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, logos: updatedLogos });
+    const updatedLogos = { ...currentLogos, [logoType]: newLogoUrl };
+    
+    // Build the payload with only what's changing
+    const payload = {
+        ...currentSettings,
+        logos: updatedLogos,
+    };
+
+    const { error } = await supabase.from('app_settings').upsert(payload);
     if (error) throw error;
     setLogosState(updatedLogos);
   };
@@ -234,16 +245,22 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   const updateVotingStatus = async (isActive: boolean) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    const newVotingSettings = { ...votingSettings, isVotingActive: isActive };
-    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, voting_settings: newVotingSettings });
+    const {data: currentData, error: fetchError} = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+    const currentSettings = currentData || { id: APP_SETTINGS_ID };
+    const newVotingSettings = { ...currentSettings.voting_settings, isVotingActive: isActive };
+    const { error } = await supabase.from('app_settings').upsert({ ...currentSettings, voting_settings: newVotingSettings });
     if (error) throw error;
     setVotingSettingsState(newVotingSettings);
   };
 
   const updateFybWeekStatus = async (isActive: boolean) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    const newFybWeekSettings = { ...fybWeekSettings, isFybWeekActive: isActive };
-    const { error } = await supabase.from('app_settings').upsert({ id: APP_SETTINGS_ID, fyb_week_settings: newFybWeekSettings });
+    const {data: currentData, error: fetchError} = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+    const currentSettings = currentData || { id: APP_SETTINGS_ID };
+    const newFybWeekSettings = { ...currentSettings.fyb_week_settings, isFybWeekActive: isActive };
+    const { error } = await supabase.from('app_settings').upsert({ ...currentSettings, fyb_week_settings: newFybWeekSettings });
     if (error) throw error;
     setFybWeekSettingsState(newFybWeekSettings);
   };

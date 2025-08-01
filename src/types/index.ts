@@ -1,4 +1,5 @@
 
+
 export interface Student {
   id: string; // User-provided ID
   name: string;
@@ -20,7 +21,8 @@ export interface Student {
 
 export interface LogoSettings {
   associationLogo: string | null; 
-  schoolLogo: string | null; 
+  schoolLogo: string | null;
+  roastBackground: string | null;
 }
 
 export interface Award {
