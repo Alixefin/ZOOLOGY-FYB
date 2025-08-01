@@ -3,22 +3,31 @@
 
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Info, Calendar, Shirt, Gamepad2, Mic, PartyPopper } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ArrowLeft, Info, Calendar, Shirt, Gamepad2, Mic, PartyPopper, Award as AwardIcon, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { addDays, format, isBefore, startOfToday } from 'date-fns';
+
+// --- Configuration ---
+// Set the start date of the FYB week here.
+// The schedule will be calculated based on this date.
+const fybWeekStartDate = new Date('2025-09-08'); 
+// -------------------
 
 const schedule = [
-  { day: "Monday", event: "Back to School (Primary/Secondary)", icon: Shirt },
-  { day: "Tuesday", event: "Jersey Day", icon: Gamepad2 },
-  { day: "Wednesday", event: "Talent Hunt", icon: Mic },
-  { day: "Thursday", event: "Traditional Day / Food Competition", icon: PartyPopper },
-  { day: "Friday", event: "Dinner / Award Night", icon: Award },
+  { dayIndex: 0, title: "Back to School (Primary/Secondary)", icon: Shirt },
+  { dayIndex: 1, title: "Jersey Day", icon: Gamepad2 },
+  { dayIndex: 2, title: "Talent Hunt", icon: Mic },
+  { dayIndex: 3, title: "Traditional Day / Food Competition", icon: PartyPopper },
+  { dayIndex: 4, title: "Dinner / Award Night", icon: AwardIcon },
 ];
 
 export default function FybWeekPage() {
   const { fybWeekSettings } = useAppContext();
   const router = useRouter();
+  const today = startOfToday();
 
   if (!fybWeekSettings.isFybWeekActive) {
     return (
@@ -34,36 +43,55 @@ export default function FybWeekPage() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <header className="mb-8 container mx-auto max-w-3xl">
-        <Button variant="outline" asChild className="mb-4">
+        <Button variant="outline" asChild>
             <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Home</Link>
         </Button>
-        <h1 className="text-4xl font-headline text-primary mb-2 font-bold">FYB Week Schedule</h1>
-        <p className="text-lg text-muted-foreground font-body">Check out the events planned for the week!</p>
+        <div className="text-center mt-4">
+            <h1 className="text-4xl font-headline text-foreground mb-2 font-bold">Final Year Brethren Week</h1>
+            <p className="text-lg text-muted-foreground font-body">Get ready for an unforgettable week of fun, learning, and connection!</p>
+        </div>
       </header>
       <main className="container mx-auto max-w-3xl">
-        <Card className="shadow-lg">
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              {schedule.map((item, index) => (
-                <div key={index} className="flex items-start space-x-4">
-                  <div className="flex flex-col items-center">
-                    <div className="bg-primary text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center">
-                      <item.icon className="w-6 h-6" />
-                    </div>
-                    {index < schedule.length - 1 && (
-                      <div className="w-px h-12 bg-border mt-2"></div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-headline font-semibold text-primary">{item.day}</h3>
-                    <p className="text-muted-foreground">{item.event}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <Card className="shadow-lg rounded-2xl">
+          <CardContent className="p-4">
+             <Accordion type="multiple" className="w-full">
+                {schedule.map((item, index) => {
+                    const eventDate = addDays(fybWeekStartDate, item.dayIndex);
+                    const hasPassed = isBefore(eventDate, today);
+
+                    return (
+                        <AccordionItem key={index} value={`item-${index}`} className="border-b-2">
+                            <AccordionTrigger className="text-lg font-headline hover:no-underline p-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold">
+                                        {index + 1}
+                                    </div>
+                                    <div>
+                                        <h3 className="text-left">Day {index + 1}: {item.title}</h3>
+                                        <p className="text-sm text-muted-foreground font-normal text-left">{format(eventDate, 'EEEE, MMM d')}</p>
+                                    </div>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="p-4 pt-0">
+                                <div className="pl-14">
+                                    <p className="text-muted-foreground mb-4">Event details will be displayed here.</p>
+                                    {hasPassed && (
+                                        <Button asChild variant="outline">
+                                            <Link href={`/fyb-week/gallery/${format(eventDate, 'EEEE').toLowerCase()}`}>
+                                                <Camera className="mr-2 h-4 w-4" /> View Media Gallery
+                                            </Link>
+                                        </Button>
+                                    )}
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    )
+                })}
+             </Accordion>
           </CardContent>
         </Card>
       </main>
     </div>
   );
 }
+

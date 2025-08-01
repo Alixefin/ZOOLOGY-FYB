@@ -28,22 +28,19 @@ export default function HomePage() {
   const fybWeekButton = (
     <Button
       asChild={fybWeekSettings.isFybWeekActive}
+      variant="outline"
       size="lg"
-      className={`font-headline text-lg py-6 shadow-lg transition-all hover:scale-105 w-full ${
-        fybWeekSettings.isFybWeekActive
-          ? 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-yellow-500/50'
-          : 'bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500'
-      }`}
+      className="font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-start"
       onClick={!fybWeekSettings.isFybWeekActive ? () => setShowFybWeekInactiveDialog(true) : undefined}
     >
       {fybWeekSettings.isFybWeekActive ? (
         <Link href="/fyb-week">
-          <CalendarDays className="mr-2 h-5 w-5" />
+          <CalendarDays className="mr-4 h-6 w-6 text-primary" />
           FYB Week
         </Link>
       ) : (
         <span>
-          <CalendarDays className="mr-2 h-5 w-5" />
+          <CalendarDays className="mr-4 h-6 w-6 text-muted-foreground" />
           FYB Week
         </span>
       )}
@@ -53,22 +50,23 @@ export default function HomePage() {
   const votingButton = (
     <Button
       asChild={votingSettings.isVotingActive}
+      variant="outline"
       size="lg"
-      className={`font-headline text-lg py-6 shadow-lg transition-all hover:scale-105 w-full ${
+      className={`font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-start ${
         votingSettings.isVotingActive
-          ? 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50'
-          : 'bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500'
+          ? 'border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600'
+          : 'border-gray-300 text-muted-foreground'
       }`}
       onClick={!votingSettings.isVotingActive ? () => setShowVotingInactiveDialog(true) : undefined}
     >
       {votingSettings.isVotingActive ? (
         <Link href="/vote">
-          <Award className="mr-2 h-5 w-5" />
+          <Award className="mr-4 h-6 w-6 text-green-500" />
           Award Voting
         </Link>
       ) : (
         <span>
-          <Award className="mr-2 h-5 w-5" />
+          <Award className="mr-4 h-6 w-6 text-muted-foreground" />
           Award Voting
         </span>
       )}
@@ -148,7 +146,7 @@ export default function HomePage() {
                 Meet the Cyber Clan
               </Link>
             </Button>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {fybWeekButton}
               {votingButton}
             </div>
