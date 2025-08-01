@@ -30,7 +30,7 @@ export default function HomePage() {
       asChild={fybWeekSettings.isFybWeekActive}
       variant="outline"
       size="lg"
-      className="font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-start"
+      className="font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center"
       onClick={!fybWeekSettings.isFybWeekActive ? () => setShowFybWeekInactiveDialog(true) : undefined}
     >
       {fybWeekSettings.isFybWeekActive ? (
@@ -39,7 +39,7 @@ export default function HomePage() {
           FYB Week
         </Link>
       ) : (
-        <span>
+        <span className="flex items-center">
           <CalendarDays className="mr-4 h-6 w-6 text-muted-foreground" />
           FYB Week
         </span>
@@ -52,7 +52,7 @@ export default function HomePage() {
       asChild={votingSettings.isVotingActive}
       variant="outline"
       size="lg"
-      className={`font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-start ${
+      className={`font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center ${
         votingSettings.isVotingActive
           ? 'border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600'
           : 'border-gray-300 text-muted-foreground'
@@ -65,7 +65,7 @@ export default function HomePage() {
           Award Voting
         </Link>
       ) : (
-        <span>
+        <span className="flex items-center">
           <Award className="mr-4 h-6 w-6 text-muted-foreground" />
           Award Voting
         </span>
@@ -140,7 +140,7 @@ export default function HomePage() {
             Welcome to the official portal for the Final Year Brethren activities and celebrations.
           </p>
           <div className="flex flex-col gap-6">
-            <Button asChild size="lg" className="font-headline text-lg py-8 bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105">
+            <Button asChild size="lg" className="font-headline text-lg py-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-students">
                 <Users className="mr-3 h-6 w-6" />
                 Meet the Cyber Clan
