@@ -29,7 +29,7 @@ export default function HomePage() {
     <Button
       asChild={fybWeekSettings.isFybWeekActive}
       size="lg"
-      className={`font-headline text-lg py-8 shadow-lg transition-all hover:scale-105 w-full ${
+      className={`font-headline text-lg py-6 shadow-lg transition-all hover:scale-105 w-full ${
         fybWeekSettings.isFybWeekActive
           ? 'bg-accent text-accent-foreground hover:bg-accent/90 shadow-yellow-500/50'
           : 'bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500'
@@ -38,13 +38,13 @@ export default function HomePage() {
     >
       {fybWeekSettings.isFybWeekActive ? (
         <Link href="/fyb-week">
-          <CalendarDays className="mr-3 h-6 w-6" />
-          FYB Week Schedule
+          <CalendarDays className="mr-2 h-5 w-5" />
+          FYB Week
         </Link>
       ) : (
         <span>
-          <CalendarDays className="mr-3 h-6 w-6" />
-          FYB Week Schedule
+          <CalendarDays className="mr-2 h-5 w-5" />
+          FYB Week
         </span>
       )}
     </Button>
@@ -54,7 +54,7 @@ export default function HomePage() {
     <Button
       asChild={votingSettings.isVotingActive}
       size="lg"
-      className={`font-headline text-lg py-8 shadow-lg transition-all hover:scale-105 w-full ${
+      className={`font-headline text-lg py-6 shadow-lg transition-all hover:scale-105 w-full ${
         votingSettings.isVotingActive
           ? 'bg-green-500 text-white hover:bg-green-600 shadow-green-500/50'
           : 'bg-gray-400 text-gray-800 cursor-pointer hover:bg-gray-500'
@@ -63,13 +63,13 @@ export default function HomePage() {
     >
       {votingSettings.isVotingActive ? (
         <Link href="/vote">
-          <Award className="mr-3 h-6 w-6" />
-          Award Night Voting
+          <Award className="mr-2 h-5 w-5" />
+          Award Voting
         </Link>
       ) : (
         <span>
-          <Award className="mr-3 h-6 w-6" />
-          Award Night Voting
+          <Award className="mr-2 h-5 w-5" />
+          Award Voting
         </span>
       )}
     </Button>
@@ -141,15 +141,17 @@ export default function HomePage() {
           <p className="text-muted-foreground mb-8 text-lg font-body">
             Welcome to the official portal for the Final Year Brethren activities and celebrations.
           </p>
-          <div className="grid grid-cols-1 gap-6">
+          <div className="flex flex-col gap-6">
             <Button asChild size="lg" className="font-headline text-lg py-8 bg-primary text-primary-foreground hover:bg-accent hover:text-accent-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/fyb-students">
                 <Users className="mr-3 h-6 w-6" />
                 Meet the Cyber Clan
               </Link>
             </Button>
-            {fybWeekButton}
-            {votingButton}
+            <div className="grid grid-cols-2 gap-4">
+              {fybWeekButton}
+              {votingButton}
+            </div>
           </div>
         </CardContent>
       </Card>

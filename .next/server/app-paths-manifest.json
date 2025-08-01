@@ -1,6 +1,7 @@
 {
   "/admin/manage-fyb-week/page": "app/admin/manage-fyb-week/page.js",
   "/admin/manage-logos/page": "app/admin/manage-logos/page.js",
+  "/admin/manage-roast/page": "app/admin/manage-roast/page.js",
   "/admin/manage-students/add/page": "app/admin/manage-students/add/page.js",
   "/admin/manage-students/page": "app/admin/manage-students/page.js",
   "/admin/page": "app/admin/page.js",
