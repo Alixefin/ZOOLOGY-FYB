@@ -30,7 +30,7 @@ export default function HomePage() {
       asChild={fybWeekSettings.isFybWeekActive}
       variant="outline"
       size="lg"
-      className="font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center"
+      className="font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center hover:bg-muted"
       onClick={!fybWeekSettings.isFybWeekActive ? () => setShowFybWeekInactiveDialog(true) : undefined}
     >
       {fybWeekSettings.isFybWeekActive ? (
@@ -55,7 +55,7 @@ export default function HomePage() {
       className={`font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center ${
         votingSettings.isVotingActive
           ? 'border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600'
-          : 'border-gray-300 text-muted-foreground'
+          : 'border-gray-300 text-muted-foreground hover:bg-muted'
       }`}
       onClick={!votingSettings.isVotingActive ? () => setShowVotingInactiveDialog(true) : undefined}
     >

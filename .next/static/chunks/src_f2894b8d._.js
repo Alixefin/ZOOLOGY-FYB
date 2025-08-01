@@ -823,7 +823,7 @@ function HomePage() {
         asChild: fybWeekSettings.isFybWeekActive,
         variant: "outline",
         size: "lg",
-        className: "font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center",
+        className: "font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center hover:bg-muted",
         onClick: !fybWeekSettings.isFybWeekActive ? ()=>setShowFybWeekInactiveDialog(true) : undefined,
         children: fybWeekSettings.isFybWeekActive ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
             href: "/fyb-week",
@@ -867,7 +867,7 @@ function HomePage() {
         asChild: votingSettings.isVotingActive,
         variant: "outline",
         size: "lg",
-        className: `font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center ${votingSettings.isVotingActive ? 'border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600' : 'border-gray-300 text-muted-foreground'}`,
+        className: `font-headline text-lg py-6 shadow-sm transition-all hover:scale-105 w-full justify-center ${votingSettings.isVotingActive ? 'border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-600' : 'border-gray-300 text-muted-foreground hover:bg-muted'}`,
         onClick: !votingSettings.isVotingActive ? ()=>setShowVotingInactiveDialog(true) : undefined,
         children: votingSettings.isVotingActive ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
             href: "/vote",
