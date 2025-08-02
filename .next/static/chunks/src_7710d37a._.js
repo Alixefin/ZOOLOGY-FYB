@@ -201,9 +201,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$imag
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/lib/supabaseClient.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/src/hooks/use-toast.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__ = __turbopack_context__.i("[project]/node_modules/uuid/dist/esm-browser/v4.js [app-client] (ecmascript) <export default as v4>");
 ;
 var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.signature();
 "use client";
+;
 ;
 ;
 ;
@@ -257,17 +259,17 @@ const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
                 priority: true
             }, void 0, false, {
                 fileName: "[project]/src/contexts/AppContext.tsx",
-                lineNumber: 70,
+                lineNumber: 72,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 69,
+            lineNumber: 71,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 68,
+        lineNumber: 70,
         columnNumber: 5
     }, this);
 _c = LoadingComponent;
@@ -288,8 +290,13 @@ const AppProvider = ({ children })=>{
             setIsMounted(true);
             async function loadInitialData() {
                 setIsLoading(true);
+                if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) {
+                    console.error("Supabase client is not initialized.");
+                    setIsLoading(false);
+                    return;
+                }
                 try {
-                    if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client is not initialized.");
+                    // Fetch settings first
                     const settingsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
                     if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
                         console.error("Error fetching app_settings:", settingsRes.error);
@@ -298,6 +305,7 @@ const AppProvider = ({ children })=>{
                         setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
                         setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
                     }
+                    // Then fetch students
                     const studentsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
                         ascending: true
                     });
@@ -306,6 +314,7 @@ const AppProvider = ({ children })=>{
                     } else {
                         setStudents(studentsRes.data || []);
                     }
+                    // Then fetch awards
                     const awardsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('awards').select('*').order('name', {
                         ascending: true
                     });
@@ -314,6 +323,7 @@ const AppProvider = ({ children })=>{
                     } else {
                         setAwards(awardsRes.data || []);
                     }
+                    // Finally fetch nominations
                     const nominationsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('award_nominations').select('*, students(name, image_src)');
                     if (nominationsRes.error) {
                         console.error("Error fetching nominations:", nominationsRes.error);
@@ -420,7 +430,12 @@ const AppProvider = ({ children })=>{
     };
     const addStudent = async (studentData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
-        const { data: newStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').insert(studentData).select().single();
+        const newId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])();
+        const studentWithId = {
+            ...studentData,
+            id: newId
+        };
+        const { data: newStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').insert(studentWithId).select().single();
         if (error) throw error;
         if (newStudent) setStudents((prev)=>[
                 ...prev,
@@ -534,7 +549,7 @@ const AppProvider = ({ children })=>{
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 331,
+            lineNumber: 343,
             columnNumber: 12
         }, this);
     }
@@ -566,7 +581,7 @@ const AppProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 335,
+        lineNumber: 347,
         columnNumber: 5
     }, this);
 };
