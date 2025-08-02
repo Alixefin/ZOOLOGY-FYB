@@ -1,30 +1,42 @@
--- Drop the students table if it exists
+
+-- Drop the students table if it exists to ensure a clean slate.
+-- CASCADE will remove any dependent objects.
 DROP TABLE IF EXISTS public.students CASCADE;
 
--- Create the students table
+-- Create the students table with a TEXT primary key for manual IDs
 CREATE TABLE public.students (
-    id uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY,
-    name text NOT NULL,
-    nickname text,
-    best_level text,
-    worst_level text,
-    favourite_lecturer text,
-    relationship_status text,
-    alternative_career text,
-    best_experience text,
-    worst_experience text,
-    will_miss text,
-    image_src text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    nickname TEXT,
+    best_level TEXT NOT NULL,
+    worst_level TEXT NOT NULL,
+    favourite_lecturer TEXT NOT NULL,
+    relationship_status TEXT NOT NULL,
+    alternative_career TEXT NOT NULL,
+    best_experience TEXT NOT NULL,
+    worst_experience TEXT NOT NULL,
+    will_miss TEXT NOT NULL,
+    image_src TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add comments to the columns
-COMMENT ON COLUMN public.students.alternative_career IS 'IF NOT CSC, WHAT COURSE?';
-
--- Enable Row Level Security
+-- Enable Row Level Security for the students table
 ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
 
--- Create policies for students table
-CREATE POLICY "Allow public read access to students" ON public.students FOR SELECT USING (true);
-CREATE POLICY "Allow admin full access to students" ON public.students FOR ALL USING (true); -- Simplified for admin-only CUD
+-- Create a policy to allow public read access to all students
+CREATE POLICY "Allow public read access to students"
+ON public.students
+FOR SELECT
+USING (true);
+
+-- Create a policy to allow authenticated users to manage students.
+-- In a production app, you would restrict this to a specific admin role.
+CREATE POLICY "Allow management of students for authenticated users"
+ON public.students
+FOR ALL
+USING (auth.uid() IS NOT NULL)
+WITH CHECK (auth.uid() IS NOT NULL);
+
+-- Add a comment to confirm the table structure
+COMMENT ON TABLE public.students IS 'Students table with manual text-based primary key.';
