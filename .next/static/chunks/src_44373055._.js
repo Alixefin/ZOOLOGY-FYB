@@ -324,7 +324,6 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 const studentFormSchema = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["object"])({
-    id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["string"])().min(1, "Student ID is required."),
     name: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["string"])().min(2, "Name must be at least 2 characters."),
     nickname: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["string"])().optional(),
     best_level: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["string"])().min(1, "Best level is required."),
@@ -342,7 +341,6 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
     const form = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$react$2d$hook$2d$form$2f$dist$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useForm"])({
         resolver: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$hookform$2f$resolvers$2f$zod$2f$dist$2f$zod$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["zodResolver"])(studentFormSchema),
         defaultValues: {
-            id: student?.id || '',
             name: student?.name || '',
             nickname: student?.nickname || '',
             best_level: student?.best_level || '',
@@ -366,10 +364,10 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardTitle"], {
                         className: "text-3xl font-headline text-primary",
-                        children: isEditing ? 'Edit Student Profile' : 'Add New Student'
+                        children: isEditing ? `Edit ${student?.name || 'Student'}'s Profile` : 'Add New Student'
                     }, void 0, false, {
                         fileName: "[project]/src/components/StudentForm.tsx",
-                        lineNumber: 65,
+                        lineNumber: 64,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -377,13 +375,13 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                         children: isEditing ? 'Update the details for this student.' : 'Fill in the details for the new student.'
                     }, void 0, false, {
                         fileName: "[project]/src/components/StudentForm.tsx",
-                        lineNumber: 68,
+                        lineNumber: 67,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/components/StudentForm.tsx",
-                lineNumber: 64,
+                lineNumber: 63,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -398,49 +396,6 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
                                         control: form.control,
-                                        name: "id",
-                                        render: ({ field })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormItem"], {
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormLabel"], {
-                                                        children: "Student ID"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 81,
-                                                        columnNumber: 21
-                                                    }, void 0),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
-                                                            placeholder: "e.g., C/UG/17/1234",
-                                                            ...field,
-                                                            disabled: isEditing || isSubmitting
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 83,
-                                                            columnNumber: 23
-                                                        }, void 0)
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 82,
-                                                        columnNumber: 21
-                                                    }, void 0),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
-                                                        fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 85,
-                                                        columnNumber: 21
-                                                    }, void 0)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 80,
-                                                columnNumber: 19
-                                            }, void 0)
-                                    }, void 0, false, {
-                                        fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 76,
-                                        columnNumber: 15
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
-                                        control: form.control,
                                         name: "name",
                                         render: ({ field })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormItem"], {
                                                 children: [
@@ -448,7 +403,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "Full Name"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 94,
+                                                        lineNumber: 80,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -458,28 +413,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 96,
+                                                            lineNumber: 82,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 95,
+                                                        lineNumber: 81,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 98,
+                                                        lineNumber: 84,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 93,
+                                                lineNumber: 79,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 89,
+                                        lineNumber: 75,
                                         columnNumber: 16
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -491,7 +446,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "Nickname (Optional)"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 107,
+                                                        lineNumber: 93,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -501,28 +456,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 109,
+                                                            lineNumber: 95,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 108,
+                                                        lineNumber: 94,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 111,
+                                                        lineNumber: 97,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 106,
+                                                lineNumber: 92,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 102,
+                                        lineNumber: 88,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -534,7 +489,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "Best Level"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 120,
+                                                        lineNumber: 106,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -544,28 +499,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 122,
+                                                            lineNumber: 108,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 121,
+                                                        lineNumber: 107,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 124,
+                                                        lineNumber: 110,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 119,
+                                                lineNumber: 105,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 115,
+                                        lineNumber: 101,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -577,7 +532,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "Worst Level"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 133,
+                                                        lineNumber: 119,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -587,28 +542,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 135,
+                                                            lineNumber: 121,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 134,
+                                                        lineNumber: 120,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 137,
+                                                        lineNumber: 123,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 132,
+                                                lineNumber: 118,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 128,
+                                        lineNumber: 114,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -620,7 +575,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "Favourite Lecturer"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 146,
+                                                        lineNumber: 132,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -630,28 +585,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 148,
+                                                            lineNumber: 134,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 147,
+                                                        lineNumber: 133,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 150,
+                                                        lineNumber: 136,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 145,
+                                                lineNumber: 131,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 141,
+                                        lineNumber: 127,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -663,7 +618,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "Relationship Status"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 159,
+                                                        lineNumber: 145,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -673,28 +628,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 161,
+                                                            lineNumber: 147,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 160,
+                                                        lineNumber: 146,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 163,
+                                                        lineNumber: 149,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 158,
+                                                lineNumber: 144,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 154,
+                                        lineNumber: 140,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -706,7 +661,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                         children: "If not Computing, then what?"
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 172,
+                                                        lineNumber: 158,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -716,34 +671,34 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                             disabled: isSubmitting
                                                         }, void 0, false, {
                                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                                            lineNumber: 174,
+                                                            lineNumber: 160,
                                                             columnNumber: 23
                                                         }, void 0)
                                                     }, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 173,
+                                                        lineNumber: 159,
                                                         columnNumber: 21
                                                     }, void 0),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                                        lineNumber: 176,
+                                                        lineNumber: 162,
                                                         columnNumber: 21
                                                     }, void 0)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 171,
+                                                lineNumber: 157,
                                                 columnNumber: 19
                                             }, void 0)
                                     }, void 0, false, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 167,
+                                        lineNumber: 153,
                                         columnNumber: 16
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                lineNumber: 75,
+                                lineNumber: 74,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -755,7 +710,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                 children: "Best Experience in FUL"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 187,
+                                                lineNumber: 173,
                                                 columnNumber: 19
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -765,28 +720,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                     disabled: isSubmitting
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/StudentForm.tsx",
-                                                    lineNumber: 189,
+                                                    lineNumber: 175,
                                                     columnNumber: 21
                                                 }, void 0)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 188,
+                                                lineNumber: 174,
                                                 columnNumber: 19
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 191,
+                                                lineNumber: 177,
                                                 columnNumber: 19
                                             }, void 0)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 186,
+                                        lineNumber: 172,
                                         columnNumber: 17
                                     }, void 0)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                lineNumber: 182,
+                                lineNumber: 168,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -798,7 +753,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                 children: "Worst Experience in FUL"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 200,
+                                                lineNumber: 186,
                                                 columnNumber: 19
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -808,28 +763,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                     disabled: isSubmitting
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/StudentForm.tsx",
-                                                    lineNumber: 202,
+                                                    lineNumber: 188,
                                                     columnNumber: 21
                                                 }, void 0)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 201,
+                                                lineNumber: 187,
                                                 columnNumber: 19
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 204,
+                                                lineNumber: 190,
                                                 columnNumber: 19
                                             }, void 0)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 199,
+                                        lineNumber: 185,
                                         columnNumber: 17
                                     }, void 0)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                lineNumber: 195,
+                                lineNumber: 181,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -841,7 +796,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                 children: "What will you miss after FUL?"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 213,
+                                                lineNumber: 199,
                                                 columnNumber: 19
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -851,28 +806,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                     disabled: isSubmitting
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/StudentForm.tsx",
-                                                    lineNumber: 215,
+                                                    lineNumber: 201,
                                                     columnNumber: 21
                                                 }, void 0)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 214,
+                                                lineNumber: 200,
                                                 columnNumber: 19
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 217,
+                                                lineNumber: 203,
                                                 columnNumber: 19
                                             }, void 0)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 212,
+                                        lineNumber: 198,
                                         columnNumber: 17
                                     }, void 0)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                lineNumber: 208,
+                                lineNumber: 194,
                                 columnNumber: 14
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormField"], {
@@ -884,7 +839,7 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                 children: "Image Link"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 226,
+                                                lineNumber: 212,
                                                 columnNumber: 21
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormControl"], {
@@ -895,28 +850,28 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                                     disabled: isSubmitting
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/components/StudentForm.tsx",
-                                                    lineNumber: 228,
+                                                    lineNumber: 214,
                                                     columnNumber: 23
                                                 }, void 0)
                                             }, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 227,
+                                                lineNumber: 213,
                                                 columnNumber: 21
                                             }, void 0),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$ui$2f$form$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FormMessage"], {}, void 0, false, {
                                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                                lineNumber: 230,
+                                                lineNumber: 216,
                                                 columnNumber: 21
                                             }, void 0)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/src/components/StudentForm.tsx",
-                                        lineNumber: 225,
+                                        lineNumber: 211,
                                         columnNumber: 19
                                     }, void 0)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                lineNumber: 221,
+                                lineNumber: 207,
                                 columnNumber: 14
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -931,47 +886,47 @@ function StudentForm({ student, onSubmit, isEditing = false, isSubmitting = fals
                                             className: "mr-2 h-5 w-5 animate-spin"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                            lineNumber: 238,
+                                            lineNumber: 224,
                                             columnNumber: 19
                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$save$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Save$3e$__["Save"], {
                                             className: "mr-2 h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/src/components/StudentForm.tsx",
-                                            lineNumber: 240,
+                                            lineNumber: 226,
                                             columnNumber: 19
                                         }, this),
                                         isSubmitting ? isEditing ? 'Saving...' : 'Adding...' : isEditing ? 'Save Changes' : 'Add Student'
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/components/StudentForm.tsx",
-                                    lineNumber: 236,
+                                    lineNumber: 222,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/src/components/StudentForm.tsx",
-                                lineNumber: 235,
+                                lineNumber: 221,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/components/StudentForm.tsx",
-                        lineNumber: 74,
+                        lineNumber: 73,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/src/components/StudentForm.tsx",
-                    lineNumber: 73,
+                    lineNumber: 72,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/components/StudentForm.tsx",
-                lineNumber: 72,
+                lineNumber: 71,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/components/StudentForm.tsx",
-        lineNumber: 63,
+        lineNumber: 62,
         columnNumber: 5
     }, this);
 }

@@ -6,6 +6,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from 'uuid';
+
 
 // Helper to convert Data URI to Blob for Supabase upload
 function dataURIToBlob(dataURI: string): Blob | null {
@@ -98,9 +100,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     
     async function loadInitialData() {
       setIsLoading(true);
+      if (!supabase) {
+          console.error("Supabase client is not initialized.");
+          setIsLoading(false);
+          return;
+      }
       try {
-        if (!supabase) throw new Error("Supabase client is not initialized.");
-        
+        // Fetch settings first
         const settingsRes = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
         if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
           console.error("Error fetching app_settings:", settingsRes.error);
@@ -110,6 +116,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
         }
 
+        // Then fetch students
         const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
         if (studentsRes.error) {
             console.error("Error fetching students:", studentsRes.error);
@@ -117,6 +124,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             setStudents(studentsRes.data || []);
         }
 
+        // Then fetch awards
         const awardsRes = await supabase.from('awards').select('*').order('name', { ascending: true });
         if (awardsRes.error) {
              console.error("Error fetching awards:", awardsRes.error);
@@ -124,6 +132,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             setAwards(awardsRes.data || []);
         }
 
+        // Finally fetch nominations
         const nominationsRes = await supabase.from('award_nominations').select('*, students(name, image_src)');
         if (nominationsRes.error) {
             console.error("Error fetching nominations:", nominationsRes.error);
@@ -230,7 +239,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    const { data: newStudent, error } = await supabase.from('students').insert(studentData).select().single();
+    const newId = uuidv4();
+    const studentWithId = { ...studentData, id: newId };
+
+    const { data: newStudent, error } = await supabase.from('students').insert(studentWithId).select().single();
     if (error) throw error;
     if (newStudent) setStudents(prev => [...prev, newStudent].sort((a, b) => a.name.localeCompare(b.name)));
   };
