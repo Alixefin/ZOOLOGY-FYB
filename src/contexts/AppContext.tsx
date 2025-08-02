@@ -5,7 +5,7 @@ import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
-import { Toaster, useToast } from "@/components/ui/toaster"; // Assuming Toaster is a default export now
+import { useToast } from "@/hooks/use-toast";
 
 // Helper to convert Data URI to Blob for Supabase upload
 function dataURIToBlob(dataURI: string): Blob | null {
@@ -50,7 +50,7 @@ interface AppContextType extends AppState {
   updateLogo: (logoType: 'associationLogo' | 'schoolLogo' | 'roastBackground', fileDataUrl: string | null) => Promise<void>;
   loginAdmin: (pin: string) => boolean;
   logoutAdmin: () => void;
-  addStudent: (studentData: Omit<Student, 'created_at' | 'updated_at'>) => Promise<void>;
+  addStudent: (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   updateStudent: (studentData: Student) => Promise<void>;
   deleteStudent: (studentId: string) => Promise<void>;
   updateVotingStatus: (isActive: boolean) => Promise<void>;
@@ -91,6 +91,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsMounted(true);
@@ -101,30 +102,37 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (!supabase) throw new Error("Supabase client is not initialized.");
         
         const settingsRes = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
-        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') throw { source: 'app_settings', details: settingsRes.error };
-        if (settingsRes.data) {
+        if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
+          console.error("Error fetching app_settings:", settingsRes.error);
+        } else if (settingsRes.data) {
           setLogosState(settingsRes.data.logos || defaultLogos);
           setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
           setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
         }
 
         const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
-        if (studentsRes.error) throw { source: 'students', details: studentsRes.error };
-        setStudents(studentsRes.data || []);
+        if (studentsRes.error) {
+            console.error("Error fetching students:", studentsRes.error);
+        } else {
+            setStudents(studentsRes.data || []);
+        }
 
         const awardsRes = await supabase.from('awards').select('*').order('name', { ascending: true });
-        if (awardsRes.error) throw { source: 'awards', details: awardsRes.error };
-        setAwards(awardsRes.data || []);
+        if (awardsRes.error) {
+             console.error("Error fetching awards:", awardsRes.error);
+        } else {
+            setAwards(awardsRes.data || []);
+        }
 
         const nominationsRes = await supabase.from('award_nominations').select('*, students(name, image_src)');
-        if (nominationsRes.error) throw { source: 'nominations', details: nominationsRes.error };
-        setNominations(nominationsRes.data || []);
+        if (nominationsRes.error) {
+            console.error("Error fetching nominations:", nominationsRes.error);
+        } else {
+            setNominations(nominationsRes.data || []);
+        }
 
       } catch (error: any) {
-         console.error(
-          `An error occurred while loading data from Supabase table "${error.source || 'unknown'}":`, 
-          error.details || error
-        );
+         console.error('An unexpected error occurred while loading initial data from Supabase:', error);
       } finally {
         setIsLoading(false);
       }
@@ -170,7 +178,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const deleteFileFromSupabase = async (fileUrl: string | null): Promise<void> => {
     if (!fileUrl || !supabase) return;
-    const isSupabaseUrl = fileUrl.includes('iwkslfapaxafwghfhefu.supabase.co');
+    const isSupabaseUrl = fileUrl.includes('supabase.co');
     if (!isSupabaseUrl) return;
     try {
       const url = new URL(fileUrl);
@@ -210,7 +218,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
     const updatedLogos = { ...currentLogos, [logoType]: newLogoUrl };
     
-    // Build the payload with only what's changing
     const payload = {
         ...currentSettings,
         logos: updatedLogos,
@@ -221,7 +228,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setLogosState(updatedLogos);
   };
   
-  const addStudent = async (studentData: Omit<Student, 'created_at' | 'updated_at'>) => {
+  const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
     const { data: newStudent, error } = await supabase.from('students').insert(studentData).select().single();
     if (error) throw error;

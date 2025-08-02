@@ -24,7 +24,7 @@ export default function EditStudentPage() {
 
   const student = students.find(s => s.id === studentId);
 
-  const handleEditStudent = async (data: Omit<Student, 'created_at' | 'updated_at'>) => {
+  const handleEditStudent = async (data: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     if (student) {
       setIsSubmitting(true);
       try {

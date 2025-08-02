@@ -15,7 +15,7 @@ export default function AddStudentPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAddStudent = async (data: Omit<Student, 'created_at' | 'updated_at'>) => {
+  const handleAddStudent = async (data: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     setIsSubmitting(true);
     try {
       await addStudent(data);
