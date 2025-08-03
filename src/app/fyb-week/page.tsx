@@ -43,12 +43,12 @@ export default function FybWeekPage() {
       <main className="container mx-auto max-w-3xl space-y-8">
         
         {fybWeekSettings.scheduleDesignImage && (
-          <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-lg">
+          <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-lg bg-muted">
              <Image 
                 src={fybWeekSettings.scheduleDesignImage} 
                 alt="FYB Week Schedule Design" 
                 layout="fill"
-                objectFit="cover"
+                objectFit="contain"
                 unoptimized
              />
           </div>
@@ -95,7 +95,7 @@ export default function FybWeekPage() {
                                             <h4 className="font-semibold mb-2">Event Highlights:</h4>
                                             <div className="flex gap-2 overflow-x-auto pb-2">
                                                 {galleryForEvent.slice(0, 5).map(img => (
-                                                    <div key={img.id} className="flex-shrink-0 h-32 w-auto relative rounded-md overflow-hidden bg-muted">
+                                                    <div key={img.id} className="flex-shrink-0 h-32 relative rounded-md overflow-hidden bg-muted">
                                                         <Image src={img.image_url} alt={event.title} layout="fill" objectFit="contain" unoptimized/>
                                                     </div>
                                                 ))}
