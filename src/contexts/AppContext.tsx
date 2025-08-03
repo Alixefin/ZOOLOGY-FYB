@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination, FYBWeekEvent } from '@/types';
+import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination, FYBWeekEvent, FYBWeekGalleryImage } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
@@ -39,6 +39,8 @@ const defaultVotingSettings: VotingSettings = {
 
 const defaultFybWeekSettings: FYBWeekSettings = {
   isFybWeekActive: false,
+  startDate: null,
+  scheduleDesignImage: null,
 };
 
 const defaultAdminPin = "171225"; 
@@ -57,12 +59,15 @@ interface AppContextType extends AppState {
   deleteStudent: (studentId: string) => Promise<void>;
   updateVotingStatus: (isActive: boolean) => Promise<void>;
   updateFybWeekStatus: (isActive: boolean) => Promise<void>;
+  updateFybWeekSettings: (settings: FYBWeekSettings) => Promise<void>;
   addAward: (awardData: Pick<Award, 'name' | 'description'>) => Promise<void>;
   deleteAward: (awardId: string) => Promise<void>;
   addNomination: (nominationData: Pick<AwardNomination, 'award_id' | 'student_id'>) => Promise<void>;
   deleteNomination: (nominationId: string) => Promise<void>;
   submitVotes: (votes: { awardId: string; nominationId: string }[]) => Promise<void>;
   updateFybWeekEvent: (eventData: FYBWeekEvent) => Promise<void>;
+  addGalleryImage: (eventId: string, imageUrl: string) => Promise<void>;
+  deleteGalleryImage: (imageId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -92,6 +97,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [awards, setAwards] = useState<Award[]>([]);
   const [nominations, setNominations] = useState<AwardNomination[]>([]);
   const [fybWeekEvents, setFybWeekEvents] = useState<FYBWeekEvent[]>([]);
+  const [fybWeekGallery, setFybWeekGallery] = useState<FYBWeekGalleryImage[]>([]);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
@@ -100,11 +106,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const seedFybWeekEvents = async () => {
     if (!supabase) return;
     const defaultEvents = [
-      { day_index: 0, title: "Back to School (Primary/Secondary)", description: "Relive your childhood memories by dressing up in your primary or secondary school uniforms!", image_src: null },
-      { day_index: 1, title: "Jersey Day", description: "Represent your favorite sports team by wearing their jersey.", image_src: null },
-      { day_index: 2, title: "Talent Hunt", description: "Showcase your hidden talents, from singing and dancing to magic tricks and stand-up comedy.", image_src: null },
-      { day_index: 3, title: "Traditional Day / Food Competition", description: "Celebrate our diverse cultures with traditional attires and a delicious food competition.", image_src: null },
-      { day_index: 4, title: "Dinner / Award Night", description: "A grand finale to celebrate our achievements with a formal dinner and award ceremony.", image_src: null },
+      { day_index: 0, title: "Back to School (Primary/Secondary)", description: "Relive your childhood memories by dressing up in your primary or secondary school uniforms!" },
+      { day_index: 1, title: "Jersey Day", description: "Represent your favorite sports team by wearing their jersey." },
+      { day_index: 2, title: "Talent Hunt", description: "Showcase your hidden talents, from singing and dancing to magic tricks and stand-up comedy." },
+      { day_index: 3, title: "Traditional Day / Food Competition", description: "Celebrate our diverse cultures with traditional attires and a delicious food competition." },
+      { day_index: 4, title: "Dinner / Award Night", description: "A grand finale to celebrate our achievements with a formal dinner and award ceremony." },
     ];
     const { data, error } = await supabase.from('fyb_week_events').insert(defaultEvents).select();
     if (error) {
@@ -131,7 +137,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         } else if (settingsRes.data) {
           setLogosState(settingsRes.data.logos || defaultLogos);
           setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
-          setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
+          setFybWeekSettingsState({ ...defaultFybWeekSettings, ...settingsRes.data.fyb_week_settings });
         }
 
         const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
@@ -159,6 +165,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
               setFybWeekEvents(fybEventsRes.data.sort((a,b) => a.day_index - b.day_index));
             }
         }
+
+        const fybGalleryRes = await supabase.from('fyb_week_gallery').select('*').order('created_at', { ascending: true });
+        if (fybGalleryRes.error) console.error("Error fetching FYB gallery:", fybGalleryRes.error);
+        else setFybWeekGallery(fybGalleryRes.data || []);
 
       } catch (error: any) {
          console.error('An unexpected error occurred while loading initial data from Supabase:', error);
@@ -293,10 +303,38 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const {data: currentData, error: fetchError} = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
     if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
     const currentSettings = currentData || { id: APP_SETTINGS_ID };
-    const newFybWeekSettings = { ...currentSettings.fyb_week_settings, isFybWeekActive: isActive };
+    const newFybWeekSettings = { ...fybWeekSettings, isFybWeekActive: isActive };
     const { error } = await supabase.from('app_settings').upsert({ ...currentSettings, fyb_week_settings: newFybWeekSettings });
     if (error) throw error;
     setFybWeekSettingsState(newFybWeekSettings);
+  };
+  
+  const updateFybWeekSettings = async (settings: FYBWeekSettings) => {
+      if (!supabase) throw new Error("Supabase client not available.");
+      
+      let finalSettings = { ...settings };
+      const oldImageUrl = fybWeekSettings.scheduleDesignImage;
+      const newImageDataUrl = settings.scheduleDesignImage;
+
+      // Check if a new image was uploaded
+      if (newImageDataUrl && newImageDataUrl.startsWith('data:image')) {
+          const blob = dataURIToBlob(newImageDataUrl);
+          if (blob) {
+              if (oldImageUrl) await deleteFileFromSupabase(oldImageUrl);
+              const newUrl = await uploadFileToSupabase(blob, 'fyb-week-images', 'schedule-design');
+              finalSettings.scheduleDesignImage = newUrl;
+          }
+      } else if (oldImageUrl && !newImageDataUrl) {
+          await deleteFileFromSupabase(oldImageUrl);
+      }
+
+      const { data: currentData, error: fetchError } = await supabase.from('app_settings').select('id').eq('id', APP_SETTINGS_ID).single();
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+      const currentSettings = currentData || { id: APP_SETTINGS_ID };
+      
+      const { error } = await supabase.from('app_settings').upsert({ ...currentSettings, fyb_week_settings: finalSettings });
+      if (error) throw error;
+      setFybWeekSettingsState(finalSettings);
   };
 
   const addAward = async (awardData: Pick<Award, 'name' | 'description'>) => {
@@ -354,44 +392,41 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const updateFybWeekEvent = async (eventData: FYBWeekEvent) => {
+  const updateFybWeekEvent = async (eventData: Omit<FYBWeekEvent, 'image_src'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
-
     const { id, created_at, ...updatePayload } = eventData;
-    
-    // Check if the image_src is a new base64 upload
-    const isNewImage = updatePayload.image_src && updatePayload.image_src.startsWith('data:image');
-    
-    // Find the original event to see the old image URL
-    const originalEvent = fybWeekEvents.find(e => e.id === id);
-    const oldImageUrl = originalEvent?.image_src;
-
-    let newImageUrl: string | null = updatePayload.image_src;
-
-    if (isNewImage) {
-        const blob = dataURIToBlob(updatePayload.image_src as string);
-        if (blob) {
-            // If there was an old image, delete it from storage
-            if (oldImageUrl) await deleteFileFromSupabase(oldImageUrl);
-            // Upload the new image
-            newImageUrl = await uploadFileToSupabase(blob, 'fyb-week-images', `day-${updatePayload.day_index}`);
-        } else {
-            // If blob conversion fails, revert to old image url to avoid accidental deletion
-            newImageUrl = oldImageUrl;
-        }
-    } else if (oldImageUrl && !updatePayload.image_src) {
-        // This means the user removed the image without uploading a new one
-        await deleteFileFromSupabase(oldImageUrl);
-    }
-    
-    const finalPayload = { ...updatePayload, image_src: newImageUrl };
-
-    const { data: updatedEvent, error } = await supabase.from('fyb_week_events').update(finalPayload).eq('id', id).select().single();
+    const { data: updatedEvent, error } = await supabase.from('fyb_week_events').update(updatePayload).eq('id', id).select().single();
     if (error) throw error;
-
     if (updatedEvent) {
       setFybWeekEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e).sort((a,b)=> a.day_index - b.day_index));
     }
+  };
+
+  const addGalleryImage = async (eventId: string, fileDataUrl: string) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    const blob = dataURIToBlob(fileDataUrl);
+    if (!blob) throw new Error("Failed to convert image data.");
+    
+    const imageUrl = await uploadFileToSupabase(blob, 'fyb-week-gallery', `event-${eventId}-${Date.now()}`);
+    
+    const { data, error } = await supabase.from('fyb_week_gallery').insert({ event_id: eventId, image_url: imageUrl }).select().single();
+    if (error) {
+        await deleteFileFromSupabase(imageUrl); // Clean up on db insert failure
+        throw error;
+    }
+    setFybWeekGallery(prev => [...prev, data]);
+  };
+  
+  const deleteGalleryImage = async (imageId: string) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    const imageToDelete = fybWeekGallery.find(img => img.id === imageId);
+    if (!imageToDelete) return;
+    
+    await deleteFileFromSupabase(imageToDelete.image_url);
+    const { error } = await supabase.from('fyb_week_gallery').delete().eq('id', imageId);
+    if (error) throw error;
+    
+    setFybWeekGallery(prev => prev.filter(img => img.id !== imageId));
   };
 
 
@@ -406,6 +441,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       votingSettings,
       fybWeekSettings,
       fybWeekEvents,
+      fybWeekGallery,
       awards,
       nominations,
       adminPin: defaultAdminPin,
@@ -415,10 +451,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       updateLogo,
       updateVotingStatus,
       updateFybWeekStatus,
+      updateFybWeekSettings,
       addAward, deleteAward,
       addNomination, deleteNomination,
       submitVotes,
-      updateFybWeekEvent
+      updateFybWeekEvent,
+      addGalleryImage,
+      deleteGalleryImage,
     }}>
       {children}
     </AppContext.Provider>
@@ -432,3 +471,5 @@ export const useAppContext = () => {
   }
   return context;
 };
+
+    

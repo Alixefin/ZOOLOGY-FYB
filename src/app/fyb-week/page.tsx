@@ -11,16 +11,12 @@ import { useRouter } from 'next/navigation';
 import { addDays, format, isBefore, startOfToday } from 'date-fns';
 import Image from 'next/image';
 
-// --- Configuration ---
-// Set the start date of the FYB week here.
-// The schedule will be calculated based on this date.
-const fybWeekStartDate = new Date('2025-09-08'); 
-// -------------------
-
 export default function FybWeekPage() {
-  const { fybWeekSettings, fybWeekEvents } = useAppContext();
+  const { fybWeekSettings, fybWeekEvents, fybWeekGallery } = useAppContext();
   const router = useRouter();
   const today = startOfToday();
+
+  const fybWeekStartDate = fybWeekSettings.startDate ? new Date(fybWeekSettings.startDate) : null;
 
   if (!fybWeekSettings.isFybWeekActive) {
     return (
@@ -44,13 +40,34 @@ export default function FybWeekPage() {
             <p className="text-lg text-muted-foreground font-body">Get ready for an unforgettable week of fun, learning, and connection!</p>
         </div>
       </header>
-      <main className="container mx-auto max-w-3xl">
+      <main className="container mx-auto max-w-3xl space-y-8">
+        
+        {fybWeekSettings.scheduleDesignImage && (
+          <div className="relative w-full h-64 rounded-xl overflow-hidden shadow-lg">
+             <Image 
+                src={fybWeekSettings.scheduleDesignImage} 
+                alt="FYB Week Schedule Design" 
+                layout="fill"
+                objectFit="cover"
+                unoptimized
+             />
+          </div>
+        )}
+
+        {!fybWeekStartDate && (
+            <Card className="text-center p-8 bg-amber-100 dark:bg-amber-900/30 border-amber-500">
+                <h3 className="font-headline text-xl text-amber-800 dark:text-amber-200">Schedule Coming Soon!</h3>
+                <p className="text-muted-foreground">The event dates have not been set yet. Please check back later.</p>
+            </Card>
+        )}
+
         <Card className="shadow-lg rounded-2xl">
           <CardContent className="p-4">
              <Accordion type="multiple" className="w-full" defaultValue={['item-0']}>
                 {fybWeekEvents.map((event, index) => {
-                    const eventDate = addDays(fybWeekStartDate, event.day_index);
-                    const hasPassed = isBefore(eventDate, today);
+                    const eventDate = fybWeekStartDate ? addDays(fybWeekStartDate, event.day_index) : null;
+                    const hasPassed = eventDate ? isBefore(eventDate, today) : false;
+                    const galleryForEvent = fybWeekGallery.filter(img => img.event_id === event.id);
 
                     return (
                         <AccordionItem key={event.id} value={`item-${index}`} className="border-b-2">
@@ -61,22 +78,35 @@ export default function FybWeekPage() {
                                     </div>
                                     <div>
                                         <h3 className="text-left">Day {index + 1}: {event.title}</h3>
-                                        <p className="text-sm text-muted-foreground font-normal text-left">{format(eventDate, 'EEEE, MMM d')}</p>
+                                        {eventDate && (
+                                            <p className="text-sm text-muted-foreground font-normal text-left">
+                                                {format(eventDate, 'EEEE, MMM d')}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="p-4 pt-0">
                                 <div className="pl-14 space-y-4">
-                                    {event.image_src && (
-                                      <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                                        <Image src={event.image_src} alt={event.title} layout="fill" objectFit="cover" unoptimized />
-                                      </div>
-                                    )}
                                     <p className="text-muted-foreground">{event.description || "Event details will be displayed here."}</p>
+                                    
+                                    {galleryForEvent.length > 0 && (
+                                        <div>
+                                            <h4 className="font-semibold mb-2">Event Highlights:</h4>
+                                            <div className="flex gap-2 overflow-x-auto pb-2">
+                                                {galleryForEvent.slice(0, 5).map(img => (
+                                                    <div key={img.id} className="flex-shrink-0 w-32 h-32 relative rounded-md overflow-hidden">
+                                                        <Image src={img.image_url} alt={event.title} layout="fill" objectFit="cover" unoptimized/>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {hasPassed && (
                                         <Button asChild variant="outline">
-                                            <Link href={`/fyb-week/gallery/${format(eventDate, 'EEEE').toLowerCase()}`}>
-                                                <Camera className="mr-2 h-4 w-4" /> View Media Gallery
+                                            <Link href={`/fyb-week/gallery/${event.day_index}`}>
+                                                <Camera className="mr-2 h-4 w-4" /> View Full Gallery ({galleryForEvent.length})
                                             </Link>
                                         </Button>
                                     )}
@@ -92,3 +122,5 @@ export default function FybWeekPage() {
     </div>
   );
 }
+
+    

@@ -239,7 +239,9 @@ const defaultVotingSettings = {
     isVotingActive: false
 };
 const defaultFybWeekSettings = {
-    isFybWeekActive: false
+    isFybWeekActive: false,
+    startDate: null,
+    scheduleDesignImage: null
 };
 const defaultAdminPin = "171225";
 const APP_SETTINGS_ID = 1;
@@ -259,17 +261,17 @@ const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
                 priority: true
             }, void 0, false, {
                 fileName: "[project]/src/contexts/AppContext.tsx",
-                lineNumber: 73,
+                lineNumber: 78,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 72,
+            lineNumber: 77,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 71,
+        lineNumber: 76,
         columnNumber: 5
     }, this);
 _c = LoadingComponent;
@@ -282,6 +284,7 @@ const AppProvider = ({ children })=>{
     const [awards, setAwards] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [nominations, setNominations] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [fybWeekEvents, setFybWeekEvents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [fybWeekGallery, setFybWeekGallery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isAdminLoggedIn, setIsAdminLoggedIn] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [isMounted, setIsMounted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
@@ -292,32 +295,27 @@ const AppProvider = ({ children })=>{
             {
                 day_index: 0,
                 title: "Back to School (Primary/Secondary)",
-                description: "Relive your childhood memories by dressing up in your primary or secondary school uniforms!",
-                image_src: null
+                description: "Relive your childhood memories by dressing up in your primary or secondary school uniforms!"
             },
             {
                 day_index: 1,
                 title: "Jersey Day",
-                description: "Represent your favorite sports team by wearing their jersey.",
-                image_src: null
+                description: "Represent your favorite sports team by wearing their jersey."
             },
             {
                 day_index: 2,
                 title: "Talent Hunt",
-                description: "Showcase your hidden talents, from singing and dancing to magic tricks and stand-up comedy.",
-                image_src: null
+                description: "Showcase your hidden talents, from singing and dancing to magic tricks and stand-up comedy."
             },
             {
                 day_index: 3,
                 title: "Traditional Day / Food Competition",
-                description: "Celebrate our diverse cultures with traditional attires and a delicious food competition.",
-                image_src: null
+                description: "Celebrate our diverse cultures with traditional attires and a delicious food competition."
             },
             {
                 day_index: 4,
                 title: "Dinner / Award Night",
-                description: "A grand finale to celebrate our achievements with a formal dinner and award ceremony.",
-                image_src: null
+                description: "A grand finale to celebrate our achievements with a formal dinner and award ceremony."
             }
         ];
         const { data, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').insert(defaultEvents).select();
@@ -344,7 +342,10 @@ const AppProvider = ({ children })=>{
                     } else if (settingsRes.data) {
                         setLogosState(settingsRes.data.logos || defaultLogos);
                         setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
-                        setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
+                        setFybWeekSettingsState({
+                            ...defaultFybWeekSettings,
+                            ...settingsRes.data.fyb_week_settings
+                        });
                     }
                     const studentsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
                         ascending: true
@@ -376,6 +377,11 @@ const AppProvider = ({ children })=>{
                             }["AppProvider.useEffect.loadInitialData"]));
                         }
                     }
+                    const fybGalleryRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_gallery').select('*').order('created_at', {
+                        ascending: true
+                    });
+                    if (fybGalleryRes.error) console.error("Error fetching FYB gallery:", fybGalleryRes.error);
+                    else setFybWeekGallery(fybGalleryRes.data || []);
                 } catch (error) {
                     console.error('An unexpected error occurred while loading initial data from Supabase:', error);
                 } finally{
@@ -525,7 +531,7 @@ const AppProvider = ({ children })=>{
             id: APP_SETTINGS_ID
         };
         const newFybWeekSettings = {
-            ...currentSettings.fyb_week_settings,
+            ...fybWeekSettings,
             isFybWeekActive: isActive
         };
         const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
@@ -534,6 +540,36 @@ const AppProvider = ({ children })=>{
         });
         if (error) throw error;
         setFybWeekSettingsState(newFybWeekSettings);
+    };
+    const updateFybWeekSettings = async (settings)=>{
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        let finalSettings = {
+            ...settings
+        };
+        const oldImageUrl = fybWeekSettings.scheduleDesignImage;
+        const newImageDataUrl = settings.scheduleDesignImage;
+        // Check if a new image was uploaded
+        if (newImageDataUrl && newImageDataUrl.startsWith('data:image')) {
+            const blob = dataURIToBlob(newImageDataUrl);
+            if (blob) {
+                if (oldImageUrl) await deleteFileFromSupabase(oldImageUrl);
+                const newUrl = await uploadFileToSupabase(blob, 'fyb-week-images', 'schedule-design');
+                finalSettings.scheduleDesignImage = newUrl;
+            }
+        } else if (oldImageUrl && !newImageDataUrl) {
+            await deleteFileFromSupabase(oldImageUrl);
+        }
+        const { data: currentData, error: fetchError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('id').eq('id', APP_SETTINGS_ID).single();
+        if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
+        const currentSettings = currentData || {
+            id: APP_SETTINGS_ID
+        };
+        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').upsert({
+            ...currentSettings,
+            fyb_week_settings: finalSettings
+        });
+        if (error) throw error;
+        setFybWeekSettingsState(finalSettings);
     };
     const addAward = async (awardData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
@@ -593,41 +629,43 @@ const AppProvider = ({ children })=>{
     const updateFybWeekEvent = async (eventData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         const { id, created_at, ...updatePayload } = eventData;
-        // Check if the image_src is a new base64 upload
-        const isNewImage = updatePayload.image_src && updatePayload.image_src.startsWith('data:image');
-        // Find the original event to see the old image URL
-        const originalEvent = fybWeekEvents.find((e)=>e.id === id);
-        const oldImageUrl = originalEvent?.image_src;
-        let newImageUrl = updatePayload.image_src;
-        if (isNewImage) {
-            const blob = dataURIToBlob(updatePayload.image_src);
-            if (blob) {
-                // If there was an old image, delete it from storage
-                if (oldImageUrl) await deleteFileFromSupabase(oldImageUrl);
-                // Upload the new image
-                newImageUrl = await uploadFileToSupabase(blob, 'fyb-week-images', `day-${updatePayload.day_index}`);
-            } else {
-                // If blob conversion fails, revert to old image url to avoid accidental deletion
-                newImageUrl = oldImageUrl;
-            }
-        } else if (oldImageUrl && !updatePayload.image_src) {
-            // This means the user removed the image without uploading a new one
-            await deleteFileFromSupabase(oldImageUrl);
-        }
-        const finalPayload = {
-            ...updatePayload,
-            image_src: newImageUrl
-        };
-        const { data: updatedEvent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').update(finalPayload).eq('id', id).select().single();
+        const { data: updatedEvent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').update(updatePayload).eq('id', id).select().single();
         if (error) throw error;
         if (updatedEvent) {
             setFybWeekEvents((prev)=>prev.map((e)=>e.id === updatedEvent.id ? updatedEvent : e).sort((a, b)=>a.day_index - b.day_index));
         }
     };
+    const addGalleryImage = async (eventId, fileDataUrl)=>{
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const blob = dataURIToBlob(fileDataUrl);
+        if (!blob) throw new Error("Failed to convert image data.");
+        const imageUrl = await uploadFileToSupabase(blob, 'fyb-week-gallery', `event-${eventId}-${Date.now()}`);
+        const { data, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_gallery').insert({
+            event_id: eventId,
+            image_url: imageUrl
+        }).select().single();
+        if (error) {
+            await deleteFileFromSupabase(imageUrl); // Clean up on db insert failure
+            throw error;
+        }
+        setFybWeekGallery((prev)=>[
+                ...prev,
+                data
+            ]);
+    };
+    const deleteGalleryImage = async (imageId)=>{
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const imageToDelete = fybWeekGallery.find((img)=>img.id === imageId);
+        if (!imageToDelete) return;
+        await deleteFileFromSupabase(imageToDelete.image_url);
+        const { error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_gallery').delete().eq('id', imageId);
+        if (error) throw error;
+        setFybWeekGallery((prev)=>prev.filter((img)=>img.id !== imageId));
+    };
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 399,
+            lineNumber: 434,
             columnNumber: 12
         }, this);
     }
@@ -639,6 +677,7 @@ const AppProvider = ({ children })=>{
             votingSettings,
             fybWeekSettings,
             fybWeekEvents,
+            fybWeekGallery,
             awards,
             nominations,
             adminPin: defaultAdminPin,
@@ -651,21 +690,24 @@ const AppProvider = ({ children })=>{
             updateLogo,
             updateVotingStatus,
             updateFybWeekStatus,
+            updateFybWeekSettings,
             addAward,
             deleteAward,
             addNomination,
             deleteNomination,
             submitVotes,
-            updateFybWeekEvent
+            updateFybWeekEvent,
+            addGalleryImage,
+            deleteGalleryImage
         },
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 403,
+        lineNumber: 438,
         columnNumber: 5
     }, this);
 };
-_s(AppProvider, "LmIW8EH4uBARW7zfhsE+2awGHsg=", false, function() {
+_s(AppProvider, "JT8JiHuLLlexJfSWAiHJDa4HDrE=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"]
     ];

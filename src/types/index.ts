@@ -48,6 +48,8 @@ export interface VotingSettings {
 
 export interface FYBWeekSettings {
   isFybWeekActive: boolean;
+  startDate: string | null;
+  scheduleDesignImage: string | null;
 }
 
 export interface FYBWeekEvent {
@@ -55,8 +57,14 @@ export interface FYBWeekEvent {
   day_index: number;
   title: string;
   description: string | null;
-  image_src: string | null;
   created_at?: string;
+}
+
+export interface FYBWeekGalleryImage {
+    id: string; // uuid
+    event_id: string;
+    image_url: string;
+    created_at?: string;
 }
 
 
@@ -75,8 +83,11 @@ export interface AppState {
   votingSettings: VotingSettings;
   fybWeekSettings: FYBWeekSettings;
   fybWeekEvents: FYBWeekEvent[];
+  fybWeekGallery: FYBWeekGalleryImage[];
   awards: Award[];
   nominations: AwardNomination[];
   adminPin: string; 
   isAdminLoggedIn: boolean;
 }
+
+    
