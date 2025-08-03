@@ -173,6 +173,41 @@ export default function ManageAwardsPage() {
                             <Users className="mr-2 h-4 w-4"/> Manage Nominees
                           </Button>
                         </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Manage Nominees for "{manageNomineesAward?.name}"</DialogTitle>
+                            <DialogDescription>Add or remove students nominated for this award.</DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="flex items-center gap-2 p-4 border rounded-md">
+                              <Select onValueChange={setSelectedStudent}>
+                                <SelectTrigger><SelectValue placeholder="Select a student to nominate" /></SelectTrigger>
+                                <SelectContent>
+                                  {students.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+                                </SelectContent>
+                              </Select>
+                              <Button onClick={handleAddNomination}><UserPlus className="mr-2 h-4 w-4" /> Nominate</Button>
+                            </div>
+                            <div>
+                              <h4 className="font-medium mb-2">Current Nominees:</h4>
+                              <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
+                              {(nomineesByAward[manageNomineesAward?.id || ''] || []).map(nom => (
+                                <div key={nom.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                                  <div className="flex items-center gap-2">
+                                    <Image 
+                                      src={studentMap[nom.student_id]?.image_src || 'https://placehold.co/40x40.png'}
+                                      alt={studentMap[nom.student_id]?.name || ''}
+                                      width={40} height={40} className="rounded-full object-cover"
+                                    />
+                                    <span>{studentMap[nom.student_id]?.name}</span>
+                                  </div>
+                                  <Button variant="ghost" size="icon" onClick={() => deleteNomination(nom.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                </div>
+                              ))}
+                              </div>
+                            </div>
+                          </div>
+                        </DialogContent>
                       </Dialog>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -228,43 +263,6 @@ export default function ManageAwardsPage() {
         </Card>
 
       </main>
-
-      {/* Manage Nominees Dialog */}
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Manage Nominees for "{manageNomineesAward?.name}"</DialogTitle>
-          <DialogDescription>Add or remove students nominated for this award.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="flex items-center gap-2 p-4 border rounded-md">
-            <Select onValueChange={setSelectedStudent}>
-              <SelectTrigger><SelectValue placeholder="Select a student to nominate" /></SelectTrigger>
-              <SelectContent>
-                {students.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Button onClick={handleAddNomination}><UserPlus className="mr-2 h-4 w-4" /> Nominate</Button>
-          </div>
-          <div>
-            <h4 className="font-medium mb-2">Current Nominees:</h4>
-            <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
-            {(nomineesByAward[manageNomineesAward?.id || ''] || []).map(nom => (
-              <div key={nom.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
-                <div className="flex items-center gap-2">
-                  <Image 
-                    src={studentMap[nom.student_id]?.image_src || 'https://placehold.co/40x40.png'}
-                    alt={studentMap[nom.student_id]?.name || ''}
-                    width={40} height={40} className="rounded-full object-cover"
-                  />
-                  <span>{studentMap[nom.student_id]?.name}</span>
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => deleteNomination(nom.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
-              </div>
-            ))}
-            </div>
-          </div>
-        </div>
-      </DialogContent>
     </div>
   );
 }
