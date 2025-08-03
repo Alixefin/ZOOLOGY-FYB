@@ -6,8 +6,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, User, Heart, Mic, Trophy, ThumbsDown, Briefcase, Smile, Frown, Send, Flame, Loader2, Download, X } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, User, Heart, Mic, Trophy, ThumbsDown, Briefcase, Smile, Frown, Send, Flame, Loader2, Download, X, BookOpen, GraduationCap } from 'lucide-react';
 import { roastStudent, RoastStudentOutput } from '@/ai/flows/roast-student-flow';
 import type { Student } from '@/types';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 
 interface DetailItemProps {
   icon: React.ElementType;
@@ -175,7 +176,7 @@ export default function StudentDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 p-4 sm:p-8">
-      <header className="container mx-auto max-w-7xl mb-6 flex justify-between items-center">
+      <header className="container mx-auto max-w-4xl mb-6 flex justify-between items-center">
         <Button variant="outline" onClick={() => router.back()}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Back to Clan
         </Button>
@@ -185,62 +186,66 @@ export default function StudentDetailPage() {
         </Button>
       </header>
 
-      <main className="container mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
-          {/* Left Column */}
-          <div className="lg:col-span-1 space-y-8">
-            <Card className="shadow-lg rounded-xl">
-              <CardContent className="p-6 divide-y divide-border/50">
-                 <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
-                 <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
-                 <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
-              </CardContent>
-            </Card>
-             <Card className="shadow-lg rounded-xl">
-              <CardContent className="p-6 divide-y divide-border/50">
-                 <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
-                 <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Center Column (Image) */}
-          <div className="lg:col-span-1 flex flex-col items-center space-y-4">
-             <div className="relative w-full aspect-square rounded-lg overflow-hidden shadow-2xl border-4 border-card">
-              {student.image_src ? (
+      <main className="container mx-auto max-w-2xl flex flex-col items-center">
+        {/* Student Image and Name */}
+        <div className="flex flex-col items-center space-y-4 w-full">
+            <div className="relative w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden shadow-2xl border-4 border-card">
+            {student.image_src ? (
                 <Image
-                  src={student.image_src}
-                  alt={student.name}
-                  layout="fill"
-                  objectFit="cover"
-                  unoptimized
-                  data-ai-hint="student portrait"
+                src={student.image_src}
+                alt={student.name}
+                layout="fill"
+                objectFit="cover"
+                unoptimized
+                data-ai-hint="student portrait"
                 />
-              ) : (
+            ) : (
                 <div className="w-full h-full flex items-center justify-center bg-muted">
-                  <User className="w-24 h-24 text-muted-foreground" />
+                <User className="w-24 h-24 text-muted-foreground" />
                 </div>
-              )}
+            )}
             </div>
             <div className="text-center">
-              <h1 className="text-4xl md:text-5xl font-headline text-primary font-bold tracking-tight">{student.name}</h1>
-              {student.nickname && student.nickname.toLowerCase() !== 'non' && (
+            <h1 className="text-4xl md:text-5xl font-headline text-primary font-bold tracking-tight">{student.name}</h1>
+            {student.nickname && student.nickname.toLowerCase() !== 'non' && (
                 <p className="text-xl md:text-2xl text-muted-foreground font-body mt-2">"{student.nickname}"</p>
-              )}
+            )}
             </div>
-          </div>
-          
-          {/* Right Column */}
-          <div className="lg:col-span-1 space-y-8">
+        </div>
+        
+        {/* Details Sections */}
+        <div className="w-full mt-10 space-y-6">
             <Card className="shadow-lg rounded-xl">
-              <CardContent className="p-6 divide-y divide-border/50">
-                <DetailItem icon={Smile} label="Best Experience in FUL" value={student.best_experience} />
-                <DetailItem icon={Frown} label="Worst Experience in FUL" value={student.worst_experience} />
-                <DetailItem icon={Send} label="What will you miss after FUL?" value={student.will_miss} />
-              </CardContent>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline"><GraduationCap/> Academic Profile</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 divide-y divide-border/50">
+                    <DetailItem icon={Trophy} label="Best Level" value={student.best_level} />
+                    <DetailItem icon={ThumbsDown} label="Worst Level" value={student.worst_level} />
+                    <DetailItem icon={Mic} label="Favourite Lecturer" value={student.favourite_lecturer} />
+                </CardContent>
             </Card>
-          </div>
+
+            <Card className="shadow-lg rounded-xl">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline"><User/> Personal Profile</CardTitle>
+                </CardHeader>
+                 <CardContent className="pt-0 divide-y divide-border/50">
+                    <DetailItem icon={Heart} label="Relationship Status" value={student.relationship_status} />
+                    <DetailItem icon={Briefcase} label="If not Computing, then what?" value={student.alternative_career} />
+                </CardContent>
+            </Card>
+
+            <Card className="shadow-lg rounded-xl">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-xl font-headline"><BookOpen/> University Experience</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 divide-y divide-border/50">
+                    <DetailItem icon={Smile} label="Best Experience in FUL" value={student.best_experience} />
+                    <DetailItem icon={Frown} label="Worst Experience in FUL" value={student.worst_experience} />
+                    <DetailItem icon={Send} label="What will you miss after FUL?" value={student.will_miss} />
+                </CardContent>
+            </Card>
         </div>
       </main>
 

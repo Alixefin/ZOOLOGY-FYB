@@ -607,6 +607,10 @@ body {
   margin-top: 2rem;
 }
 
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
 .block {
   display: block;
 }
@@ -930,6 +934,10 @@ body {
 
 .max-w-md {
   max-width: 28rem;
+}
+
+.max-w-4xl {
+  max-width: 56rem;
 }
 
 .flex-1 {
@@ -2838,6 +2846,14 @@ body {
 
   .sm\:flex {
     display: flex;
+  }
+
+  .sm\:h-64 {
+    height: 16rem;
+  }
+
+  .sm\:w-64 {
+    width: 16rem;
   }
 
   .sm\:max-w-sm {
