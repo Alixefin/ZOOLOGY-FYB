@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +23,14 @@ export default function ManageFybWeekPage() {
   } = useAppContext();
   const { toast } = useToast();
   
-  const [events, setEvents] = useState<FYBWeekEvent[]>(fybWeekEvents);
+  // Local state to manage edits before saving
+  const [localEvents, setLocalEvents] = useState<FYBWeekEvent[]>([]);
   const [savingStates, setSavingStates] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    // Sync local state with context on initial load or when context changes
+    setLocalEvents(fybWeekEvents);
+  }, [fybWeekEvents]);
 
   const handleToggleFybWeek = async (checked: boolean) => {
     try {
@@ -38,76 +44,21 @@ export default function ManageFybWeekPage() {
     }
   };
 
-  const handleEventChange = (id: string, field: keyof FYBWeekEvent, value: any) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
+  const handleEventChange = (id: string, field: keyof Omit<FYBWeekEvent, 'id' | 'created_at'>, value: any) => {
+    setLocalEvents(prev => prev.map(e => e.id === id ? { ...e, [field]: value } : e));
   };
   
-  const handleEventImageChange = async (id: string, fileDataUrl: string | null) => {
-    if (!supabase) {
-      toast({ title: "Connection Error", description: "Supabase client not available.", variant: "destructive" });
-      return;
-    }
-    
-    setSavingStates(prev => ({ ...prev, [id]: true }));
-    const currentEvent = events.find(e => e.id === id);
-    if (!currentEvent) return;
-
-    try {
-      let imageUrl: string | null = currentEvent.image_src;
-
-      // Handle image upload/delete
-      if (fileDataUrl) {
-          const blob = dataURIToBlob(fileDataUrl);
-          if (blob) {
-              if (currentEvent.image_src) await deleteFileFromSupabase(currentEvent.image_src);
-              imageUrl = await uploadFileToSupabase(blob, 'fyb-week-images', `day-${currentEvent.day_index}`);
-          }
-      } else {
-          if (currentEvent.image_src) await deleteFileFromSupabase(currentEvent.image_src);
-          imageUrl = null;
-      }
-      
-      handleEventChange(id, 'image_src', imageUrl);
-      
-    } catch (error: any) {
-      toast({ title: "Image Upload Error", description: error.message, variant: "destructive" });
-    } finally {
-      setSavingStates(prev => ({ ...prev, [id]: false }));
-    }
-  };
-
   const handleSaveChanges = async (event: FYBWeekEvent) => {
     setSavingStates(prev => ({ ...prev, [event.id]: true }));
     try {
       await updateFybWeekEvent(event);
-      toast({ title: "Event Saved", description: `Changes for "${event.title}" have been saved.` });
+      toast({ title: "Event Saved", description: `Changes for "Day ${event.day_index + 1}" have been saved.` });
     } catch (error: any) {
       toast({ title: "Save Error", description: error.message, variant: "destructive" });
     } finally {
       setSavingStates(prev => ({ ...prev, [event.id]: false }));
     }
   };
-  
-  // These functions need to be defined here or imported if they are to be used.
-  // Assuming they are available in the scope, e.g., from AppContext or a utils file.
-    const supabase = null; // Placeholder
-    const dataURIToBlob = (dataURI: string): Blob | null => {
-        try {
-            const splitDataURI = dataURI.split(',');
-            if (splitDataURI.length < 2) throw new Error("Invalid data URI");
-            const byteString = splitDataURI[0].indexOf('base64') >= 0 ? atob(splitDataURI[1]) : decodeURI(splitDataURI[1]);
-            const mimeString = splitDataURI[0].split(':')[1].split(';')[0];
-            const ia = new Uint8Array(byteString.length);
-            for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
-            return new Blob([ia], { type: mimeString });
-        } catch (error) {
-            console.error("Error converting data URI to Blob:", error);
-            return null;
-        }
-    };
-    const deleteFileFromSupabase = async (url: string) => {}; // Placeholder
-    const uploadFileToSupabase = async (blob: Blob, path: string, name: string): Promise<string> => { return ""}; // Placeholder
-
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -134,7 +85,7 @@ export default function ManageFybWeekPage() {
 
             <div className="space-y-6">
               <h3 className="font-headline text-xl text-primary flex items-center"><CalendarDays className="mr-2"/>Event Schedule</h3>
-              {events.map(event => (
+              {localEvents.map(event => (
                 <Card key={event.id} className="bg-card/80">
                   <CardHeader>
                     <CardTitle>Day {event.day_index + 1}</CardTitle>
@@ -176,7 +127,7 @@ export default function ManageFybWeekPage() {
                                 )}
                                </div>
                                <FileUpload
-                                onFileSelect={(fileDataUrl) => handleEventImageChange(event.id, fileDataUrl)}
+                                onFileSelect={(fileDataUrl) => handleEventChange(event.id, 'image_src', fileDataUrl)}
                                 currentImagePreview={event.image_src}
                                 label=""
                                 disabled={savingStates[event.id]}

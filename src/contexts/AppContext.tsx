@@ -143,8 +143,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         else setAwards(awardsRes.data || []);
         
         const nominationsRes = await supabase.from('award_nominations').select('*, students(name, image_src)');
-        if (nominationsRes.error) console.error("Error fetching nominations:", nominationsRes.error);
-        else setNominations(nominationsRes.data || []);
+        if (nominationsRes.error) {
+            console.error("Error fetching nominations:", nominationsRes.error);
+        } else {
+            setNominations(nominationsRes.data || []);
+        }
 
         const fybEventsRes = await supabase.from('fyb_week_events').select('*').order('day_index', { ascending: true });
         if (fybEventsRes.error) {
@@ -353,9 +356,37 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   const updateFybWeekEvent = async (eventData: FYBWeekEvent) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    
+
     const { id, created_at, ...updatePayload } = eventData;
-    const { data: updatedEvent, error } = await supabase.from('fyb_week_events').update(updatePayload).eq('id', id).select().single();
+    
+    // Check if the image_src is a new base64 upload
+    const isNewImage = updatePayload.image_src && updatePayload.image_src.startsWith('data:image');
+    
+    // Find the original event to see the old image URL
+    const originalEvent = fybWeekEvents.find(e => e.id === id);
+    const oldImageUrl = originalEvent?.image_src;
+
+    let newImageUrl: string | null = updatePayload.image_src;
+
+    if (isNewImage) {
+        const blob = dataURIToBlob(updatePayload.image_src as string);
+        if (blob) {
+            // If there was an old image, delete it from storage
+            if (oldImageUrl) await deleteFileFromSupabase(oldImageUrl);
+            // Upload the new image
+            newImageUrl = await uploadFileToSupabase(blob, 'fyb-week-images', `day-${updatePayload.day_index}`);
+        } else {
+            // If blob conversion fails, revert to old image url to avoid accidental deletion
+            newImageUrl = oldImageUrl;
+        }
+    } else if (oldImageUrl && !updatePayload.image_src) {
+        // This means the user removed the image without uploading a new one
+        await deleteFileFromSupabase(oldImageUrl);
+    }
+    
+    const finalPayload = { ...updatePayload, image_src: newImageUrl };
+
+    const { data: updatedEvent, error } = await supabase.from('fyb_week_events').update(finalPayload).eq('id', id).select().single();
     if (error) throw error;
 
     if (updatedEvent) {

@@ -357,8 +357,11 @@ const AppProvider = ({ children })=>{
                     if (awardsRes.error) console.error("Error fetching awards:", awardsRes.error);
                     else setAwards(awardsRes.data || []);
                     const nominationsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('award_nominations').select('*, students(name, image_src)');
-                    if (nominationsRes.error) console.error("Error fetching nominations:", nominationsRes.error);
-                    else setNominations(nominationsRes.data || []);
+                    if (nominationsRes.error) {
+                        console.error("Error fetching nominations:", nominationsRes.error);
+                    } else {
+                        setNominations(nominationsRes.data || []);
+                    }
                     const fybEventsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').select('*').order('day_index', {
                         ascending: true
                     });
@@ -590,7 +593,32 @@ const AppProvider = ({ children })=>{
     const updateFybWeekEvent = async (eventData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         const { id, created_at, ...updatePayload } = eventData;
-        const { data: updatedEvent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').update(updatePayload).eq('id', id).select().single();
+        // Check if the image_src is a new base64 upload
+        const isNewImage = updatePayload.image_src && updatePayload.image_src.startsWith('data:image');
+        // Find the original event to see the old image URL
+        const originalEvent = fybWeekEvents.find((e)=>e.id === id);
+        const oldImageUrl = originalEvent?.image_src;
+        let newImageUrl = updatePayload.image_src;
+        if (isNewImage) {
+            const blob = dataURIToBlob(updatePayload.image_src);
+            if (blob) {
+                // If there was an old image, delete it from storage
+                if (oldImageUrl) await deleteFileFromSupabase(oldImageUrl);
+                // Upload the new image
+                newImageUrl = await uploadFileToSupabase(blob, 'fyb-week-images', `day-${updatePayload.day_index}`);
+            } else {
+                // If blob conversion fails, revert to old image url to avoid accidental deletion
+                newImageUrl = oldImageUrl;
+            }
+        } else if (oldImageUrl && !updatePayload.image_src) {
+            // This means the user removed the image without uploading a new one
+            await deleteFileFromSupabase(oldImageUrl);
+        }
+        const finalPayload = {
+            ...updatePayload,
+            image_src: newImageUrl
+        };
+        const { data: updatedEvent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').update(finalPayload).eq('id', id).select().single();
         if (error) throw error;
         if (updatedEvent) {
             setFybWeekEvents((prev)=>prev.map((e)=>e.id === updatedEvent.id ? updatedEvent : e).sort((a, b)=>a.day_index - b.day_index));
@@ -599,7 +627,7 @@ const AppProvider = ({ children })=>{
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 368,
+            lineNumber: 399,
             columnNumber: 12
         }, this);
     }
@@ -633,7 +661,7 @@ const AppProvider = ({ children })=>{
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 372,
+        lineNumber: 403,
         columnNumber: 5
     }, this);
 };
