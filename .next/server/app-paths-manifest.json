@@ -1,4 +1,6 @@
 {
+  "/admin/manage-fyb-week/page": "app/admin/manage-fyb-week/page.js",
+  "/admin/page": "app/admin/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/fyb-students/[id]/page": "app/fyb-students/[id]/page.js",
   "/fyb-students/page": "app/fyb-students/page.js",
