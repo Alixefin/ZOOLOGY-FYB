@@ -36,12 +36,12 @@ export default function FybWeekGalleryPage() {
                         {galleryImages.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {galleryImages.map(image => (
-                                    <div key={image.id} className="relative aspect-square overflow-hidden rounded-lg shadow-md">
+                                    <div key={image.id} className="relative aspect-square overflow-hidden rounded-lg shadow-md bg-muted">
                                         <Image
                                             src={image.image_url}
                                             alt={`Gallery image for ${event?.title}`}
                                             layout="fill"
-                                            objectFit="cover"
+                                            objectFit="contain"
                                             className="transition-transform duration-300 hover:scale-105"
                                             unoptimized
                                         />
@@ -65,5 +65,3 @@ export default function FybWeekGalleryPage() {
         </div>
     );
 }
-
-    

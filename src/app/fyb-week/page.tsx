@@ -95,8 +95,8 @@ export default function FybWeekPage() {
                                             <h4 className="font-semibold mb-2">Event Highlights:</h4>
                                             <div className="flex gap-2 overflow-x-auto pb-2">
                                                 {galleryForEvent.slice(0, 5).map(img => (
-                                                    <div key={img.id} className="flex-shrink-0 w-32 h-32 relative rounded-md overflow-hidden">
-                                                        <Image src={img.image_url} alt={event.title} layout="fill" objectFit="cover" unoptimized/>
+                                                    <div key={img.id} className="flex-shrink-0 w-32 h-32 relative rounded-md overflow-hidden bg-muted">
+                                                        <Image src={img.image_url} alt={event.title} layout="fill" objectFit="contain" unoptimized/>
                                                     </div>
                                                 ))}
                                             </div>
@@ -122,5 +122,3 @@ export default function FybWeekPage() {
     </div>
   );
 }
-
-    
