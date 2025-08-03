@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import Image from 'next/image';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination } from '@/types';
+import type { Student, LogoSettings, VotingSettings, FYBWeekSettings, AppState, Award, AwardNomination, FYBWeekEvent } from '@/types';
 import { supabase } from '@/lib/supabaseClient';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
@@ -62,6 +62,7 @@ interface AppContextType extends AppState {
   addNomination: (nominationData: Pick<AwardNomination, 'award_id' | 'student_id'>) => Promise<void>;
   deleteNomination: (nominationId: string) => Promise<void>;
   submitVotes: (votes: { awardId: string; nominationId: string }[]) => Promise<void>;
+  updateFybWeekEvent: (eventData: FYBWeekEvent) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -90,10 +91,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [fybWeekSettings, setFybWeekSettingsState] = useState<FYBWeekSettings>(defaultFybWeekSettings);
   const [awards, setAwards] = useState<Award[]>([]);
   const [nominations, setNominations] = useState<AwardNomination[]>([]);
+  const [fybWeekEvents, setFybWeekEvents] = useState<FYBWeekEvent[]>([]);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
+
+  const seedFybWeekEvents = async () => {
+    if (!supabase) return;
+    const defaultEvents = [
+      { day_index: 0, title: "Back to School (Primary/Secondary)", description: "Relive your childhood memories by dressing up in your primary or secondary school uniforms!", image_src: null },
+      { day_index: 1, title: "Jersey Day", description: "Represent your favorite sports team by wearing their jersey.", image_src: null },
+      { day_index: 2, title: "Talent Hunt", description: "Showcase your hidden talents, from singing and dancing to magic tricks and stand-up comedy.", image_src: null },
+      { day_index: 3, title: "Traditional Day / Food Competition", description: "Celebrate our diverse cultures with traditional attires and a delicious food competition.", image_src: null },
+      { day_index: 4, title: "Dinner / Award Night", description: "A grand finale to celebrate our achievements with a formal dinner and award ceremony.", image_src: null },
+    ];
+    const { data, error } = await supabase.from('fyb_week_events').insert(defaultEvents).select();
+    if (error) {
+      console.error("Error seeding FYB Week events:", error);
+    } else if (data) {
+      setFybWeekEvents(data.sort((a,b) => a.day_index - b.day_index));
+    }
+  }
 
   useEffect(() => {
     setIsMounted(true);
@@ -106,7 +125,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           return;
       }
       try {
-        // Fetch settings first
         const settingsRes = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
         if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
           console.error("Error fetching app_settings:", settingsRes.error);
@@ -116,28 +134,27 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
         }
 
-        // Then fetch students
         const studentsRes = await supabase.from('students').select('*').order('name', { ascending: true });
-        if (studentsRes.error) {
-            console.error("Error fetching students:", studentsRes.error);
-        } else {
-            setStudents(studentsRes.data || []);
-        }
+        if (studentsRes.error) console.error("Error fetching students:", studentsRes.error);
+        else setStudents(studentsRes.data || []);
 
-        // Then fetch awards
         const awardsRes = await supabase.from('awards').select('*').order('name', { ascending: true });
-        if (awardsRes.error) {
-             console.error("Error fetching awards:", awardsRes.error);
-        } else {
-            setAwards(awardsRes.data || []);
-        }
-
-        // Finally fetch nominations
+        if (awardsRes.error) console.error("Error fetching awards:", awardsRes.error);
+        else setAwards(awardsRes.data || []);
+        
         const nominationsRes = await supabase.from('award_nominations').select('*, students(name, image_src)');
-        if (nominationsRes.error) {
-            console.error("Error fetching nominations:", nominationsRes.error);
+        if (nominationsRes.error) console.error("Error fetching nominations:", nominationsRes.error);
+        else setNominations(nominationsRes.data || []);
+
+        const fybEventsRes = await supabase.from('fyb_week_events').select('*').order('day_index', { ascending: true });
+        if (fybEventsRes.error) {
+            console.error("Error fetching FYB events:", fybEventsRes.error);
         } else {
-            setNominations(nominationsRes.data || []);
+            if (fybEventsRes.data.length === 0) {
+              await seedFybWeekEvents();
+            } else {
+              setFybWeekEvents(fybEventsRes.data.sort((a,b) => a.day_index - b.day_index));
+            }
         }
 
       } catch (error: any) {
@@ -208,7 +225,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (!supabase) throw new Error("Supabase client not available.");
     let newLogoUrl: string | null = null;
     
-    // Fetch the entire settings object first
     const {data: currentData, error: fetchError} = await supabase.from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
     if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
 
@@ -227,10 +243,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
     const updatedLogos = { ...currentLogos, [logoType]: newLogoUrl };
     
-    const payload = {
-        ...currentSettings,
-        logos: updatedLogos,
-    };
+    const payload = { ...currentSettings, logos: updatedLogos };
 
     const { error } = await supabase.from('app_settings').upsert(payload);
     if (error) throw error;
@@ -239,8 +252,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   const addStudent = async (studentData: Omit<Student, 'id' | 'created_at' | 'updated_at'>) => {
     if (!supabase) throw new Error("Supabase client not available.");
-    const newId = uuidv4();
-    const studentWithId = { ...studentData, id: newId };
+    const studentWithId = { ...studentData, id: uuidv4() };
 
     const { data: newStudent, error } = await supabase.from('students').insert(studentWithId).select().single();
     if (error) throw error;
@@ -339,6 +351,19 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateFybWeekEvent = async (eventData: FYBWeekEvent) => {
+    if (!supabase) throw new Error("Supabase client not available.");
+    
+    const { id, created_at, ...updatePayload } = eventData;
+    const { data: updatedEvent, error } = await supabase.from('fyb_week_events').update(updatePayload).eq('id', id).select().single();
+    if (error) throw error;
+
+    if (updatedEvent) {
+      setFybWeekEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e).sort((a,b)=> a.day_index - b.day_index));
+    }
+  };
+
+
   if (!isMounted || isLoading) {
     return <LoadingComponent />;
   }
@@ -349,6 +374,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       logos, 
       votingSettings,
       fybWeekSettings,
+      fybWeekEvents,
       awards,
       nominations,
       adminPin: defaultAdminPin,
@@ -360,7 +386,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       updateFybWeekStatus,
       addAward, deleteAward,
       addNomination, deleteNomination,
-      submitVotes
+      submitVotes,
+      updateFybWeekEvent
     }}>
       {children}
     </AppContext.Provider>

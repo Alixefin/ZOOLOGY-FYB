@@ -1,110 +1,105 @@
--- Drop tables if they exist to start with a clean slate. 
--- The CASCADE keyword handles dependent objects.
-DROP TABLE IF EXISTS public.award_nominations CASCADE;
-DROP TABLE IF EXISTS public.awards CASCADE;
-DROP TABLE IF EXISTS public.students CASCADE;
-DROP TABLE IF EXISTS public.app_settings CASCADE;
-DROP TABLE IF EXISTS public.fyb_week_events CASCADE;
+-- Drop tables in reverse order of creation to handle dependencies
+DROP TABLE IF EXISTS "public"."award_nominations";
+DROP TABLE IF EXISTS "public"."awards";
+DROP TABLE IF EXISTS "public"."students";
+DROP TABLE IF EXISTS "public"."fyb_week_events";
+DROP TABLE IF EXISTS "public"."app_settings";
 
-
--- Create the students table to hold student profiles.
--- The ID is the primary key and will be provided manually (e.g., from a CSV or student ID).
-CREATE TABLE public.students (
-    id TEXT PRIMARY KEY NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMPTZ,
-    name TEXT NOT NULL,
-    nickname TEXT,
-    best_level TEXT,
-    worst_level TEXT,
-    favourite_lecturer TEXT,
-    relationship_status TEXT,
-    alternative_career TEXT,
-    best_experience TEXT,
-    worst_experience TEXT,
-    will_miss TEXT,
-    image_src TEXT
+-- Create students table
+CREATE TABLE "public"."students" (
+    "id" text NOT NULL,
+    "name" character varying NOT NULL,
+    "nickname" character varying,
+    "best_level" character varying,
+    "worst_level" character varying,
+    "favourite_lecturer" character varying,
+    "relationship_status" character varying,
+    "alternative_career" character varying,
+    "best_experience" text,
+    "worst_experience" text,
+    "will_miss" text,
+    "image_src" text,
+    "created_at" timestamp with time zone DEFAULT now(),
+    "updated_at" timestamp with time zone DEFAULT now(),
+    CONSTRAINT "students_pkey" PRIMARY KEY ("id")
 );
--- Enable Row Level Security (RLS) for the students table.
-ALTER TABLE public.students ENABLE ROW LEVEL SECURITY;
--- Allow anyone to read all student data.
-CREATE POLICY "Allow public read access to students" ON public.students FOR SELECT USING (true);
--- Allow only authenticated users (e.g., admins) to insert, update, or delete.
--- Note: You'll need to configure proper admin roles in Supabase for production security.
-CREATE POLICY "Allow admin access to manage students" ON public.students FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+ALTER TABLE "public"."students" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON "public"."students" FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON "public"."students" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for users based on user_id" ON "public"."students" FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for users based on user_id" ON "public"."students" FOR DELETE USING (true);
 
-
--- Create the awards table for different voting categories.
-CREATE TABLE public.awards (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    name TEXT NOT NULL,
-    description TEXT
+-- Create awards table
+CREATE TABLE "public"."awards" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "name" character varying NOT NULL,
+    "description" text,
+    "created_at" timestamp with time zone DEFAULT now(),
+    CONSTRAINT "awards_pkey" PRIMARY KEY ("id")
 );
-ALTER TABLE public.awards ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to awards" ON public.awards FOR SELECT USING (true);
-CREATE POLICY "Allow admin access to manage awards" ON public.awards FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+ALTER TABLE "public"."awards" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON "public"."awards" FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON "public"."awards" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for users based on user_id" ON "public"."awards" FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for users based on user_id" ON "public"."awards" FOR DELETE USING (true);
 
--- Create the award_nominations table to link students to awards.
-CREATE TABLE public.award_nominations (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    award_id UUID REFERENCES public.awards(id) ON DELETE CASCADE,
-    student_id TEXT REFERENCES public.students(id) ON DELETE CASCADE,
-    votes INT DEFAULT 0 NOT NULL,
-    CONSTRAINT unique_award_student_nomination UNIQUE (award_id, student_id)
+-- Create award_nominations table
+CREATE TABLE "public"."award_nominations" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "award_id" uuid NOT NULL,
+    "student_id" text NOT NULL,
+    "votes" integer NOT NULL DEFAULT 0,
+    "created_at" timestamp with time zone DEFAULT now(),
+    CONSTRAINT "award_nominations_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "award_nominations_award_id_fkey" FOREIGN KEY (award_id) REFERENCES awards(id) ON DELETE CASCADE,
+    CONSTRAINT "award_nominations_student_id_fkey" FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    CONSTRAINT "award_nominations_award_id_student_id_key" UNIQUE ("award_id", "student_id")
 );
-ALTER TABLE public.award_nominations ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to nominations" ON public.award_nominations FOR SELECT USING (true);
-CREATE POLICY "Allow admin access to manage nominations" ON public.award_nominations FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+ALTER TABLE "public"."award_nominations" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON "public"."award_nominations" FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON "public"."award_nominations" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for users based on user_id" ON "public"."award_nominations" FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for users based on user_id" ON "public"."award_nominations" FOR DELETE USING (true);
 
-
--- Create app_settings table for general application configuration.
--- Using a single row (id=1) to store all settings as a JSONB object.
-CREATE TABLE public.app_settings (
-    id INT PRIMARY KEY,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
-    updated_at TIMESTAMPTZ,
-    logos JSONB,
-    voting_settings JSONB,
-    fyb_week_settings JSONB,
-    profile_template_settings JSONB
+-- Create app_settings table
+CREATE TABLE "public"."app_settings" (
+    "id" integer NOT NULL,
+    "logos" jsonb,
+    "voting_settings" jsonb,
+    "fyb_week_settings" jsonb,
+    "created_at" timestamp with time zone DEFAULT now(),
+    "updated_at" timestamp with time zone DEFAULT now(),
+    CONSTRAINT "app_settings_pkey" PRIMARY KEY ("id")
 );
-ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to settings" ON public.app_settings FOR SELECT USING (true);
-CREATE POLICY "Allow admin access to manage settings" ON public.app_settings FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+ALTER TABLE "public"."app_settings" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON "public"."app_settings" FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON "public"."app_settings" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for users based on user_id" ON "public"."app_settings" FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for users based on user_id" ON "public"."app_settings" FOR DELETE USING (true);
 
-
--- Create fyb_week_events table to store schedule information dynamically.
-CREATE TABLE public.fyb_week_events (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    day_index INT NOT NULL UNIQUE,
-    title TEXT NOT NULL,
-    description TEXT,
-    image_src TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+-- Create fyb_week_events table
+CREATE TABLE "public"."fyb_week_events" (
+    "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
+    "day_index" integer NOT NULL UNIQUE,
+    "title" character varying NOT NULL,
+    "description" text,
+    "image_src" text,
+    "created_at" timestamp with time zone DEFAULT now(),
+    CONSTRAINT "fyb_week_events_pkey" PRIMARY KEY ("id")
 );
-ALTER TABLE public.fyb_week_events ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to fyb week events" ON public.fyb_week_events FOR SELECT USING (true);
-CREATE POLICY "Allow admin access to manage fyb week events" ON public.fyb_week_events FOR ALL USING (auth.role() = 'authenticated') WITH CHECK (auth.role() = 'authenticated');
+ALTER TABLE "public"."fyb_week_events" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Enable read access for all users" ON "public"."fyb_week_events" FOR SELECT USING (true);
+CREATE POLICY "Enable insert for authenticated users only" ON "public"."fyb_week_events" FOR INSERT WITH CHECK (true);
+CREATE POLICY "Enable update for users based on user_id" ON "public"."fyb_week_events" FOR UPDATE USING (true) WITH CHECK (true);
+CREATE POLICY "Enable delete for users based on user_id" ON "public"."fyb_week_events" FOR DELETE USING (true);
 
-
--- Create a storage bucket for public assets like logos.
--- Ensure this is run only once, or handle errors if it already exists.
--- Supabase UI is recommended for creating the bucket if this fails.
-INSERT INTO storage.buckets (id, name, public)
-VALUES ('app-public-assets', 'app-public-assets', true)
+-- Create the storage bucket
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('app-public-assets', 'app-public-assets', true, 5242880, ARRAY['image/png', 'image/jpeg', 'image/jpg'])
 ON CONFLICT (id) DO NOTHING;
--- Create security policies for the storage bucket.
-CREATE POLICY "Allow public read access to assets" ON storage.objects FOR SELECT USING (bucket_id = 'app-public-assets');
-CREATE POLICY "Allow admin write access to assets" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'app-public-assets' AND auth.role() = 'authenticated');
-CREATE POLICY "Allow admin update access to assets" ON storage.objects FOR UPDATE WITH CHECK (bucket_id = 'app-public-assets' AND auth.role() = 'authenticated');
-CREATE POLICY "Allow admin delete access to assets" ON storage.objects FOR DELETE USING (bucket_id = 'app-public-assets' AND auth.role() = 'authenticated');
 
-
--- Create a function to increment the vote count on a nomination.
--- This is a more secure way to handle voting.
-CREATE OR REPLACE FUNCTION increment_vote(nomination_id_in UUID)
+-- Create the increment_vote function
+CREATE OR REPLACE FUNCTION increment_vote(nomination_id_in uuid)
 RETURNS void AS $$
 BEGIN
   UPDATE public.award_nominations
@@ -112,3 +107,8 @@ BEGIN
   WHERE id = nomination_id_in;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Create a single settings row if it doesn't exist
+INSERT INTO "public"."app_settings" (id, logos, voting_settings, fyb_week_settings)
+VALUES (1, '{"associationLogo": null, "schoolLogo": null, "roastBackground": null}', '{"isVotingActive": false}', '{"isFybWeekActive": false}')
+ON CONFLICT (id) DO NOTHING;

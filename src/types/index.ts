@@ -25,10 +25,6 @@ export interface LogoSettings {
   roastBackground: string | null;
 }
 
-export interface ProfileTemplateSettings {
-  profileTemplateBackground: string | null;
-}
-
 export interface Award {
   id: string; // uuid
   name: string;
@@ -69,7 +65,6 @@ export interface AppSettingsFromSupabase {
   logos: LogoSettings | null; 
   voting_settings: VotingSettings | null;
   fyb_week_settings: FYBWeekSettings | null;
-  profile_template_settings: ProfileTemplateSettings | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -77,7 +72,6 @@ export interface AppSettingsFromSupabase {
 export interface AppState {
   students: Student[];
   logos: LogoSettings;
-  profileTemplateSettings: ProfileTemplateSettings;
   votingSettings: VotingSettings;
   fybWeekSettings: FYBWeekSettings;
   fybWeekEvents: FYBWeekEvent[];

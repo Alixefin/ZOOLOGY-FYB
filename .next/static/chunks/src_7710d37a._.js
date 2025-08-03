@@ -259,17 +259,17 @@ const LoadingComponent = ()=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5
                 priority: true
             }, void 0, false, {
                 fileName: "[project]/src/contexts/AppContext.tsx",
-                lineNumber: 72,
+                lineNumber: 73,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 71,
+            lineNumber: 72,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 70,
+        lineNumber: 71,
         columnNumber: 5
     }, this);
 _c = LoadingComponent;
@@ -281,10 +281,52 @@ const AppProvider = ({ children })=>{
     const [fybWeekSettings, setFybWeekSettingsState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(defaultFybWeekSettings);
     const [awards, setAwards] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [nominations, setNominations] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const [fybWeekEvents, setFybWeekEvents] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isAdminLoggedIn, setIsAdminLoggedIn] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [isMounted, setIsMounted] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const { toast } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"])();
+    const seedFybWeekEvents = async ()=>{
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) return;
+        const defaultEvents = [
+            {
+                day_index: 0,
+                title: "Back to School (Primary/Secondary)",
+                description: "Relive your childhood memories by dressing up in your primary or secondary school uniforms!",
+                image_src: null
+            },
+            {
+                day_index: 1,
+                title: "Jersey Day",
+                description: "Represent your favorite sports team by wearing their jersey.",
+                image_src: null
+            },
+            {
+                day_index: 2,
+                title: "Talent Hunt",
+                description: "Showcase your hidden talents, from singing and dancing to magic tricks and stand-up comedy.",
+                image_src: null
+            },
+            {
+                day_index: 3,
+                title: "Traditional Day / Food Competition",
+                description: "Celebrate our diverse cultures with traditional attires and a delicious food competition.",
+                image_src: null
+            },
+            {
+                day_index: 4,
+                title: "Dinner / Award Night",
+                description: "A grand finale to celebrate our achievements with a formal dinner and award ceremony.",
+                image_src: null
+            }
+        ];
+        const { data, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').insert(defaultEvents).select();
+        if (error) {
+            console.error("Error seeding FYB Week events:", error);
+        } else if (data) {
+            setFybWeekEvents(data.sort((a, b)=>a.day_index - b.day_index));
+        }
+    };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "AppProvider.useEffect": ()=>{
             setIsMounted(true);
@@ -296,7 +338,6 @@ const AppProvider = ({ children })=>{
                     return;
                 }
                 try {
-                    // Fetch settings first
                     const settingsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
                     if (settingsRes.error && settingsRes.error.code !== 'PGRST116') {
                         console.error("Error fetching app_settings:", settingsRes.error);
@@ -305,30 +346,32 @@ const AppProvider = ({ children })=>{
                         setVotingSettingsState(settingsRes.data.voting_settings || defaultVotingSettings);
                         setFybWeekSettingsState(settingsRes.data.fyb_week_settings || defaultFybWeekSettings);
                     }
-                    // Then fetch students
                     const studentsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').select('*').order('name', {
                         ascending: true
                     });
-                    if (studentsRes.error) {
-                        console.error("Error fetching students:", studentsRes.error);
-                    } else {
-                        setStudents(studentsRes.data || []);
-                    }
-                    // Then fetch awards
+                    if (studentsRes.error) console.error("Error fetching students:", studentsRes.error);
+                    else setStudents(studentsRes.data || []);
                     const awardsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('awards').select('*').order('name', {
                         ascending: true
                     });
-                    if (awardsRes.error) {
-                        console.error("Error fetching awards:", awardsRes.error);
-                    } else {
-                        setAwards(awardsRes.data || []);
-                    }
-                    // Finally fetch nominations
+                    if (awardsRes.error) console.error("Error fetching awards:", awardsRes.error);
+                    else setAwards(awardsRes.data || []);
                     const nominationsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('award_nominations').select('*, students(name, image_src)');
-                    if (nominationsRes.error) {
-                        console.error("Error fetching nominations:", nominationsRes.error);
+                    if (nominationsRes.error) console.error("Error fetching nominations:", nominationsRes.error);
+                    else setNominations(nominationsRes.data || []);
+                    const fybEventsRes = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').select('*').order('day_index', {
+                        ascending: true
+                    });
+                    if (fybEventsRes.error) {
+                        console.error("Error fetching FYB events:", fybEventsRes.error);
                     } else {
-                        setNominations(nominationsRes.data || []);
+                        if (fybEventsRes.data.length === 0) {
+                            await seedFybWeekEvents();
+                        } else {
+                            setFybWeekEvents(fybEventsRes.data.sort({
+                                "AppProvider.useEffect.loadInitialData": (a, b)=>a.day_index - b.day_index
+                            }["AppProvider.useEffect.loadInitialData"]));
+                        }
                     }
                 } catch (error) {
                     console.error('An unexpected error occurred while loading initial data from Supabase:', error);
@@ -399,7 +442,6 @@ const AppProvider = ({ children })=>{
     const updateLogo = async (logoType, fileDataUrl)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
         let newLogoUrl = null;
-        // Fetch the entire settings object first
         const { data: currentData, error: fetchError } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('app_settings').select('*').eq('id', APP_SETTINGS_ID).single();
         if (fetchError && fetchError.code !== 'PGRST116') throw fetchError;
         const currentSettings = currentData || {
@@ -430,10 +472,9 @@ const AppProvider = ({ children })=>{
     };
     const addStudent = async (studentData)=>{
         if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
-        const newId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])();
         const studentWithId = {
             ...studentData,
-            id: newId
+            id: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$uuid$2f$dist$2f$esm$2d$browser$2f$v4$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__v4$3e$__["v4"])()
         };
         const { data: newStudent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('students').insert(studentWithId).select().single();
         if (error) throw error;
@@ -546,10 +587,19 @@ const AppProvider = ({ children })=>{
             });
         });
     };
+    const updateFybWeekEvent = async (eventData)=>{
+        if (!__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"]) throw new Error("Supabase client not available.");
+        const { id, created_at, ...updatePayload } = eventData;
+        const { data: updatedEvent, error } = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$supabaseClient$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["supabase"].from('fyb_week_events').update(updatePayload).eq('id', id).select().single();
+        if (error) throw error;
+        if (updatedEvent) {
+            setFybWeekEvents((prev)=>prev.map((e)=>e.id === updatedEvent.id ? updatedEvent : e).sort((a, b)=>a.day_index - b.day_index));
+        }
+    };
     if (!isMounted || isLoading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(LoadingComponent, {}, void 0, false, {
             fileName: "[project]/src/contexts/AppContext.tsx",
-            lineNumber: 343,
+            lineNumber: 368,
             columnNumber: 12
         }, this);
     }
@@ -560,6 +610,7 @@ const AppProvider = ({ children })=>{
             logos,
             votingSettings,
             fybWeekSettings,
+            fybWeekEvents,
             awards,
             nominations,
             adminPin: defaultAdminPin,
@@ -576,16 +627,17 @@ const AppProvider = ({ children })=>{
             deleteAward,
             addNomination,
             deleteNomination,
-            submitVotes
+            submitVotes,
+            updateFybWeekEvent
         },
         children: children
     }, void 0, false, {
         fileName: "[project]/src/contexts/AppContext.tsx",
-        lineNumber: 347,
+        lineNumber: 372,
         columnNumber: 5
     }, this);
 };
-_s(AppProvider, "fowBX0kmeo/nrqKF73bujJL1CIQ=", false, function() {
+_s(AppProvider, "LmIW8EH4uBARW7zfhsE+2awGHsg=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$hooks$2f$use$2d$toast$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useToast"]
     ];

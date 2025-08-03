@@ -5,10 +5,11 @@ import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ArrowLeft, Info, Calendar, Shirt, Gamepad2, Mic, PartyPopper, Award as AwardIcon, Camera } from 'lucide-react';
+import { ArrowLeft, Info, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { addDays, format, isBefore, startOfToday } from 'date-fns';
+import Image from 'next/image';
 
 // --- Configuration ---
 // Set the start date of the FYB week here.
@@ -16,16 +17,8 @@ import { addDays, format, isBefore, startOfToday } from 'date-fns';
 const fybWeekStartDate = new Date('2025-09-08'); 
 // -------------------
 
-const schedule = [
-  { dayIndex: 0, title: "Back to School (Primary/Secondary)", icon: Shirt },
-  { dayIndex: 1, title: "Jersey Day", icon: Gamepad2 },
-  { dayIndex: 2, title: "Talent Hunt", icon: Mic },
-  { dayIndex: 3, title: "Traditional Day / Food Competition", icon: PartyPopper },
-  { dayIndex: 4, title: "Dinner / Award Night", icon: AwardIcon },
-];
-
 export default function FybWeekPage() {
-  const { fybWeekSettings } = useAppContext();
+  const { fybWeekSettings, fybWeekEvents } = useAppContext();
   const router = useRouter();
   const today = startOfToday();
 
@@ -54,27 +47,32 @@ export default function FybWeekPage() {
       <main className="container mx-auto max-w-3xl">
         <Card className="shadow-lg rounded-2xl">
           <CardContent className="p-4">
-             <Accordion type="multiple" className="w-full">
-                {schedule.map((item, index) => {
-                    const eventDate = addDays(fybWeekStartDate, item.dayIndex);
+             <Accordion type="multiple" className="w-full" defaultValue={['item-0']}>
+                {fybWeekEvents.map((event, index) => {
+                    const eventDate = addDays(fybWeekStartDate, event.day_index);
                     const hasPassed = isBefore(eventDate, today);
 
                     return (
-                        <AccordionItem key={index} value={`item-${index}`} className="border-b-2">
+                        <AccordionItem key={event.id} value={`item-${index}`} className="border-b-2">
                             <AccordionTrigger className="text-lg font-headline hover:no-underline p-4">
                                 <div className="flex items-center gap-4">
                                     <div className="bg-primary text-primary-foreground rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold">
                                         {index + 1}
                                     </div>
                                     <div>
-                                        <h3 className="text-left">Day {index + 1}: {item.title}</h3>
+                                        <h3 className="text-left">Day {index + 1}: {event.title}</h3>
                                         <p className="text-sm text-muted-foreground font-normal text-left">{format(eventDate, 'EEEE, MMM d')}</p>
                                     </div>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="p-4 pt-0">
-                                <div className="pl-14">
-                                    <p className="text-muted-foreground mb-4">Event details will be displayed here.</p>
+                                <div className="pl-14 space-y-4">
+                                    {event.image_src && (
+                                      <div className="relative w-full h-48 rounded-lg overflow-hidden">
+                                        <Image src={event.image_src} alt={event.title} layout="fill" objectFit="cover" unoptimized />
+                                      </div>
+                                    )}
+                                    <p className="text-muted-foreground">{event.description || "Event details will be displayed here."}</p>
                                     {hasPassed && (
                                         <Button asChild variant="outline">
                                             <Link href={`/fyb-week/gallery/${format(eventDate, 'EEEE').toLowerCase()}`}>
@@ -94,4 +92,3 @@ export default function FybWeekPage() {
     </div>
   );
 }
-

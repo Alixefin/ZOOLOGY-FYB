@@ -587,6 +587,10 @@ body {
   margin-top: .25rem;
 }
 
+.mt-10 {
+  margin-top: 2.5rem;
+}
+
 .mt-12 {
   margin-top: 3rem;
 }
@@ -605,10 +609,6 @@ body {
 
 .mt-8 {
   margin-top: 2rem;
-}
-
-.mt-10 {
-  margin-top: 2.5rem;
 }
 
 .block {
@@ -746,6 +746,10 @@ body {
 
 .h-svh {
   height: 100svh;
+}
+
+.h-40 {
+  height: 10rem;
 }
 
 .max-h-60 {
@@ -888,6 +892,10 @@ body {
   width: 100%;
 }
 
+.w-40 {
+  width: 10rem;
+}
+
 .min-w-0 {
   min-width: 0;
 }
@@ -916,12 +924,12 @@ body {
   max-width: 48rem;
 }
 
-.max-w-6xl {
-  max-width: 72rem;
+.max-w-4xl {
+  max-width: 56rem;
 }
 
-.max-w-7xl {
-  max-width: 80rem;
+.max-w-6xl {
+  max-width: 72rem;
 }
 
 .max-w-\[--skeleton-width\] {
@@ -934,10 +942,6 @@ body {
 
 .max-w-md {
   max-width: 28rem;
-}
-
-.max-w-4xl {
-  max-width: 56rem;
 }
 
 .flex-1 {
@@ -1420,6 +1424,10 @@ body {
 
 .bg-transparent {
   background-color: #0000;
+}
+
+.bg-card\/80 {
+  background-color: hsl(var(--card) / .8);
 }
 
 .bg-gradient-to-br {
@@ -3028,10 +3036,6 @@ body {
 }
 
 @media (width >= 1024px) {
-  .lg\:col-span-1 {
-    grid-column: span 1 / span 1;
-  }
-
   .lg\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

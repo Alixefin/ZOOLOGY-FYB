@@ -1,17 +1,5 @@
 {
-  "node": {
-    "403a27d6489c4eac0e65f76a01cac3879a75f82887": {
-      "workers": {
-        "app/fyb-students/[id]/page": {
-          "moduleId": "[project]/.next-internal/server/app/fyb-students/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/ai/flows/roast-student-flow.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false
-        }
-      },
-      "layer": {
-        "app/fyb-students/[id]/page": "action-browser"
-      }
-    }
-  },
+  "node": {},
   "edge": {},
   "encryptionKey": "98sSC2KHwT4D0Ad8OJkS+eMLumK35mxD1lb62t1V2HA="
 }
